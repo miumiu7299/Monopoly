@@ -9,7 +9,7 @@ import os
 
 
 class Player:
-    def __init__(self, name, position=0, money=4000):
+    def __init__(self, name, position=0, money=5000):
         self.name = name
         self.position = position
         self.money = money
@@ -49,61 +49,61 @@ class MonopolyGame:
     def create_properties(self):
         properties = []
         for i in range(self.board_size):
-            if i in [10, 25]: 
+            if i in [5, 20]: 
                 properties.append(Property(f"Chance or Destiny{i}", type="chanceordestiny"))
-            elif i in [3]: 
+            elif i in [27]: 
                 properties.append(Property(f"Emergency {i}", type="emergency"))#直接去醫院
-            elif i in [7]: 
+            elif i in [23]: 
                 properties.append(Property(f"Fat->killed {i}", type="fattokilled"))
-            elif i in [14]: 
+            elif i in [16]: 
                 properties.append(Property(f"Hospital {i}", type="hospital"))
-            elif i in [19]: 
-                properties.append(Property(f"Magic Card {i}", type="magiccard"))
-            elif i in [22]: 
-                properties.append(Property(f"Jail {i}", type="jail"))
-            elif i in [1]: 
-                properties.append(Property(f"媽媽的愛 {i}", 300))
-            elif i in [2]: 
-                properties.append(Property(f"A5和牛 {i}", 3000))
-            elif i in [4]: 
-                properties.append(Property(f"魚子醬 {i}", 1500))
-            elif i in [5]: 
-                properties.append(Property(f"松葉蟹 {i}", 3500))
-            elif i in [6]: 
-                properties.append(Property(f"鮑魚烏參佛跳牆 {i}", 2200))
-            elif i in [8]: 
-                properties.append(Property(f"威靈頓牛排 {i}", 2800))
-            elif i in [9]: 
-                properties.append(Property(f"龍蝦 {i}", 1000))
             elif i in [11]: 
+                properties.append(Property(f"Magic Card {i}", type="magiccard"))
+            elif i in [8]: 
+                properties.append(Property(f"Jail {i}", type="jail"))
+            elif i in [29]: 
+                properties.append(Property(f"媽媽的愛 {i}", 4500))
+            elif i in [28]: 
+                properties.append(Property(f"A5和牛 {i}", 3000))
+            elif i in [26]: 
+                properties.append(Property(f"魚子醬 {i}", 1500))
+            elif i in [25]: 
+                properties.append(Property(f"松葉蟹 {i}", 3500))
+            elif i in [24]: 
+                properties.append(Property(f"鮑魚烏參佛跳牆 {i}", 2200))
+            elif i in [22]: 
+                properties.append(Property(f"威靈頓牛排 {i}", 2800))
+            elif i in [21]: 
+                properties.append(Property(f"龍蝦 {i}", 1000))
+            elif i in [19]: 
                 properties.append(Property(f"火鍋{i}", 350))
-            elif i in [12]: 
+            elif i in [18]: 
                 properties.append(Property(f"義大利麵 {i}", 400))
-            elif i in [13]: 
+            elif i in [17]: 
                 properties.append(Property(f"牛排 {i}", 700))
             elif i in [15]: 
                 properties.append(Property(f"pizza {i}", 300))
-            elif i in [16]: 
+            elif i in [14]: 
                 properties.append(Property(f"壽司 {i}", 350))
-            elif i in [17]: 
+            elif i in [13]: 
                 properties.append(Property(f"燒烤 {i}", 800))
-            elif i in [18]: 
+            elif i in [12]: 
                 properties.append(Property(f"石鍋拌飯 {i}", 200))
-            elif i in [20]: 
+            elif i in [10]: 
                 properties.append(Property(f"牛肉麵 {i}", 250))
-            elif i in [21]: 
+            elif i in [9]: 
                 properties.append(Property(f"咖哩 {i}", 100))
-            elif i in [23]: 
+            elif i in [7]: 
                 properties.append(Property(f"新竹人的❤️ 麥當勞 {i}", 150))
-            elif i in [24]: 
+            elif i in [6]: 
                 properties.append(Property(f"便當 {i}", 80))
-            elif i in [26]: 
+            elif i in [4]: 
                 properties.append(Property(f"想不到吃什麼 7-11 {i}", 70))
-            elif i in [27]: 
+            elif i in [3]: 
                 properties.append(Property(f"不健康的泡麵{i}", 50))
-            elif i in [28]: 
+            elif i in [2]: 
                 properties.append(Property(f"噴水火雞肉飯 {i}", 35))
-            elif i in [29]: 
+            elif i in [1]: 
                 properties.append(Property(f"啃饅頭 {i}", 10))
             else:
                 properties.append(Property(f"Start {i}", 0))
@@ -153,7 +153,7 @@ class MonopolyGame:
         self.current_turn = (self.current_turn + 1) % len(self.players)
 
     def roll_dice(self):
-        return random.randint(1, 6) + random.randint(1, 6)
+        return random.randint(1, 6) 
 
     def handle_space_action(self, player):
         if 0 <= player.position < len(self.properties):
@@ -166,7 +166,7 @@ class MonopolyGame:
                 player.is_emergency = True
                 player.position=14
             elif property.type == "fattokilled":
-                self.ui.add_message(f"{player.name} landed on a Fat->killed space , you are too fat to be killed!!!")
+                self.ui.add_message(f"{player.name} landed on a Fat->killed space , you are so fat that you will get killed!!!")
             elif property.type == "hospital":
                 self.ui.add_message(f"{player.name} landed on a Hospital space and stays for one turn.")
                 player.in_hospital = True
@@ -200,6 +200,8 @@ class MonopolyGame:
             self.ui.add_message(f"{player.name} does not have enough money to pay rent and is bankrupt.")
             messagebox.showinfo("Bankrupt", f"{player.name} does not have enough money to pay rent and is bankrupt. {owner.name} is owed ${rent_amount}.")
             self.end_game()
+            self.ui.game_over() 
+            
 
     def end_game(self):
         self.ui.add_message("Game Over!")
@@ -214,6 +216,8 @@ class MonopolyGame:
         if player.money < 0:
             self.ui.add_message(f"{player.name} drew a Chance or Destiny card and lost ${-amount}. {player.name} is bankrupt.")
             self.end_game()
+            self.ui.game_over() 
+            
         else:
             if amount > 0:
                 self.ui.add_message(f"{player.name} drew a Chance or Destiny card and received ${amount}.")
@@ -251,7 +255,6 @@ class MonopolyUI:
         #original_image = Image.open(file_path)
         image_path = "map.png"
         original_image = Image.open(image_path)
-        
         resized_image = original_image.resize((780, 780), Image.Resampling.LANCZOS)
         self.photo = ImageTk.PhotoImage(resized_image)
         self.image_label = tk.Label(self.map_frame, image=self.photo)
@@ -335,6 +338,21 @@ class MonopolyUI:
     def disable_buttons(self):
         self.add_player_button.config(state=tk.DISABLED)
         self.next_turn_button.config(state=tk.DISABLED)
+        
+    def game_over(self):
+        response = messagebox.askyesno("Game Over", "A player has gone bankrupt. Do you want to play another round?")
+        if response:
+            self.reset_game()
+        else:
+            self.root.destroy()  # 關閉遊戲視窗
+
+    def reset_game(self):
+        for text_widget in self.player_texts:
+            text_widget.delete('1.0', tk.END)
+        self.message_listbox.delete(0, tk.END)
+        self.game = MonopolyGame(self)  # 重置遊戲
+        self.update_status_label("Game has been reset. Ready to play again!")
+        self.disable_buttons(False)  # 重新啟用按鈕等可能在遊戲中變更的UI元件
 
 if __name__ == "__main__":
     root = tk.Tk()
