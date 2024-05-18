@@ -285,7 +285,7 @@ class MonopolyUI:
         self.add_player_button = tk.Button(self.button_frame, text="添加玩家", command=self.add_player)
         self.add_player_button.pack(side=tk.LEFT, padx=5)
 
-        self.next_turn_button = tk.Button(self.button_frame, text="下一回合", command=self.next_turn)
+        self.next_turn_button = tk.Button(self.button_frame, text="丟骰子", command=self.next_turn)
         self.next_turn_button.pack(side=tk.LEFT, padx=5)
 
         self.status_label = tk.Label(self.control_frame, text="遊戲狀態")
