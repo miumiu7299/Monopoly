@@ -164,7 +164,7 @@ class MonopolyGame:
             elif property.type == "emergency":
                 self.ui.add_message(f"{player.name}  landed on a Emergency space and moved to hospital.")
                 player.is_emergency = True
-                player.position=14
+                player.position=16
             elif property.type == "fattokilled":
                 self.ui.add_message(f"{player.name} landed on a Fat->killed space , you are so fat that you will get killed!!!")
             elif property.type == "hospital":
