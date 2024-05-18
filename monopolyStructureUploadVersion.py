@@ -208,7 +208,7 @@ class MonopolyGame:
         richest_player = max(self.players, key=lambda p: p.money)
         self.ui.add_message(f"The winner is {richest_player.name} with ${richest_player.money}!")
         messagebox.showinfo("Game Over", f"The winner is {richest_player.name} with ${richest_player.money}!")
-        self.ui.disable_buttons()
+        #self.ui.disable_buttons()
 
     def draw_chanceordestiny_card(self, player):
         amount = random.choice([50, -50])
@@ -334,11 +334,11 @@ class MonopolyUI:
                 self.add_message(f"{player.name} bought {property.name} for ${property.cost}.")
             else:
                 messagebox.showerror("Error", "Not enough money to buy this property.")
-
+    
     def disable_buttons(self):
         self.add_player_button.config(state=tk.DISABLED)
         self.next_turn_button.config(state=tk.DISABLED)
-        
+    
     def game_over(self):
         response = messagebox.askyesno("Game Over", "A player has gone bankrupt. Do you want to play another round?")
         if response:
