@@ -34,6 +34,23 @@ def draw_card(image_path):
     # 在 3 秒後關閉窗口
     win.after(3000, win.destroy)  
 
+def show_cards():
+    gif_label.grid_remove()  # 隱藏GIF Label
+
+    # 創建 10 張卡牌
+    buttons = []
+    for i in range(10):  
+        button = tk.Button(win, image=img_normal, bd=0, highlightthickness=0)
+        row = i // 5  
+        col = i % 5   
+        button.grid(row=row, column=col, padx=20, pady=20)  
+        button.config(command=lambda b=button: button_clicked(b))
+        buttons.append(button)
+
+    # 將整體佈局置中
+    win.grid_columnconfigure((0,1,2,3,4), weight=1)
+    win.grid_rowconfigure(0, weight=1)
+
 # 主視窗
 win = tk.Tk()
 win.title("Flashing Button Example")
@@ -103,18 +120,50 @@ image_to_message = {
     "chance/chance_10.png": "恭喜獲得 300 金幣!!"
 }
 
-# 創建 10 張卡牌
-buttons = []
-for i in range(10):  
-    button = tk.Button(win, image=img_normal, bd=0, highlightthickness=0)
-    row = i // 5  
-    col = i % 5   
-    button.grid(row=row, column=col, padx=20, pady=20)  
-    button.config(command=lambda b=button: button_clicked(b))
-    buttons.append(button)
+# 加載GIF
+gif_path = "chance/drawCard.gif"
+gif = Image.open(gif_path)
 
-# 將整體佈局置中
-win.grid_columnconfigure((0,1,2,3,4), weight=1)
+# 設置縮放比例
+scale_factor = 0.85  # 調整縮放比例
+
+# 取得GIF的大小並計算目標大小
+original_width, original_height = gif.size
+target_width = int(original_width * scale_factor)
+target_height = int(original_height * scale_factor)
+
+frames = []
+try:
+    while True:
+        gif.seek(len(frames))
+        frame = gif.copy().convert('RGBA').resize((target_width, target_height))
+        frames.append(ImageTk.PhotoImage(frame))
+except EOFError:
+    pass
+
+def animate_gif(label, frames, delay):
+    def update_frame(frame_index):
+        frame = frames[frame_index]
+        label.config(image=frame)
+        frame_index = (frame_index + 1) % len(frames)
+        label.after(delay, update_frame, frame_index)
+    update_frame(0)
+
+# 顯示GIF
+gif_label = tk.Label(win)
+gif_label.grid(row=0, column=0, columnspan=5, pady=20)
+animate_gif(gif_label, frames, delay=100)
+
+# 設置計時器在 5 秒後顯示卡牌
+win.after(5000, show_cards)
+
+# 將GIF置中
+win.grid_columnconfigure(0, weight=1)
+win.grid_columnconfigure(1, weight=1)
+win.grid_columnconfigure(2, weight=1)
+win.grid_columnconfigure(3, weight=1)
+win.grid_columnconfigure(4, weight=1)
 win.grid_rowconfigure(0, weight=1)
+gif_label.grid(row=0, column=0, columnspan=5)
 
 win.mainloop()
