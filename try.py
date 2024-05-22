@@ -256,6 +256,7 @@ class MonopolyUI:
     
         self.game = MonopolyGame(self)
         
+<<<<<<< Updated upstream
         # 主框架設置
         self.main_container = tk.Frame(self.root)
         self.main_container.grid(row=0, column=1, sticky='nsew')
@@ -395,6 +396,51 @@ class MonopolyUI:
                     print(f"Error loading image {food_image_path}: {e}")
 
        
+=======
+        self.food()
+        
+    def food(self):
+        food_image_paths = [
+            "character/bento.png",
+            "character/bento.png",
+            "character/bento.png",
+            # Add more food image paths as needed
+        ]
+        
+        food_cell_index = [2, 5, 8]  
+        
+        for food_image_path, cell_index in zip(food_image_paths, food_cell_index):
+            image = Image.open(food_image_path)
+            image = image.resize((self.grid_size, self.grid_size), Image.LANCZOS)
+            food_photo = ImageTk.PhotoImage(image)
+
+            cell_row = cell_index // self.map_width
+            cell_column = cell_index % self.map_width
+                
+            # Get the cell widget corresponding to the cell index
+            cell_widget = self.map_frame.grid_slaves(row=cell_row, column=cell_column)[0]
+                
+            # Set the image of the cell to the food image
+            cell_widget.config(image=food_photo)
+            cell_widget.image = food_photo
+        
+        # Calculate the index of the cell where you want to place the food
+        # For example, let's place food in cells with index 2, 5, 8, and 12
+        
+        """
+        if i < len(food_cell_index):
+            cell_index = food_cell_index[i]
+            cell_row = cell_index // self.map_width
+            cell_column = cell_index % self.map_width
+            
+            # Get the cell widget corresponding to the cell index
+            cell_widget = self.map_frame.grid_slaves(row=cell_row, column=cell_column)[0]
+            
+            # Set the image of the cell to the food image
+            cell_widget.config(image=food_photo)
+            cell_widget.image = food_photo
+        """
+>>>>>>> Stashed changes
     def create_map(self):
         # 創建地圖格子
         for y in range(self.map_height):
@@ -405,7 +451,12 @@ class MonopolyUI:
                     
                     # 綁定點擊事件
                     cell.bind("<Button-1>", lambda event, cell=cell, x=x, y=y: self.on_cell_click(cell, x, y))
+<<<<<<< Updated upstream
     
+=======
+                
+        
+>>>>>>> Stashed changes
     def place_players(self):
         # 調整玩家圖像大小
         player_image_path = "character/馬力歐.png"
@@ -429,11 +480,14 @@ class MonopolyUI:
         player4 = tk.Label(self.root, image=player_photo)
         player4.image = player_photo
         player4.grid(row=2, column=2, padx=20, pady=20, sticky="se")
-        
+    
+   
+    
     def on_cell_click(self, cell, x, y):
         # 顯示點擊的格子編號
         index = y * self.map_width + x + 1
         messagebox.showinfo("Info", "You clicked on grid: {}".format(index))
+<<<<<<< Updated upstream
         
     def draw_board(self):
         cell_size = 97.5  # 780 / 8
@@ -525,6 +579,11 @@ if __name__ == "__main__":
     app = MonopolyUI(root)
     root.mainloop()
 
+=======
+        if index in self.images:
+            cell.config(image=self.images[index])
+            cell.image = self.images[index]
+>>>>>>> Stashed changes
 """
 def main():
     root = tk.Tk()
