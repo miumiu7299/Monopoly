@@ -304,33 +304,32 @@ class MonopolyUI:
 
     def draw_board(self):
         food_image_paths = [
-            "character/pasta.png",
             "character/hospital.png",
-            "character/steak.png",
-            "character/pasta.png",
-            "character/pasta.png",#hotpot
+            "character/pizza.png",#pizza
+            "character/hotpot.png",#hotpot
             "character/chance.png",
-            "character/lobster.png",
             "character/steak.png",#威
-            "character/sushi.png",
-            "character/eat_too_much.png",
-            "character/barbecue.png",
-            "character/chinese_dish.png",
-            "character/korean_meal.png",
-            "character/pasta.png",  #松葉蟹
-            "character/magic_card.png",
-            "character/fish.png",
-            "character/beef_noodle.png",
+            "character/lobster.png",
             "character/too_many_delicy.png",
-            "character/mom_love.png",
-            "character/curry.png",
+            "character/advanced_steak.png",#威
+            "character/chinese_dish.png",
+            "character/eat_too_much.png",
+            "character/pasta.png",
+            "character/fish.png",
+            "character/barbecue.png",
             "character/a5.png",
+            "character/magic_card.png",
+            "character/mom_love.png",
             "character/prison.png",
+            "character/korean_meal.png",
+            "character/beef_noodle.png",
+            "character/sushi.png",
+            "character/curry.png",
+            "character/chance.png",
+            "character/korean_fried_chicken.png",
             "character/mcdonal's.png",
             "character/bento.png",
-            "character/chance.png",
             "character/start.png"
-            
             
             # Add more food image paths as needed
         ]
