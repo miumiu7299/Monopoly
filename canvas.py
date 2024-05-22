@@ -239,13 +239,11 @@ class MonopolyUI:
         self.image_labels = {}
         # 假定棋盤格子名稱
         self.cell_names = [
-            "pizza", "Hospital", "牛排", "義大利麵", "火鍋","Chance or Destiny","龍蝦","威靈頓牛排",
-            "壽司","Fat->killed","燒烤","","","","","",
-            "","","","鮑魚烏參佛跳牆","石鍋拌飯","","","",
-            "", "","","","","松葉蟹","Magic Card","",
-            "", "","","","","","","魚子醬",
-            "牛肉麵", "Too much delicacy","媽媽的愛","咖哩飯","A5和牛","jail","新竹人的❤️ 麥當勞","便當",
-            "Chance or Destiny", "Start"
+            "Hospital", "pizza", "hotpot","Chance or Destiny", "steak","lobster","too much delicy","Beef Wellington","鮑魚烏參佛跳牆","Fat->killed",
+            "義大利麵","","","","","","","","","魚子醬",
+            "燒烤","","","","", "","","","","A5和牛",
+            "Magic Card","","", "","","","","","","媽媽的愛",
+            "jail", "石鍋拌飯","牛肉麵","壽司","咖哩飯","Chance or Destiny","韓式炸雞","新竹人的❤️ 麥當勞","便當", "Start"
         ]
 
         # 主框架設置
