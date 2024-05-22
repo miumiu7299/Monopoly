@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import random
 from PIL import Image, ImageTk
-import os
+#mport os
 from tkinter import PhotoImage
 
 class Player:
