@@ -5,6 +5,10 @@ from PIL import Image, ImageTk
 import os
 from tkinter import PhotoImage
 
+#file_path = os.path.join("Users", "yejiayu", "Desktop", "python", "map.png")
+#self.image = Image.open(file_path)
+
+
 class Player:
     def __init__(self, name, position=0, money=5000):
         self.name = name
@@ -48,7 +52,7 @@ class MonopolyGame:
         for i in range(self.board_size):
             if i in [3, 18]: 
                 properties.append(Property(f"Chance or Destiny{i}", type="chanceordestiny"))
-            elif i in [25]: 
+            elif i in [23]: 
                 properties.append(Property(f"Emergency {i}", type="emergency"))#直接去醫院
             elif i in [21]: 
                 properties.append(Property(f"Fat->killed {i}", type="fattokilled"))
@@ -100,7 +104,7 @@ class MonopolyGame:
                 properties.append(Property(f"想不到吃什麼 7-11 {i}", 70))
             elif i in [1]: 
                 properties.append(Property(f"不健康的泡麵{i}", 50))
-            elif i in [0]:
+            else:
                 properties.append(Property(f"Start {i}", 0))
         return properties
 
@@ -223,103 +227,15 @@ class MonopolyGame:
         amount = random.choice([100,10])
         player.update_money(amount)
         self.ui.add_message(f"{player.name} drew a Magic card and received ${amount}.")
-
+           
 
 class MonopolyUI:
     def __init__(self, root):
         self.root = root
         self.root.title("大富翁遊戲")
         self.root.geometry("1600x900")  # 假設全螢幕或足夠大的解析度
-        
-        
-        # 設置地圖參數
-        self.grid_size = 70  # 格子大小
-        self.map_width = 10  # 地圖寬度
-        self.map_height = 5  # 地圖高度
-        
-        # 計算地圖容器的大小
-        map_frame_width = self.map_width * self.grid_size
-        map_frame_height = self.map_height * self.grid_size
-        
 
-        
-        # 創建地圖容器
-        self.map_frame = tk.Frame(self.root, width=map_frame_width, height=map_frame_height)
-        self.map_frame.grid(row=1, column=1, padx=100, pady=10)  # 使用 grid 佈局管理器
-        
-        
-        # 創建地圖格子
-        self.create_map()
-        
-        # 在四個角落放置玩家
-        self.place_players()
-    
         self.game = MonopolyGame(self)
-        
-        # 主框架設置
-        self.main_container = tk.Frame(self.root)
-        self.main_container.grid(row=0, column=1, sticky='nsew')
-        self.main_frame = tk.Frame(self.main_container)
-        self.main_frame.pack(fill=tk.BOTH, expand=True)  # 在主框架容器內使用pack
-
-        
-        # 主框架設置
-        self.main_frame = tk.Frame(self.root)
-        self.main_frame.grid(row=2, column=1, sticky='nsew')
- 
-        
-
-        # 玩家信息框架，放在畫面的四個角落
-        self.players_frame = [None] * 4
-        positions = ['nw', 'ne', 'sw', 'se']  # 四個角落的位置配置
-        self.player_texts = []
-        padding_x = 0.015  # 左右保持 5% 的邊距
-        padding_y = 0.3   # 上下增加到 10% 的邊距
-        
-        
-        for i in range(4):
-            self.players_frame[i] = tk.Frame(self.main_frame)
-            self.players_frame[i].place(relx=0.05, rely=0.05, anchor='center')
-            # 使用 padding_x 和 padding_y 調整 relx 和 rely 位置
-            relx_value = 0 + padding_x if i % 2 == 0 else 1 - padding_x
-            rely_value = 0 + padding_y if i < 2 else 1 - padding_y
-            
-            self.players_frame[i].place(relx=relx_value, rely=rely_value, anchor=positions[i], relwidth=0.15, relheight=0.2)
-            text_widget = tk.Text(self.players_frame[i], font=('Arial', 12))
-            text_widget.pack(fill=tk.BOTH, expand=True)
-            self.player_texts.append(text_widget)
-        
-
-       # 控制元件框架，放置於畫面正中間
-        self.control_frame = tk.Frame(self.main_frame)
-        self.control_frame.place(relx=0.5, rely=0.5, anchor='center')
-      
-        # 在control_frame內部使用grid布局
-        self.control_frame.columnconfigure(0, weight=1)
-        self.control_frame.columnconfigure(1, weight=1)
-
-        # 玩家名稱輸入
-        self.player_name_var = tk.StringVar()
-        self.player_name_entry = tk.Entry(self.control_frame, textvariable=self.player_name_var)
-        self.player_name_entry.grid(row=0, column=0, columnspan=2, pady=10, sticky='ew')
-
-        # 消息列表框
-        self.message_listbox = tk.Listbox(self.control_frame, width=50, height=10)
-        self.message_listbox.grid(row=1, column=0, padx=20, pady=20, sticky='nsew')
-
-        # 按鈕
-        self.button_frame = tk.Frame(self.control_frame)
-        self.button_frame.grid(row=1, column=1, padx=20, pady=20, sticky='ns')
-
-        self.add_player_button = tk.Button(self.button_frame, text="添加玩家", command=self.add_player)
-        self.add_player_button.pack(side=tk.TOP, padx=5, pady=5)  # 按鈕垂直排列
-
-        self.next_turn_button = tk.Button(self.button_frame, text="丟骰子", command=self.next_turn)
-        self.next_turn_button.pack(side=tk.TOP, padx=5, pady=5)  # 按鈕垂直排列
-
-        # 狀態顯示欄
-        self.status_label = tk.Label(self.control_frame, text="遊戲狀態")
-        self.status_label.grid(row=2, column=0, columnspan=2, sticky='ew', pady=10)
         
         # 假定棋盤格子名稱
         self.cell_names = [
@@ -330,126 +246,80 @@ class MonopolyUI:
             "Magic Card", "","","","","","","魚子醬",
             "牛肉麵", "","","","","","","Emergency",
             "咖哩", "","","","","","","A5和牛",
-            "jail", "新竹人的❤️ 麥當勞", "便當", "Chance or Destiny", "想不到吃什麼 7-11","不健康的泡麵","Start","媽媽的愛",
-        ]
-        
-        self.food()
-    
-       
-    def food(self):
-        food_image_paths = [
-            "character/hospital.png",
-            "character/steak.png",#pizza
-            "character/pasta.png",
-            "character/pasta.png",
-            "character/pasta.png",#hotpot
-            "character/chance.png",
-            "character/lobster.png",
-            "character/steak.png",#威
-            "character/chinese_dish.png",
-            "character/eat_too_much.png",
-            "character/barbecue.png",
-            "character/chinese_dish.png",
-            "character/korean_meal.png",
-            "character/pasta.png",
-            "character/magic_card.png",
-            "character/fish.png",
-            "character/beef_noodle.png",
-            "character/too_much_delicy.png",
-            "characte/mom_love.png",
-            "character/curry.png",
-            "character/a5.png",
-            "character/prison.png",
-            "character/mcdonal's.png",
-            "character/bento.png",
-            "character/chance.png",
-            "character/chance.png",
-            "character/instant_noodle.png",
-            "character/start.png"
-            
-            
-            
-            # Add more food image paths as needed
-        ]
-        food_cell_index = [
-            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 19, 20, 29, 30, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49
+            "jail", "新竹人的❤️ 麥當勞", "便當", "Chance or Destiny", "想不到吃什麼 7-1","不健康的泡麵","Start","媽媽的愛",
         ]
 
-        for food_image_path, cell_index in zip(food_image_paths, food_cell_index):
-            if food_image_path:  # 确保路径不是空的
-                try:
-                    image = Image.open(food_image_path)
-                    image = image.resize((self.grid_size, self.grid_size), Image.LANCZOS)
-                    food_photo = ImageTk.PhotoImage(image)
+        # 主框架設置
+        self.main_frame = tk.Frame(self.root)
+        self.main_frame.pack(fill=tk.BOTH, expand=True)
 
-                    cell_row = cell_index // self.map_width
-                    cell_column = cell_index % self.map_width
+        # 在主框架中添加畫布來畫棋盤
+        self.board_canvas = tk.Canvas(self.main_frame, width=1000, height=500, bg='white')
+        # 使用place方法將畫布置中
+        self.board_canvas.place(relx=0.5, rely=0.5, anchor='center')
+        self.draw_board()
 
-                    # 获取对应的单元格控件
-                    cell_widgets = self.map_frame.grid_slaves(row=cell_row, column=cell_column)
-                    if cell_widgets:
-                        cell_widget = cell_widgets[0]
-                        cell_widget.config(image=food_photo, width=self.grid_size, height=self.grid_size)
-                        cell_widget.image = food_photo
-                except Exception as e:
-                    print(f"Error loading image {food_image_path}: {e}")
+        # 加載並顯示地圖圖像
+        """
+        file_path = os.path.join("/Users", "yejiayu", "Desktop", "python", "map.png")
+        original_image = Image.open(file_path)
+        resized_image = original_image.resize((1000, 500), Image.Resampling.LANCZOS)
+        self.photo = ImageTk.PhotoImage(resized_image)
+        self.image_label = tk.Label(self.main_frame, image=self.photo)
+        self.image_label.pack(fill=tk.BOTH, expand=True)
+        """
 
-       
-    def create_map(self):
-        # 創建地圖格子
-        for y in range(self.map_height):
-            for x in range(self.map_width):
-                if x == 0 or x == self.map_width - 1 or y == 0 or y == self.map_height - 1:
-                    cell = tk.Label(self.map_frame, width=10, height=5, borderwidth=1, relief="solid")  # 調整格子大小
-                    cell.grid(row=y, column=x, padx=1, pady=1)
-                    
-                    # 綁定點擊事件
-                    cell.bind("<Button-1>", lambda event, cell=cell, x=x, y=y: self.on_cell_click(cell, x, y))
-    
-    def place_players(self):
-        # 調整玩家圖像大小
-        player_image_path = "character/馬力歐.png"
-        image = Image.open(player_image_path)
-        image = image.resize((100, 120), Image.LANCZOS)
-        player_photo = ImageTk.PhotoImage(image)
-        
-        # 在四個角落放置玩家
-        player1 = tk.Label(self.root, image=player_photo)
-        player1.image = player_photo
-        player1.grid(row=0, column=0, padx=20, pady=20, sticky="nw")
-        
-        player2 = tk.Label(self.root, image=player_photo)
-        player2.image = player_photo
-        player2.grid(row=0, column=2, padx=20, pady=20, sticky="ne")
-        
-        player3 = tk.Label(self.root, image=player_photo)
-        player3.image = player_photo
-        player3.grid(row=2, column=0, padx=20, pady=20, sticky="sw")
-        
-        player4 = tk.Label(self.root, image=player_photo)
-        player4.image = player_photo
-        player4.grid(row=2, column=2, padx=20, pady=20, sticky="se")
-        
-    def on_cell_click(self, cell, x, y):
-        # 顯示點擊的格子編號
-        index = y * self.map_width + x + 1
-        messagebox.showinfo("Info", "You clicked on grid: {}".format(index))
-        
+        # 創建四個玩家信息顯示 Text 組件，放置在界面的四個角落
+        self.player_texts = []
+        positions = [(0.01, 0.5), (0.99, 0.5), (0.01, 0.5), (0.99, 0.5)]
+        #positions = [(0.01, 0.01), (0.99, 0.01), (0.01, 0.99), (0.99, 0.99)]
+        anchors = ['nw', 'ne', 'sw', 'se']
+        for i, (pos, anchor) in enumerate(zip(positions, anchors)):
+            frame = tk.Frame(self.main_frame, width=200, height=100)
+            frame.place(relx=pos[0], rely=pos[1], anchor=anchor)
+            text_widget = tk.Text(frame, height=15, width=25, font=('Arial', 12))
+            text_widget.pack(fill=tk.BOTH, expand=True)
+            self.player_texts.append(text_widget)
+
+        # 控制元件，包括按鈕在內的 Frame
+        self.button_frame = tk.Frame(self.main_frame)
+        self.button_frame.place(relx=0.7, rely=0.4, anchor='center')
+
+        self.player_name_var = tk.StringVar()
+        self.player_name_entry = tk.Entry(self.main_frame, textvariable=self.player_name_var)
+        self.player_name_entry.place(relx=0.5, rely=0.4, anchor='center')
+
+        self.add_player_button = tk.Button(self.button_frame, text="添加玩家", command=self.add_player)
+        self.add_player_button.pack(side=tk.TOP, pady=5)
+
+        self.next_turn_button = tk.Button(self.button_frame, text="丟骰子", command=self.next_turn)
+        self.next_turn_button.pack(side=tk.TOP, pady=5)
+
+        self.status_label = tk.Label(self.main_frame, text="遊戲狀態")
+        self.status_label.place(relx=0.5, rely=0.35, anchor='center')
+
+        # 提升消息框的高度
+        self.message_listbox = tk.Listbox(self.main_frame, height=10,width=50)
+        # 在這裡添加 padx 和 pady 以增加邊距
+        self.message_listbox.place(relx=0.5, rely=0.55, anchor='center')
+
     def draw_board(self):
-        cell_size = 97.5  # 780 / 8
-        for row in range(8):
-            for col in range(8):
+        rows, cols = 5, 10
+        # 確保格子為正方形
+        cell_size = min(1000 / cols, 500 / rows)
+        for row in range(rows):
+            for col in range(cols):
                 x1 = col * cell_size
                 y1 = row * cell_size
                 x2 = x1 + cell_size
                 y2 = y1 + cell_size
                 
                 # 计算格子的索引，假设每个格子都有一个名字存储在 self.cell_names 列表中
-                cell_index = row * 8 + col
+                cell_index = row * cols + col
                 cell_name = self.cell_names[cell_index % len(self.cell_names)]  # 循环使用名字列表
 
                 # 检查是否是边缘的格子
-                if row == 0 or row == 7 or col == 0 or col == 7:
+                if row == 0 or row == rows - 1 or col == 0 or col == cols - 1:
                     outline_color = 'black'
                 else:
                     outline_color = ''
@@ -457,7 +327,6 @@ class MonopolyUI:
                 # 创建矩形并绑定点击事件
                 rectangle = self.board_canvas.create_rectangle(x1, y1, x2, y2, fill='white', outline=outline_color)
                 self.board_canvas.tag_bind(rectangle, '<Button-1>', lambda event, name=cell_name: self.show_cell_name(name=name))
-                #self.show_cell_name(name)
             
     def show_cell_name(self, name):
         messagebox.showinfo("物業信息", f"您點擊了：{name}")
@@ -524,93 +393,3 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = MonopolyUI(root)
     root.mainloop()
-
-"""
-def main():
-    root = tk.Tk()
-    root.geometry("1500x1500")  # 設置視窗大小
-    app = MapApp(root)
-    root.mainloop()
-
-if __name__ == "__main__":
-    main()
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.geometry("1500x1500")  # 設置視窗大小
-    app = MapApp(root)
-    root.mainloop()
-
-
-class MapApp:
-    def __init__(self, master):
-        self.master = master
-        self.master.title("地圖應用程式")
-        
-        # 設置地圖參數
-        self.grid_size = 20  # 格子大小
-        self.map_width = 10  # 地圖寬度
-        self.map_height = 5  # 地圖高度
-        
-        # 計算地圖容器的大小
-        map_frame_width = self.map_width * self.grid_size
-        map_frame_height = self.map_height * self.grid_size
-        
-        # 創建地圖容器
-        self.map_frame = tk.Frame(self.master, width=map_frame_width, height=map_frame_height)
-        self.map_frame.grid(row=1, column=1, padx=100, pady=10)  # 使用 grid 佈局管理器
-        
-        # 創建地圖格子
-        self.create_map()
-        
-        # 在四個角落放置玩家
-        self.place_players()
-        
-    def create_map(self):
-        # 創建地圖格子
-        for y in range(self.map_height):
-            for x in range(self.map_width):
-                if x == 0 or x == self.map_width - 1 or y == 0 or y == self.map_height - 1:
-                    cell = tk.Label(self.map_frame, width=10, height=5, borderwidth=1, relief="solid")  # 調整格子大小
-                    cell.grid(row=y, column=x, padx=1, pady=1)
-                    # 綁定點擊事件
-                    cell.bind("<Button-1>", lambda event, cell=cell, x=x, y=y: self.on_cell_click(cell, x, y))
-        
-    def place_players(self):
-        # 調整玩家圖像大小
-        player_image_path = "character/馬力歐.png"
-        image = Image.open(player_image_path)
-        image = image.resize((100, 120), Image.LANCZOS)
-        player_photo = ImageTk.PhotoImage(image)
-        
-        # 在四個角落放置玩家
-        player1 = tk.Label(self.master, image=player_photo)
-        player1.image = player_photo
-        player1.grid(row=0, column=0, padx=20, pady=20, sticky="nw")
-        
-        player2 = tk.Label(self.master, image=player_photo)
-        player2.image = player_photo
-        player2.grid(row=0, column=2, padx=20, pady=20, sticky="ne")
-        
-        player3 = tk.Label(self.master, image=player_photo)
-        player3.image = player_photo
-        player3.grid(row=2, column=0, padx=20, pady=20, sticky="sw")
-        
-        player4 = tk.Label(self.master, image=player_photo)
-        player4.image = player_photo
-        player4.grid(row=2, column=2, padx=20, pady=20, sticky="se")
-        
-    def on_cell_click(self, cell, x, y):
-        # 顯示點擊的格子編號
-        index = y * self.map_width + x + 1
-        messagebox.showinfo("Info", "You clicked on grid: {}".format(index))
-
-def main():
-    root = tk.Tk()
-    root.geometry("1500x1500")  # 設置視窗大小
-    app = MapApp(root)
-    root.mainloop()
-
-if __name__ == "__main__":
-    main()
-"""
