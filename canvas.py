@@ -236,17 +236,16 @@ class MonopolyUI:
         self.root.geometry("1600x900")  # 假設全螢幕或足夠大的解析度
 
         self.game = MonopolyGame(self)
-        
+        self.image_labels = {}
         # 假定棋盤格子名稱
         self.cell_names = [
             "pizza", "Hospital", "牛排", "義大利麵", "火鍋","Chance or Destiny","龍蝦","威靈頓牛排",
-            "壽司","","","","","","","Fat->killed",
-            "燒烤","","","","","","","鮑魚烏參佛跳牆",
-            "石鍋拌飯", "","","","","","","松葉蟹",
-            "Magic Card", "","","","","","","魚子醬",
-            "牛肉麵", "","","","","","","Emergency",
-            "咖哩", "","","","","","","A5和牛",
-            "jail", "新竹人的❤️ 麥當勞", "便當", "Chance or Destiny", "想不到吃什麼 7-1","不健康的泡麵","Start","媽媽的愛",
+            "壽司","Fat->killed","燒烤","","","","","",
+            "","","","鮑魚烏參佛跳牆","石鍋拌飯","","","",
+            "", "","","","","松葉蟹","Magic Card","",
+            "", "","","","","","","魚子醬",
+            "牛肉麵", "Too much delicacy","媽媽的愛","咖哩飯","A5和牛","jail","新竹人的❤️ 麥當勞","便當",
+            "Chance or Destiny", "Start"
         ]
 
         # 主框架設置
@@ -304,30 +303,71 @@ class MonopolyUI:
         self.message_listbox.place(relx=0.5, rely=0.55, anchor='center')
 
     def draw_board(self):
+        food_image_paths = [
+            "character/pasta.png",
+            "character/hospital.png",
+            "character/steak.png",
+            "character/pasta.png",
+            "character/pasta.png",#hotpot
+            "character/chance.png",
+            "character/lobster.png",
+            "character/steak.png",#威
+            "character/sushi.png",
+            "character/eat_too_much.png",
+            "character/barbecue.png",
+            "character/chinese_dish.png",
+            "character/korean_meal.png",
+            "character/pasta.png",  #松葉蟹
+            "character/magic_card.png",
+            "character/fish.png",
+            "character/beef_noodle.png",
+            "character/too_many_delicy.png",
+            "character/mom_love.png",
+            "character/curry.png",
+            "character/a5.png",
+            "character/prison.png",
+            "character/mcdonal's.png",
+            "character/bento.png",
+            "character/chance.png",
+            "character/start.png"
+            
+            
+            # Add more food image paths as needed
+        ]
+        food_image_pic=0
         rows, cols = 5, 10
-        # 確保格子為正方形
+        # 确保格子为正方形
         cell_size = min(1000 / cols, 500 / rows)
         for row in range(rows):
             for col in range(cols):
-                x1 = col * cell_size
-                y1 = row * cell_size
-                x2 = x1 + cell_size
-                y2 = y1 + cell_size
-                
-                # 计算格子的索引，假设每个格子都有一个名字存储在 self.cell_names 列表中
-                cell_index = row * cols + col
-                cell_name = self.cell_names[cell_index % len(self.cell_names)]  # 循环使用名字列表
-
-                # 检查是否是边缘的格子
                 if row == 0 or row == rows - 1 or col == 0 or col == cols - 1:
-                    outline_color = 'black'
-                else:
-                    outline_color = ''
-                
-                # 创建矩形并绑定点击事件
-                rectangle = self.board_canvas.create_rectangle(x1, y1, x2, y2, fill='white', outline=outline_color)
-                self.board_canvas.tag_bind(rectangle, '<Button-1>', lambda event, name=cell_name: self.show_cell_name(name=name))
-            
+
+                    x1 = col * cell_size
+                    y1 = row * cell_size
+                    x2 = x1 + cell_size
+                    y2 = y1 + cell_size
+                    
+                    # 计算格子的索引，假设每个格子都有一个名字存储在 self.cell_names 列表中
+                    cell_index = row * cols + col
+                    cell_name = self.cell_names[cell_index % len(self.cell_names)]  # 循环使用名字列表
+
+                    # 检查是否是边缘的格子
+                    if row == 0 or row == rows - 1 or col == 0 or col == cols - 1:
+                        outline_color = 'black'
+                    else:
+                        outline_color = ''
+                    
+                    # 加载并显示图片
+                    image_path = food_image_paths[food_image_pic]  # 替换为你的图片路径
+                    image = Image.open(image_path)
+                    image = image.resize((int(cell_size), int(cell_size)))
+    
+                    self.photo = ImageTk.PhotoImage(image)
+                    image_label = self.board_canvas.create_image((x1 + x2) / 2, (y1 + y2) / 2, image=self.photo)
+                    # 保存图片引用以避免被垃圾回收
+                    self.image_labels[image_label] = self.photo
+                    self.board_canvas.tag_bind(image_label, '<Button-1>', lambda event, name=cell_name: self.show_cell_name(name=name))
+                    food_image_pic+=1
     def show_cell_name(self, name):
         messagebox.showinfo("物業信息", f"您點擊了：{name}")
 
