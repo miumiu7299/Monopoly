@@ -340,22 +340,19 @@ class MonopolyUI:
         food_image_paths = [
             "character/hospital.png",
             "character/steak.png",#pizza
-<<<<<<< Updated upstream
             "character/pasta.png",
             "character/pasta.png",
             "character/pasta.png",#hotpot
-=======
->>>>>>> Stashed changes
+
             "character/chance.png",
             "character/pasta.png",
             "character/pasta.png",#hotpot
             "character/too_many_delicy.png",
             "character/lobster.png",
-<<<<<<< Updated upstream
             "character/steak.png",#威
-=======
+
             "character/advanced_steak.png",#威
->>>>>>> Stashed changes
+
             "character/chinese_dish.png",
             "character/eat_too_much.png",
             "character/barbecue.png",
