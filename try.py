@@ -340,19 +340,12 @@ class MonopolyUI:
         food_image_paths = [
             "character/hospital.png",
             "character/steak.png",#pizza
-            "character/pasta.png",
-            "character/pasta.png",
             "character/pasta.png",#hotpot
-
             "character/chance.png",
-            "character/pasta.png",
-            "character/pasta.png",#hotpot
-            "character/too_many_delicy.png",
-            "character/lobster.png",
             "character/steak.png",#威
-
+            "character/lobster.png",
+            "character/too_many_delicy.png",
             "character/advanced_steak.png",#威
-
             "character/chinese_dish.png",
             "character/eat_too_much.png",
             "character/barbecue.png",
