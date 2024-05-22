@@ -233,7 +233,7 @@ class MonopolyUI:
         
         
         # 設置地圖參數
-        self.grid_size = 20  # 格子大小
+        self.grid_size = 70  # 格子大小
         self.map_width = 10  # 地圖寬度
         self.map_height = 5  # 地圖高度
         
@@ -253,7 +253,7 @@ class MonopolyUI:
         
         # 在四個角落放置玩家
         self.place_players()
-
+    
         self.game = MonopolyGame(self)
         
         # 主框架設置
@@ -330,9 +330,70 @@ class MonopolyUI:
             "Magic Card", "","","","","","","魚子醬",
             "牛肉麵", "","","","","","","Emergency",
             "咖哩", "","","","","","","A5和牛",
-            "jail", "新竹人的❤️ 麥當勞", "便當", "Chance or Destiny", "想不到吃什麼 7-1","不健康的泡麵","Start","媽媽的愛",
+            "jail", "新竹人的❤️ 麥當勞", "便當", "Chance or Destiny", "想不到吃什麼 7-11","不健康的泡麵","Start","媽媽的愛",
         ]
+        
+        self.food()
+    
        
+    def food(self):
+        food_image_paths = [
+            "character/hospital.png",
+            "character/pasta.png",
+            "character/steak.png",
+            "character/pasta.png",
+            "character/pasta.png",
+            "character/chance.png",
+            "character/lobster.png",
+            "character/steak.png",
+            "character/sushi.png",
+            "character/eat_too_much.png",
+            "character/barbecue.png",
+            "character/chinese_dish.png",
+            "character/korean_meal.png",
+            "character/pasta.png",
+            "character/magic_card.png",
+            "character/fish.png",
+            "character/beef_noodle.png",
+            "character/too_much_delicy.png",
+            "characte/mom_love.png",
+            "character/curry.png",
+            "character/a5.png",
+            "character/prison.png",
+            "character/mcdonal's.png",
+            "character/bento.png",
+            "character/chance.png",
+            "character/chance.png",
+            "character/instant_noodle.png",
+            "character/start.png"
+            
+            
+            
+            # Add more food image paths as needed
+        ]
+        food_cell_index = [
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 19, 20, 29, 30, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49
+        ]
+
+        for food_image_path, cell_index in zip(food_image_paths, food_cell_index):
+            if food_image_path:  # 确保路径不是空的
+                try:
+                    image = Image.open(food_image_path)
+                    image = image.resize((self.grid_size, self.grid_size), Image.LANCZOS)
+                    food_photo = ImageTk.PhotoImage(image)
+
+                    cell_row = cell_index // self.map_width
+                    cell_column = cell_index % self.map_width
+
+                    # 获取对应的单元格控件
+                    cell_widgets = self.map_frame.grid_slaves(row=cell_row, column=cell_column)
+                    if cell_widgets:
+                        cell_widget = cell_widgets[0]
+                        cell_widget.config(image=food_photo, width=self.grid_size, height=self.grid_size)
+                        cell_widget.image = food_photo
+                except Exception as e:
+                    print(f"Error loading image {food_image_path}: {e}")
+
        
     def create_map(self):
         # 創建地圖格子
@@ -341,6 +402,7 @@ class MonopolyUI:
                 if x == 0 or x == self.map_width - 1 or y == 0 or y == self.map_height - 1:
                     cell = tk.Label(self.map_frame, width=10, height=5, borderwidth=1, relief="solid")  # 調整格子大小
                     cell.grid(row=y, column=x, padx=1, pady=1)
+                    
                     # 綁定點擊事件
                     cell.bind("<Button-1>", lambda event, cell=cell, x=x, y=y: self.on_cell_click(cell, x, y))
     
