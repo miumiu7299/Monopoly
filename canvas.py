@@ -252,20 +252,9 @@ class MonopolyUI:
         self.board_canvas.place(relx=0.5, rely=0.5, anchor='center')
         self.draw_board()
 
-        # 加載並顯示地圖圖像
-        """
-        file_path = os.path.join("/Users", "yejiayu", "Desktop", "python", "map.png")
-        original_image = Image.open(file_path)
-        resized_image = original_image.resize((1000, 500), Image.Resampling.LANCZOS)
-        self.photo = ImageTk.PhotoImage(resized_image)
-        self.image_label = tk.Label(self.main_frame, image=self.photo)
-        self.image_label.pack(fill=tk.BOTH, expand=True)
-        """
-
         # 創建四個玩家信息顯示 Text 組件，放置在界面的四個角落
         self.player_texts = []
         positions = [(0.01, 0.5), (0.99, 0.5), (0.01, 0.5), (0.99, 0.5)]
-        #positions = [(0.01, 0.01), (0.99, 0.01), (0.01, 0.99), (0.99, 0.99)]
         #anchors = ['nw', 'ne', 'sw', 'se']
         anchors = [ 'sw', 'se','nw', 'ne']
         for i, (pos, anchor) in enumerate(zip(positions, anchors)):
@@ -361,7 +350,8 @@ class MonopolyUI:
                     # 保存图片引用以避免被垃圾回收
                     self.image_labels[image_label] = self.photo
                     self.board_canvas.tag_bind(image_label, '<Button-1>', lambda event, name=cell_name: self.show_cell_name(name=name))
-                    food_image_pic+=1
+                    food_image_pic+=1 
+                    
     def show_cell_name(self, name):
         messagebox.showinfo("物業信息", f"您點擊了：{name}")
 
