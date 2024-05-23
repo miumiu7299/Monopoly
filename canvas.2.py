@@ -371,11 +371,24 @@ class MonopolyUI:
                     image_label = self.board_canvas.create_image((x1 + x2) / 2, (y1 + y2) / 2, image=self.photo)
                     # 保存图片引用以避免被垃圾回收
                     self.image_labels[image_label] = self.photo
-                    self.board_canvas.tag_bind(image_label, '<Button-1>', lambda event, name=cell_name: self.show_cell_name(name=name))
+                    self.board_canvas.tag_bind(image_label, '<Button-1>', self.make_callback(cell_name, image_path))
                     food_image_pic+=1 
                     
-    def show_cell_name(self, name):
-        messagebox.showinfo("物業信息", f"您點擊了：{name}")
+    def make_callback(self, name, image_path):
+        return lambda event: self.show_cell_name_picture(name, image_path)
+                    
+    def show_cell_name_picture(self, name, image_path):
+        top = tk.Toplevel(self.root)
+        top.title(f"您點擊了：{name}")
+        img = Image.open(image_path)
+        img = img.resize((250, 250))  # Resize if needed
+        photo = ImageTk.PhotoImage(img)
+        label = tk.Label(top, image=photo,width=300,height=270)
+        label.image = photo
+        label.pack()
+        tk.Label(top, text=f"物業信息: {name}").pack()
+
+        #messagebox.showinfo("物業信息", f"您點擊了：{name}")
 
     def add_player(self):
         name = self.player_name_var.get()
