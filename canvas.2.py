@@ -396,7 +396,7 @@ class MonopolyUI:
             if i < len(self.player_texts):
                 text_widget = self.player_texts[i]
                 text_widget.delete('1.0', tk.END)  # 清空文本框
-                player_info = f"{player.name}\nPosition: {player.position}\nMoney: ${player.money}\nCuisines: {', '.join(player.properties)}"
+                player_info = f"{player.name}\nPosition🚩: {player.position}\nMoney💰: ${player.money}\nCuisines🍽️: {', '.join(player.properties)}"
                 text_widget.insert(tk.END, player_info)  # 插入新的玩家資訊
 
     def update_status_label(self, status):
