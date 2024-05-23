@@ -10,7 +10,7 @@ from tkinter import PhotoImage
 
 
 class Player:
-    def __init__(self, name, position=0, money=5000):
+    def __init__(self, name, position=0, money=4000):
         self.name = name
         self.position = position
         self.money = money
@@ -254,15 +254,34 @@ class MonopolyUI:
 
         # 創建四個玩家信息顯示 Text 組件，放置在界面的四個角落
         self.player_texts = []
+        self.player_images = []  # 初始化 player_images 列表
         positions = [(0.01, 0.5), (0.99, 0.5), (0.01, 0.5), (0.99, 0.5)]
-        #anchors = ['nw', 'ne', 'sw', 'se']
+
         anchors = [ 'sw', 'se','nw', 'ne']
+        
         for i, (pos, anchor) in enumerate(zip(positions, anchors)):
+            """
             frame = tk.Frame(self.main_frame, width=200, height=100)
             frame.place(relx=pos[0], rely=pos[1], anchor=anchor)
             text_widget = tk.Text(frame, height=15, width=25, font=('Arial', 12))
             text_widget.pack(fill=tk.BOTH, expand=True)
             self.player_texts.append(text_widget)
+            """
+            frame = tk.Frame(self.main_frame, width=200, height=400)
+            frame.place(relx=pos[0], rely=pos[1], anchor=anchor)
+            player_image_path = "character/馬力歐.png"
+            image = Image.open(player_image_path)
+            #image = Image.open(f"player_{i+1}.png")  # 假定圖片命名為 player_1.png, player_2.png 等
+            image = image.resize((100, 130), Image.Resampling.LANCZOS)
+            photo = ImageTk.PhotoImage(image)
+            label = tk.Label(frame, image=photo)
+            label.image = photo  # 保存對象引用，防止被垃圾回收
+            label.pack(side=tk.TOP)
+            self.player_images.append(label)
+            text_widget = tk.Text(frame, height=15, width=25, font=('Arial', 12))
+            text_widget.pack(fill=tk.BOTH, expand=True)
+            self.player_texts.append(text_widget)
+            
 
         # 控制元件，包括按鈕在內的 Frame
         self.button_frame = tk.Frame(self.main_frame)
@@ -285,6 +304,9 @@ class MonopolyUI:
         self.message_listbox = tk.Listbox(self.main_frame, height=10,width=50)
         # 在這裡添加 padx 和 pady 以增加邊距
         self.message_listbox.place(relx=0.5, rely=0.55, anchor='center')
+        
+        
+        
 
     def draw_board(self):
         food_image_paths = [
@@ -374,7 +396,7 @@ class MonopolyUI:
             if i < len(self.player_texts):
                 text_widget = self.player_texts[i]
                 text_widget.delete('1.0', tk.END)  # 清空文本框
-                player_info = f"{player.name}\nPosition: {player.position}\nMoney: ${player.money}\nCuisines: {', '.join(player.properties)}"
+                player_info = f"{player.name}\nPosition🚩: {player.position}\nMoney💰: ${player.money}\nCuisines🍽️: {', '.join(player.properties)}"
                 text_widget.insert(tk.END, player_info)  # 插入新的玩家資訊
 
     def update_status_label(self, status):
@@ -411,7 +433,7 @@ class MonopolyUI:
         self.message_listbox.delete(0, tk.END)
         self.game = MonopolyGame(self)  # 重置遊戲
         self.update_status_label("Game has been reset. Ready to play again!")
-        self.disable_buttons(False)  # 重新啟用按鈕等可能在遊戲中變更的UI元件
+        #self.disable_buttons()  # 重新啟用按鈕等可能在遊戲中變更的UI元件
 
 if __name__ == "__main__":
     root = tk.Tk()
