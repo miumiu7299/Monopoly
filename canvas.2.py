@@ -411,15 +411,17 @@ class MonopolyUI:
     def show_cell_name_picture(self, name,cost ,image_path):
         top = tk.Toplevel(self.root)
         top.title(f"您點擊了：{name}")
+        
         img = Image.open(image_path)
         img = img.resize((250, 250))  # Resize if needed
         photo = ImageTk.PhotoImage(img)
-        label = tk.Label(top, image=photo,width=300,height=270)
+        label = tk.Label(top, image=photo,width=300,height=300)
         label.image = photo
+    
         label.pack()
-        tk.Label(top, text=f"料理: {name}\n價格: {cost}").pack()
-        #tk.Label(top, text=f"物業信息: {name}").pack()
+        tk.Label(top, text=f"地點: {name}\n價格: {cost}").pack()
         
+        #tk.Label(top, text=f"物業信息: {name}").pack()
         #messagebox.showinfo("物業信息", f"您點擊了：{name}")
 
     def add_player(self):
@@ -437,12 +439,19 @@ class MonopolyUI:
         self.update_player_list()
 
     def update_player_list(self):
+        colors = ["red", "blue", "green", "orange"]
         for i, player in enumerate(self.game.players):
             if i < len(self.player_texts):
                 text_widget = self.player_texts[i]
                 text_widget.delete('1.0', tk.END)  # 清空文本框
                 player_info = f"{player.name}\nPosition🚩: {player.position}\nMoney💰: ${player.money}\nCuisines🍽️: {', '.join(player.properties)}"
+                
                 text_widget.insert(tk.END, player_info)  # 插入新的玩家資訊
+                
+                # 设置玩家颜色
+                color = colors[i % len(colors)]
+                text_widget.tag_configure(f"player_color_{i}", foreground=color)
+                text_widget.tag_add(f"player_color_{i}", '1.0', tk.END)
 
     def update_status_label(self, status):
         self.status_label.config(text=status)
