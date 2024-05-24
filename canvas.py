@@ -75,7 +75,7 @@ class MonopolyGame:
             elif i in [20]: 
                 properties.append(Property(f"威靈頓牛排 {i}", 2800))
             elif i in [18]: 
-                properties.append(Property(f"龍蝦 {i}", 100))
+                properties.append(Property(f"龍蝦 {i}", 1000))
             elif i in [17]: 
                 properties.append(Property(f"牛排 {i}", 500))
             elif i in [15]: 
