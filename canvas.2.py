@@ -241,6 +241,14 @@ class MonopolyUI:
             "Magic Card","","", "","","","","","","媽媽的愛",
             "jail", "石鍋拌飯","牛肉麵","壽司","咖哩飯","Chance or Destiny","韓式炸雞","新竹人的❤️ 麥當勞","便當", "Start"
         ]
+        
+        self.list_names = [
+            "Hospital", "pizza", "hotpot","Chance or\n Destiny", "steak","lobster","too much delicy","Beef Wellington","鮑魚烏參佛跳牆","Fat->killed",
+            "義大利麵","","","","","","","","","魚子醬",
+            "燒烤","","","","", "","","","","A5和牛",
+            "Magic Card","","", "","","","","","","媽媽的愛",
+            "jail", "石鍋拌飯","牛肉麵","壽司","咖哩飯","Chance or\n Destiny","韓式炸雞","新竹人的❤️\n麥當勞","便當", "Start"
+        ]
 
         # 主框架設置
         self.main_frame = tk.Frame(self.root)
@@ -355,24 +363,36 @@ class MonopolyUI:
                     # 计算格子的索引，假设每个格子都有一个名字存储在 self.cell_names 列表中
                     cell_index = row * cols + col
                     cell_name = self.cell_names[cell_index % len(self.cell_names)]  # 循环使用名字列表
+                    list_index = row * cols + col
+                    list_name=self.list_names[list_index % len(self.list_names)]  # 循环使用名字列表
+                    outline_color = 'black' if (row == 0 or row == rows - 1 or col == 0 or col == cols - 1) else ''
 
-                    # 检查是否是边缘的格子
-                    if row == 0 or row == rows - 1 or col == 0 or col == cols - 1:
-                        outline_color = 'black'
-                    else:
-                        outline_color = ''
+                    # 畫出格子背景
+                    self.board_canvas.create_rectangle(x1, y1, x2, y2, outline=outline_color)
+                    
+                    # 在格子內放入文字
+                    #self.board_canvas.create_text((x1 + x2) / 2, (y1 + y2) / 2, text=cell_name, fill="black")
                     
                     # 加载并显示图片
                     image_path = food_image_paths[food_image_pic]  # 替换为你的图片路径
+                    """
                     image = Image.open(image_path)
                     image = image.resize((int(cell_size), int(cell_size)))
-    
                     self.photo = ImageTk.PhotoImage(image)
                     image_label = self.board_canvas.create_image((x1 + x2) / 2, (y1 + y2) / 2, image=self.photo)
+                    
                     # 保存图片引用以避免被垃圾回收
                     self.image_labels[image_label] = self.photo
-                    self.board_canvas.tag_bind(image_label, '<Button-1>', self.make_callback(cell_name, image_path))
+                    """
+                    
+                    rect = self.board_canvas.create_rectangle(x1, y1, x2, y2,fill='white' ,outline=outline_color)
+                    self.board_canvas.tag_bind(rect, '<Button-1>', self.make_callback(cell_name, image_path))
+                    #self.board_canvas.tag_bind(rect, '<Button-1>', self.make_callback(cell_name, food_image_paths[food_image_pic % len(food_image_paths)]))
+                    
+                    # 在格子內放入文字
+                    self.board_canvas.create_text((x1 + x2) / 2, (y1 + y2) / 2, text=list_name, fill="black", font=("Arial", 12,"bold"))
                     food_image_pic+=1 
+                    
                     
     def make_callback(self, name, image_path):
         return lambda event: self.show_cell_name_picture(name, image_path)
@@ -386,8 +406,7 @@ class MonopolyUI:
         label = tk.Label(top, image=photo,width=300,height=270)
         label.image = photo
         label.pack()
-        tk.Label(top, text=f"物業信息: {name}").pack()
-
+        #tk.Label(top, text=f"物業信息: {name}").pack()
         #messagebox.showinfo("物業信息", f"您點擊了：{name}")
 
     def add_player(self):
