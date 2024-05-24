@@ -75,7 +75,7 @@ class MonopolyGame:
             elif i in [20]: 
                 properties.append(Property(f"威靈頓牛排 {i}", 2800))
             elif i in [18]: 
-                properties.append(Property(f"龍蝦 {i}", 100))
+                properties.append(Property(f"龍蝦 {i}", 1000))
             elif i in [17]: 
                 properties.append(Property(f"牛排 {i}", 500))
             elif i in [15]: 
@@ -235,7 +235,7 @@ class MonopolyUI:
         self.image_labels = {}
         # 假定棋盤格子名稱
         self.cell_names = [
-            "Hospital", "pizza", "hotpot","Chance or Destiny", "steak","lobster","too much delicy","Beef Wellington","鮑魚烏參佛跳牆","Fat->killed",
+            "Hospital", "pizza", "hotpot","Chance or Destiny", "steak","lobster","too much delicacy","Beef Wellington","鮑魚烏參佛跳牆","Fat->killed",
             "義大利麵","","","","","","","","","魚子醬",
             "燒烤","","","","", "","","","","A5和牛",
             "Magic Card","","", "","","","","","","媽媽的愛",
@@ -243,12 +243,21 @@ class MonopolyUI:
         ]
         
         self.list_names = [
-            "Hospital", "pizza", "hotpot","Chance or\n Destiny", "steak","lobster","too much delicy","Beef Wellington","鮑魚烏參佛跳牆","Fat->killed",
+            "Hospital", "pizza", "hotpot","Chance or\n Destiny", "steak","lobster","too much\ndelicacy","Beef Wellington","鮑魚烏參佛跳牆","Fat->killed",
             "義大利麵","","","","","","","","","魚子醬",
             "燒烤","","","","", "","","","","A5和牛",
             "Magic Card","","", "","","","","","","媽媽的愛",
             "jail", "石鍋拌飯","牛肉麵","壽司","咖哩飯","Chance or\n Destiny","韓式炸雞","新竹人的❤️\n麥當勞","便當", "Start"
         ]
+        
+        self.cost_list =[
+            "Not for sale", "300", "350","Not for sale", "500","1000","Not for sale","2800","2200","Not for sale",
+            "400","","","","","","","","","1500",
+            "800","","","","", "","","","","3000",
+            "Not for sale","","", "","","","","","","4500",
+            "Not for sale", "200","250","350","100","Not for sale","250","150","80", "Not for sale"
+        ]
+        
 
         # 主框架設置
         self.main_frame = tk.Frame(self.root)
@@ -365,6 +374,8 @@ class MonopolyUI:
                     cell_name = self.cell_names[cell_index % len(self.cell_names)]  # 循环使用名字列表
                     list_index = row * cols + col
                     list_name=self.list_names[list_index % len(self.list_names)]  # 循环使用名字列表
+                    cost_index = row * cols + col
+                    cost_name=self.cost_list[cost_index % len(self.cost_list)]  # 循环使用名字列表
                     outline_color = 'black' if (row == 0 or row == rows - 1 or col == 0 or col == cols - 1) else ''
 
                     # 畫出格子背景
@@ -386,7 +397,7 @@ class MonopolyUI:
                     """
                     
                     rect = self.board_canvas.create_rectangle(x1, y1, x2, y2,fill='white' ,outline=outline_color)
-                    self.board_canvas.tag_bind(rect, '<Button-1>', self.make_callback(cell_name, image_path))
+                    self.board_canvas.tag_bind(rect, '<Button-1>', self.make_callback(cell_name, cost_name,image_path))
                     #self.board_canvas.tag_bind(rect, '<Button-1>', self.make_callback(cell_name, food_image_paths[food_image_pic % len(food_image_paths)]))
                     
                     # 在格子內放入文字
@@ -394,10 +405,10 @@ class MonopolyUI:
                     food_image_pic+=1 
                     
                     
-    def make_callback(self, name, image_path):
-        return lambda event: self.show_cell_name_picture(name, image_path)
+    def make_callback(self, name, cost,image_path):
+        return lambda event: self.show_cell_name_picture(name, cost,image_path)
                     
-    def show_cell_name_picture(self, name, image_path):
+    def show_cell_name_picture(self, name,cost ,image_path):
         top = tk.Toplevel(self.root)
         top.title(f"您點擊了：{name}")
         img = Image.open(image_path)
@@ -406,7 +417,9 @@ class MonopolyUI:
         label = tk.Label(top, image=photo,width=300,height=270)
         label.image = photo
         label.pack()
+        tk.Label(top, text=f"料理: {name}\n價格: {cost}").pack()
         #tk.Label(top, text=f"物業信息: {name}").pack()
+        
         #messagebox.showinfo("物業信息", f"您點擊了：{name}")
 
     def add_player(self):
