@@ -5,10 +5,6 @@ from PIL import Image, ImageTk
 import os
 from tkinter import PhotoImage
 
-#file_path = os.path.join("Users", "yejiayu", "Desktop", "python", "map.png")
-#self.image = Image.open(file_path)
-
-
 class Player:
     def __init__(self, name, position=0, money=4000):
         self.name = name
@@ -38,6 +34,7 @@ class Property:
         self.cost = cost
         self.owner = None
         self.type = type
+        self.rect_id = None  # 用于保存格子的矩形ID
 
 class MonopolyGame:
     def __init__(self, ui):
@@ -235,27 +232,27 @@ class MonopolyUI:
         self.image_labels = {}
         # 假定棋盤格子名稱
         self.cell_names = [
-            "Hospital", "pizza", "hotpot","Chance or Destiny", "steak","lobster","too much delicacy","Beef Wellington","鮑魚烏參佛跳牆","Fat->killed",
-            "義大利麵","","","","","","","","","魚子醬",
-            "燒烤","","","","", "","","","","A5和牛",
-            "Magic Card","","", "","","","","","","媽媽的愛",
-            "jail", "石鍋拌飯","牛肉麵","壽司","咖哩飯","Chance or Destiny","韓式炸雞","新竹人的❤️ 麥當勞","便當", "Start"
+            "Start", "便當", "新竹人的❤️麥當勞","韓式炸雞", "Chance or Destiny","咖哩飯","壽司","牛肉麵","石鍋拌飯","jail",
+            "媽媽的愛","","","","","","","","","Magic Card",
+            "A5和牛","","","","", "","","","","燒烤",
+            "魚子醬","","", "","","","","","","義大利麵",
+            "Fat->killed", "鮑魚烏參佛跳牆","Beef Wellingto","too much delicacy","lobster","steak","Chance or Destiny","hot pot","pizza","Hospital"
         ]
         
         self.list_names = [
-            "Hospital", "pizza", "hotpot","Chance or\n Destiny", "steak","lobster","too much\ndelicacy","Beef Wellington","鮑魚烏參佛跳牆","Fat->killed",
-            "義大利麵","","","","","","","","","魚子醬",
-            "燒烤","","","","", "","","","","A5和牛",
-            "Magic Card","","", "","","","","","","媽媽的愛",
-            "jail", "石鍋拌飯","牛肉麵","壽司","咖哩飯","Chance or\n Destiny","韓式炸雞","新竹人的❤️\n麥當勞","便當", "Start"
+            "Start", "便當", "新竹人的❤️\n麥當勞","韓式炸雞", "Chance or\nDestiny","咖哩飯","壽司","牛肉麵","石鍋拌飯","jail",
+            "媽媽的愛","","","","","","","","","Magic Card",
+            "A5和牛","","","","", "","","","","燒烤",
+            "魚子醬","","", "","","","","","","義大利麵",
+            "Fat->killed", "鮑魚烏參佛跳牆","Beef Wellingto","too much\ndelicacy","lobster","steak","Chance or\nDestiny","hot pot","pizza","Hospital"
         ]
         
         self.cost_list =[
-            "Not for sale", "300", "350","Not for sale", "500","1000","Not for sale","2800","2200","Not for sale",
-            "400","","","","","","","","","1500",
-            "800","","","","", "","","","","3000",
-            "Not for sale","","", "","","","","","","4500",
-            "Not for sale", "200","250","350","100","Not for sale","250","150","80", "Not for sale"
+            "Not for sale", "80", "150","250","Not for sale","100","350","250","200","Not for sale",
+            "4500","","","","","","","","","Not for sale",
+            "3000","","","","", "","","","","800",
+            "1500","","", "","","","","","","400",
+            "Not for sale", "2200","2800","Not for sale","1000","500","Not for sale","100","300", "Not for sale"
         ]
         
 
@@ -354,20 +351,56 @@ class MonopolyUI:
             "character/bento.png",
             "character/start.png"
             
+            
+            # Add more food image paths as needed
+        ]
+        food_image_paths = [
+           "character/start.png",
+           "character/bento.png",
+           "character/mcdonal's.png",
+           "character/korean_fried_chicken.png",
+           "character/chance.png",
+           "character/curry.png",
+           "character/sushi.png",
+           "character/beef_noodle.png",
+           "character/korean_meal.png",
+           "character/prison.png",
+           "character/mom_love.png",
+           "character/magic_card.png",
+           "character/a5.png",
+           "character/barbecue.png",
+           "character/fish.png",
+           "character/pasta.png",
+           "character/eat_too_much.png",
+           "character/chinese_dish.png",
+           "character/advanced_steak.png",#威
+           "character/too_many_delicy.png",
+           "character/lobster.png",
+           "character/steak.png",#威
+           "character/chance.png",
+           "character/hotpot.png",#hotpot
+           "character/pizza.png",#pizza
+           "character/hospital.png"
             # Add more food image paths as needed
         ]
         food_image_pic=0
         rows, cols = 5, 10
         # 确保格子为正方形
         cell_size = min(1000 / cols, 500 / rows)
+
+        # 颜色列表，以顺时针顺序排列
+        colors = ['red', 'green', 'blue', 'yellow']
         for row in range(rows):
             for col in range(cols):
-                if row == 0 or row == rows - 1 or col == 0 or col == cols - 1:
+                #if row == 0 or row == rows - 1 or col == 0 or col == cols - 1:
 
                     x1 = col * cell_size
                     y1 = row * cell_size
                     x2 = x1 + cell_size
                     y2 = y1 + cell_size
+                    
+                    
+                    
                     
                     # 计算格子的索引，假设每个格子都有一个名字存储在 self.cell_names 列表中
                     cell_index = row * cols + col
@@ -376,53 +409,59 @@ class MonopolyUI:
                     list_name=self.list_names[list_index % len(self.list_names)]  # 循环使用名字列表
                     cost_index = row * cols + col
                     cost_name=self.cost_list[cost_index % len(self.cost_list)]  # 循环使用名字列表
+                    
+
                     outline_color = 'black' if (row == 0 or row == rows - 1 or col == 0 or col == cols - 1) else ''
 
                     # 畫出格子背景
-                    self.board_canvas.create_rectangle(x1, y1, x2, y2, outline=outline_color)
+                    rect = self.board_canvas.create_rectangle(x1, y1, x2, y2, fill='white', outline=outline_color)
                     
-                    # 在格子內放入文字
-                    #self.board_canvas.create_text((x1 + x2) / 2, (y1 + y2) / 2, text=cell_name, fill="black")
                     
-                    # 加载并显示图片
-                    image_path = food_image_paths[food_image_pic]  # 替换为你的图片路径
-                    """
-                    image = Image.open(image_path)
-                    image = image.resize((int(cell_size), int(cell_size)))
-                    self.photo = ImageTk.PhotoImage(image)
-                    image_label = self.board_canvas.create_image((x1 + x2) / 2, (y1 + y2) / 2, image=self.photo)
-                    
-                    # 保存图片引用以避免被垃圾回收
-                    self.image_labels[image_label] = self.photo
-                    """
-                    
-                    rect = self.board_canvas.create_rectangle(x1, y1, x2, y2,fill='white' ,outline=outline_color)
-                    self.board_canvas.tag_bind(rect, '<Button-1>', self.make_callback(cell_name, cost_name,image_path))
-                    #self.board_canvas.tag_bind(rect, '<Button-1>', self.make_callback(cell_name, food_image_paths[food_image_pic % len(food_image_paths)]))
-                    
-                    # 在格子內放入文字
                     self.board_canvas.create_text((x1 + x2) / 2, (y1 + y2) / 2, text=list_name, fill="black", font=("Arial", 12,"bold"))
-                    food_image_pic+=1 
+                    if food_image_pic < len(food_image_paths):
+                    # 加载并显示图片
+                        image_path = food_image_paths[food_image_pic]  # 替换为你的图片路径
+                        self.board_canvas.tag_bind(rect, '<Button-1>', self.make_callback(cell_name, cost_name,image_path))
+                        food_image_pic+=1 
+                    """
+                    if cell_index >= len(self.game.properties):
+                        continue  # 跳过超出范围的格子
+                    """
+                    # 保存矩形ID到属性对象中
+                    if cell_index < len(self.game.properties):
+                        self.game.properties[cell_index].rect_id = rect
+                    """
+                    if cell_index > len(self.game.properties):
+                        self.game.properties[cell_index].rect_id = rect
+                    """
+                    # 加载并显示图片
+                    #image_path = food_image_paths[food_image_pic]  # 替换为你的图片路径
                     
+                    #self.board_canvas.tag_bind(rect, '<Button-1>', self.make_callback(cell_name, cost_name,image_path))
                     
-    def make_callback(self, name, cost,image_path):
-        return lambda event: self.show_cell_name_picture(name, cost,image_path)
+                    # 在格子內放入文字
+                    #self.board_canvas.create_text((x1 + x2) / 2, (y1 + y2) / 2, text=list_name, fill="black", font=("Arial", 12,"bold"))
+                    #food_image_pic+=1 
                     
-    def show_cell_name_picture(self, name,cost ,image_path):
+        
+
+
+            
+        
+    def make_callback(self, name, cost, image_path):
+        return lambda event: self.show_cell_name_picture(name, cost, image_path)
+                    
+    def show_cell_name_picture(self, name, cost, image_path):
         top = tk.Toplevel(self.root)
         top.title(f"您點擊了：{name}")
         
         img = Image.open(image_path)
         img = img.resize((250, 250))  # Resize if needed
         photo = ImageTk.PhotoImage(img)
-        label = tk.Label(top, image=photo,width=300,height=300)
+        label = tk.Label(top, image=photo, width=300, height=300)
         label.image = photo
-    
         label.pack()
         tk.Label(top, text=f"地點: {name}\n價格: {cost}").pack()
-        
-        #tk.Label(top, text=f"物業信息: {name}").pack()
-        #messagebox.showinfo("物業信息", f"您點擊了：{name}")
 
     def add_player(self):
         name = self.player_name_var.get()
@@ -452,6 +491,12 @@ class MonopolyUI:
                 color = colors[i % len(colors)]
                 text_widget.tag_configure(f"player_color_{i}", foreground=color)
                 text_widget.tag_add(f"player_color_{i}", '1.0', tk.END)
+                
+                # 更新玩家拥有的格子的颜色
+                for property_name in player.properties:
+                    for property in self.game.properties:
+                        if property.name == property_name and property.rect_id:
+                            self.board_canvas.itemconfig(property.rect_id, fill=color)
 
     def update_status_label(self, status):
         self.status_label.config(text=status)
@@ -467,6 +512,10 @@ class MonopolyUI:
             if player.buy_property(property.name, property.cost):
                 property.owner = player
                 self.add_message(f"{player.name} bought {property.name} for ${property.cost}.")
+                # 更新格子的颜色
+                colors = ["red", "blue", "green", "orange"]
+                color = colors[self.game.players.index(player) % len(colors)]
+                self.board_canvas.itemconfig(property.rect_id, fill=color)
             else:
                 messagebox.showerror("Error", "Not enough money to buy this property.")
     
@@ -482,13 +531,13 @@ class MonopolyUI:
             self.root.destroy()  # 關閉遊戲視窗
 
     def reset_game(self):
-        for text_widget in self.player_texts:
+         for text_widget in self.player_texts:
             text_widget.delete('1.0', tk.END)
-        self.message_listbox.delete(0, tk.END)
-        self.game = MonopolyGame(self)  # 重置遊戲
-        self.update_status_label("Game has been reset. Ready to play again!")
-        #self.disable_buttons()  # 重新啟用按鈕等可能在遊戲中變更的UI元件
-
+            self.message_listbox.delete(0, tk.END)
+            self.game = MonopolyGame(self)  # 重置遊戲
+            self.update_status_label("Game has been reset. Ready to play again!")
+            #self.disable_buttons()  # 重新啟用按鈕等可能在遊戲中變更的UI元件
+            
 if __name__ == "__main__":
     root = tk.Tk()
     app = MonopolyUI(root)
