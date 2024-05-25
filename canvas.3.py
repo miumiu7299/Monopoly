@@ -366,18 +366,66 @@ class MonopolyUI:
         ]
         
         # 自定義映射字典，將格子的實際編號映射到屬性索引
+        """
+        self.cell_to_property_index = {
+            0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 
+            10: 10, 11: 19, 12: 20, 13: 19, 14: 30, 15: 39, 16: 40, 17: 41, 18: 42, 19: 43, 
+            20:
+        }    
+        """
+        """
         self.cell_to_property_index = {
             0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 
             10: 10, 19: 11, 20: 12, 29: 13, 30: 14, 39: 15, 40: 16, 41: 17, 42: 18, 43: 19, 
             44: 20, 45: 21, 46: 22, 47: 23, 48: 24, 49: 25
         }
+        """
+        """
+        self.cell_to_property_index = {
+            0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 
+            10: 25, 11: None, 12: None, 13: None, 14: None, 15: None, 16: None, 17: None, 18: None, 19: 10, 
+            20: 24, 21: None, 22: None, 23: None, 24: None, 25: None,26: None, 27: None, 28: None, 29: 11, 
+            30: 23, 31: None, 32: None, 33: None, 34: None, 35: None,36: None, 37: None, 38: None, 39: 12, 
+            40: 22, 41: 21, 42: 20, 43: 19, 44: 18, 45: 17, 46: 16, 47: 15,48: 14, 49: 13
+        }
+        """
+        """
+        self.cell_to_property_index = {
+            0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 
+            10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 
+            20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25, 
+            29: 26, 30: 27, 39: 28, 40: 29, 41: 30, 42: 31, 43: 32, 44: 33, 45: 34, 46: 35, 47: 36, 
+            48: 37, 49: 38
+        }
+        """
+        """
+        self.cell_to_property_index = {
+            0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 
+            10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19, 
+            20: 20, 21: 21, 22: 22, 23: 23, 24: 24, 25: 25,
+            29: 26, 30: 27, 31: None, 32: None, 33: None, 34: None, 35: None,
+            36: None, 37: None, 38: None, 39: 28, 40: 29, 41: 30, 42: 31, 43: 32, 44: 33, 45: 34, 46: 35, 47: 36,
+            48: 37, 49: 38
+        }
+        """
+        """
+        self.cell_to_property_index = {
+            0: 1, 1: 3, 2: 5, 3: 7, 4: 9, 5: 11, 6: 13, 7: 15, 8: 17, 9: 19, 
+            10: 21, 19: 23, 
+            20: 25, 26: 27, 27: 29, 28: 31,
+            29: 33, 30: 35, 31: 37, 32:39, 33: 41, 34: 43, 35: 45,
+            36: 47, 37: 49, 38: 51
+        }
+        """
 
-        
+                
         food_image_pic=0
         rows, cols = 5, 10
         # 确保格子为正方形
         cell_size = min(1000 / cols, 500 / rows)
-        cell_indices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 19, 20, 29, 30, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]
+        #cell_indices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 19, 20, 29, 30, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]
+        cell_indices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 
+                    20, 21, 22, 23, 24, 25, 29, 30, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]
         cell_index = 0
         for row in range(rows):
             for col in range(cols):
@@ -388,14 +436,17 @@ class MonopolyUI:
                     x2 = x1 + cell_size
                     y2 = y1 + cell_size
                     
+                    
+                    property_index = self.cell_to_property_index[cell_index]
                     # 计算格子的索引，假设每个格子都有一个名字存储在 self.cell_names 列表中
-                    cell_index = row * cols + col
-                    cell_name = self.cell_names[cell_index % len(self.cell_names)]  # 循环使用名字列表
-                    list_index = row * cols + col
-                    list_name=self.list_names[list_index % len(self.list_names)]  # 循环使用名字列表
-                    cost_index = row * cols + col
-                    cost_name=self.cost_list[cost_index % len(self.cost_list)]  # 循环使用名字列表
-                    outline_color = 'black' if (row == 0 or row == rows - 1 or col == 0 or col == cols - 1) else ''
+                    #cell_index = row * cols + col
+                    if property_index is not None:
+                        cell_name = self.cell_names[cell_index % len(self.cell_names)]  # 循环使用名字列表
+                        list_index = row * cols + col
+                        list_name=self.list_names[list_index % len(self.list_names)]  # 循环使用名字列表
+                        cost_index = row * cols + col
+                        cost_name=self.cost_list[cost_index % len(self.cost_list)]  # 循环使用名字列表
+                        outline_color = 'black' if (row == 0 or row == rows - 1 or col == 0 or col == cols - 1) else ''
                     
                     rect = self.board_canvas.create_rectangle(x1, y1, x2, y2, fill='white', outline=outline_color)
                     # Store the rectangle ID
@@ -408,8 +459,10 @@ class MonopolyUI:
                     for index in cell_indices:
                         self.cell_colors[index] = rect
                     """
-                    self.cell_colors[cell_index] = rect
+                    #self.cell_colors[cell_index] = rect
+                    self.cell_colors[property_index] = rect
                     self.board_canvas.tag_bind(rect, '<Button-1>', self.make_callback(cell_name, cost_name, food_image_paths[food_image_pic]))
+                    #print(property_index,rect)
                     self.board_canvas.create_text((x1 + x2) / 2, (y1 + y2) / 2, text=list_name, fill="black", font=("Arial", 12, "bold"))
                     food_image_pic += 1
                 #index+=1
@@ -513,6 +566,36 @@ class MonopolyUI:
                 messagebox.showerror("Error", "Not enough money to buy this property.")
                 
     def update_property_color(self, player, property):
+        property_index = self.game.properties.index(property)
+        if property_index not in self.cell_to_property_index:
+            print(f"Warning: Property index {property_index} not found in cell_to_property_index.")
+            return
+
+        #cell_index = self.cell_to_property_index[property_index]
+        cell_index = self.cell_to_property_index.get(property_index)
+        
+        if cell_index is None:
+            print(f"Warning: Cell index None not found in cell_colors.")
+            return
+        
+        color = self.colors[self.game.players.index(player) % len(self.colors)]
+        if cell_index in self.cell_colors:
+            self.board_canvas.itemconfig(self.cell_colors[cell_index], fill=color)
+        else:
+            print(f"Warning: Cell index {cell_index} not found in cell_colors.")
+        """
+        property_index = self.game.properties.index(property)
+        color = self.colors[self.game.players.index(player) % len(self.colors)]
+        if property_index in self.cell_to_property_index:
+            cell_index = self.cell_to_property_index[property_index]
+            if cell_index in self.cell_colors:
+                self.board_canvas.itemconfig(self.cell_colors[cell_index], fill=color)
+            else:
+                print(f"Warning: Cell index {cell_index} not found in cell_colors.")
+        else:
+            print(f"Warning: Property index {property_index} not found in cell_to_property_index.")
+        """
+        """
         index = self.game.properties.index(property)
         color = self.colors[self.game.players.index(player) % len(self.colors)]
 
@@ -520,6 +603,7 @@ class MonopolyUI:
             self.board_canvas.itemconfig(self.cell_colors[index], fill=color)
         else:
             print(f"Warning: Property index {index} not found in cell_colors.")
+        """
         #self.board_canvas.itemconfig(self.cell_colors[index], fill=color)
 
     
