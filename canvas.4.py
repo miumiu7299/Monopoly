@@ -518,10 +518,18 @@ class MonopolyUI:
             self.root.destroy()  # 關閉遊戲視窗
 
     def reset_game(self):
+        # 清空玩家信息文本框
         for text_widget in self.player_texts:
             text_widget.delete('1.0', tk.END)
+        # 清空消息列表框
         self.message_listbox.delete(0, tk.END)
-        self.game = MonopolyGame(self)  # 重置遊戲
+        # 删除所有棋子
+        for piece in self.player_pieces.values():
+            self.board_canvas.delete(piece)
+        # 清空玩家棋子的字典
+        self.player_pieces.clear()
+        # 重新初始化游戏
+        self.game = MonopolyGame(self)  
         self.update_status_label("Game has been reset. Ready to play again!")
         #self.disable_buttons()  # 重新啟用按鈕等可能在遊戲中變更的UI元件
         
