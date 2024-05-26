@@ -235,28 +235,29 @@ class MonopolyUI:
         self.image_labels = {}
         # 假定棋盤格子名稱
         self.cell_names = [
-            "Hospital", "pizza", "hotpot","Chance or Destiny", "steak","lobster","too much delicacy","Beef Wellington","鮑魚烏參佛跳牆","Fat->killed",
-            "義大利麵","","","","","","","","","魚子醬",
-            "燒烤","","","","", "","","","","A5和牛",
-            "Magic Card","","", "","","","","","","媽媽的愛",
-            "jail", "石鍋拌飯","牛肉麵","壽司","咖哩飯","Chance or Destiny","韓式炸雞","新竹人的❤️ 麥當勞","便當", "Start"
+            "Start", "便當", "新竹人的❤️麥當勞","韓式炸雞", "Chance or Destiny","咖哩飯","壽司","牛肉麵","石鍋拌飯","jail",
+            "媽媽的愛","","","","","","","","","Magic Card",
+            "A5和牛","","","","", "","","","","燒烤",
+            "魚子醬","","", "","","","","","","義大利麵",
+            "Fat->killed", "鮑魚烏參佛跳牆","Beef Wellington","too much delicacy","lobster","steak","Chance or Destiny","hotpot","pizza", "Hospital"
         ]
         
         self.list_names = [
-            "Hospital", "pizza", "hotpot","Chance or\n Destiny", "steak","lobster","too much\ndelicacy","Beef Wellington","鮑魚烏參佛跳牆","Fat->killed",
-            "義大利麵","","","","","","","","","魚子醬",
-            "燒烤","","","","", "","","","","A5和牛",
-            "Magic Card","","", "","","","","","","媽媽的愛",
-            "jail", "石鍋拌飯","牛肉麵","壽司","咖哩飯","Chance or\n Destiny","韓式炸雞","新竹人的❤️\n麥當勞","便當", "Start"
+            "Start", "便當", "新竹人的❤️\n麥當勞","韓式炸雞", "Chance or\nDestiny","咖哩飯","壽司","牛肉麵","石鍋拌飯","jail",
+            "媽媽的愛","","","","","","","","","Magic Card",
+            "A5和牛","","","","", "","","","","燒烤",
+            "魚子醬","","", "","","","","","","義大利麵",
+            "Fat->killed", "鮑魚烏參佛跳牆","Beef Wellington","too much\ndelicacy","lobster","steak","Chance or\nDestiny","hotpot","pizza", "Hospital"
         ]
         
         self.cost_list =[
-            "Not for sale", "300", "350","Not for sale", "500","1000","Not for sale","2800","2200","Not for sale",
-            "400","","","","","","","","","1500",
-            "800","","","","", "","","","","3000",
-            "Not for sale","","", "","","","","","","4500",
-            "Not for sale", "200","250","350","100","Not for sale","250","150","80", "Not for sale"
+            "Not for sale", "80", "150","250", "Not for sale","100","350","250","200","Not for sale",
+            "4500","","","","","","","","","Not for sale",
+            "3000","","","","", "","","","","800",
+            "1500","","", "","","","","","","400",
+            "Not for sale", "2200","2800","Not for sale","1000","500","Not for sale","500","300", "Not for sale"
         ]
+        
         
 
         # 主框架設置
@@ -327,32 +328,32 @@ class MonopolyUI:
 
     def draw_board(self):
         food_image_paths = [
-            "character/hospital.png",
-            "character/pizza.png",#pizza
-            "character/hotpot.png",#hotpot
-            "character/chance.png",
-            "character/steak.png",#威
-            "character/lobster.png",
-            "character/too_many_delicy.png",
-            "character/advanced_steak.png",#威
-            "character/chinese_dish.png",
-            "character/eat_too_much.png",
-            "character/pasta.png",
-            "character/fish.png",
-            "character/barbecue.png",
-            "character/a5.png",
-            "character/magic_card.png",
-            "character/mom_love.png",
-            "character/prison.png",
-            "character/korean_meal.png",
-            "character/beef_noodle.png",
-            "character/sushi.png",
-            "character/curry.png",
-            "character/chance.png",
-            "character/korean_fried_chicken.png",
-            "character/mcdonal's.png",
+            "character/start.png",
             "character/bento.png",
-            "character/start.png"
+            "character/mcdonal's.png",
+            "character/korean_fried_chicken.png",
+            "character/chance.png",
+            "character/curry.png",
+            "character/sushi.png",
+            "character/beef_noodle.png",
+            "character/korean_meal.png",
+            "character/prison.png",
+            "character/mom_love.png",
+            "character/magic_card.png",
+            "character/a5.png",
+            "character/barbecue.png",
+            "character/fish.png",
+            "character/pasta.png",
+            "character/eat_too_much.png",
+            "character/chinese_dish.png",
+            "character/advanced_steak.png",#威
+            "character/too_many_delicy.png",
+            "character/lobster.png",
+            "character/steak.png",#威
+            "character/chance.png",
+            "character/hotpot.png",#hotpot
+            "character/pizza.png",#pizza
+            "character/hospital.png"
             
             # Add more food image paths as needed
         ]
