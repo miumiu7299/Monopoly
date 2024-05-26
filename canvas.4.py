@@ -4,6 +4,7 @@ import random
 from PIL import Image, ImageTk
 import os
 from tkinter import PhotoImage
+import time
 
 #file_path = os.path.join("Users", "yejiayu", "Desktop", "python", "map.png")
 #self.image = Image.open(file_path)
@@ -19,9 +20,27 @@ class Player:
         self.in_hospital = False
         self.is_emergency = False
 
+    def move(self, steps, board_size, ui):
+        for step in range(steps):
+            self.position = (self.position + 1) % board_size
+            ui.update_player_piece_position(self)
+            ui.root.update()
+            time.sleep(0.5)  # 每步移动后停留0.5秒
+            """
+            if self.position == 19:
+                ui.update_status_label(f"{self.name} landed on Emergency at position 19 and will move to position 13.")
+                time.sleep(1)  # 在位置19停留1秒
+                self.position = 13
+                ui.update_player_piece_position(self)
+                ui.root.update()
+                break
+            """
+    """
     def move(self, steps, board_size):
         self.position = (self.position + steps) % board_size
-
+        if self.position == 19:
+            self.position = 13
+    """
     def update_money(self, amount):
         self.money += amount
 
@@ -107,6 +126,7 @@ class MonopolyGame:
     def add_player(self, player):
         self.players.append(player)
         self.ui.update_player_list()
+        self.ui.create_player_piece(player)
 
     def next_turn(self):
         
@@ -139,8 +159,12 @@ class MonopolyGame:
             return
         
         steps = self.roll_dice()
-        current_player.move(steps, self.board_size)
+        current_player.move(steps, self.board_size, self.ui)
+        #current_player.move(steps, self.board_size)
         self.ui.update_status_label(f"{current_player.name} rolled a {steps} and moved to position {current_player.position}.")
+        
+        self.ui.update_player_piece_position(current_player)
+        
         self.handle_space_action(current_player)
 
         self.ui.update_player_list()
@@ -156,10 +180,19 @@ class MonopolyGame:
             if property.type == "chanceordestiny":
                 self.ui.add_message(f"{player.name} landed on a Chance or Destiny space.")
                 self.draw_chanceordestiny_card(player)
-            elif property.type == "emergency":
+            elif property.type == "emergency" and player.position == 19:
+                self.ui.add_message(f"{player.name} landed on an Emergency space at position 19 and will move to hospital in 2 seconds.")
+                player.is_emergency = True
+                self.ui.root.update()
+                time.sleep(2)
+                player.position = 13
+                self.ui.update_player_piece_position(player)
+                """
                 self.ui.add_message(f"{player.name}  landed on a Emergency space and moved to hospital.")
                 player.is_emergency = True
                 player.position=13
+                self.ui.update_player_piece_position(player)
+                """
             elif property.type == "fattokilled":
                 self.ui.add_message(f"{player.name} landed on a Fat->killed space , you are so fat that you will get killed!!!")
             elif property.type == "hospital":
@@ -233,6 +266,8 @@ class MonopolyUI:
 
         self.game = MonopolyGame(self)
         self.image_labels = {}
+        self.player_pieces = {}  # 存储玩家棋子的字典
+        
         # 假定棋盤格子名稱
         self.cell_names = [
             "Start", "便當", "新竹人的❤️麥當勞","韓式炸雞", "Chance or Destiny","咖哩飯","壽司","牛肉麵","石鍋拌飯","jail",
@@ -431,7 +466,7 @@ class MonopolyUI:
             player = Player(name)
             self.game.add_player(player)
             self.player_name_var.set("")
-            self.update_player_list()
+            
         else:
             messagebox.showerror("Error", "Player name cannot be empty.")
 
@@ -489,6 +524,42 @@ class MonopolyUI:
         self.game = MonopolyGame(self)  # 重置遊戲
         self.update_status_label("Game has been reset. Ready to play again!")
         #self.disable_buttons()  # 重新啟用按鈕等可能在遊戲中變更的UI元件
+        
+    def create_player_piece(self, player):
+        colors = ["red", "blue", "green", "orange"]
+        color = colors[len(self.player_pieces) % len(colors)]
+        x, y = self.get_position_coordinates(player.position, len(self.game.players) - 1)
+        #x, y = self.get_position_coordinates(player.position)
+        piece = self.board_canvas.create_oval(x-10, y-10, x+10, y+10, fill=color, outline=color)
+        self.player_pieces[player] = piece
+        
+    def update_player_piece_position(self, player):
+        x, y = self.get_position_coordinates(player.position, list(self.player_pieces.keys()).index(player))
+        #x, y = self.get_position_coordinates(player.position)
+        self.board_canvas.coords(self.player_pieces[player], x-10, y-10, x+10, y+10)
+    
+    def get_position_coordinates(self, position, player_index):
+        cell_size = min(1000 / 10, 500 / 5)
+        offset_x = (player_index % 2) * cell_size / 2
+        offset_y = (player_index // 2) * cell_size / 2
+       
+        if position < 10:  # Top row
+            x = position * cell_size + offset_x + cell_size / 4
+            y = cell_size / 4 + offset_y
+        elif position < 13:  # Right column
+            x = 9 * cell_size + offset_x +cell_size / 4
+            y = (position - 9) * cell_size + offset_y + cell_size / 4
+        elif position < 23:  # Bottom row
+            x = (22 - position) * cell_size + offset_x + cell_size / 4
+            y = 4 * cell_size + offset_y + cell_size / 4
+        
+        else:  # Left column
+            x = 0 + offset_x + cell_size / 4 
+            y = (26 - position) * cell_size + offset_y + cell_size / 4
+            #x = 0.5 * cell_size + offset_x + cell_size / 4
+            #y = (22 - position) * cell_size + offset_y + cell_size / 4
+        return x, y
+
 
 if __name__ == "__main__":
     root = tk.Tk()
