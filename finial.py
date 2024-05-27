@@ -33,7 +33,7 @@ class DiceAnimationWindow:
         self.dice_label = tk.Label(self.root)
         self.dice_label.pack(expand=True)
 
-        self.dice_images = [ImageTk.PhotoImage(Image.open(f'{i}.jpg')) for i in range(1, 7)]
+        self.dice_images = [ImageTk.PhotoImage(Image.open(f'{i}.png')) for i in range(1, 7)]
         self.result = None  # 用於存儲骰子的結果
         self.callback = None  # 回调函数
 

@@ -230,7 +230,7 @@ class StartScreen(tk.Tk):
         super().__init__()
 
         self.title("大富翁遊戲")
-        img = Image.open('4.png')
+        img = Image.open('ui.png')
         self.bg_image = ImageTk.PhotoImage(img)
 
         # 建立Canvas
