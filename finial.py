@@ -221,7 +221,11 @@ class MonopolyGame:
             property = self.properties[player.position]
             if property.type == "chanceordestiny":
                 self.ui.add_message(f"{player.name} landed on a Chance or Destiny space.")
-                self.draw_chanceordestiny_card(player)
+                amount = random.choice([50, -50])
+                if amount > 0:
+                    self.draw_chance_card(player)
+                else:
+                    self.draw_destiny_card(player)
             elif property.type == "emergency" and player.position == 19:
                 self.ui.add_message(f"{player.name}  landed on a Emergency space and moved to hospital.")
                 player.is_emergency = True
@@ -274,7 +278,21 @@ class MonopolyGame:
         messagebox.showinfo("Game Over", f"The winner is {richest_player.name} with ${richest_player.money}!")
         #self.ui.disable_buttons()
 
-    def draw_chanceordestiny_card(self, player):
+    def draw_chance_card(self, player):
+        amount = random.choice([50, -50])
+        player.update_money(amount)
+        if player.money < 0:
+            self.ui.add_message(f"{player.name} drew a Chance or Destiny card and lost ${-amount}. {player.name} is bankrupt.")
+            self.end_game()
+            self.ui.game_over() 
+            
+        else:
+            if amount > 0:
+                self.ui.add_message(f"{player.name} drew a Chance or Destiny card and received ${amount}.")
+            else:
+                self.ui.add_message(f"{player.name} drew a Chance  or Destiny card and lost ${-amount}.")
+                
+    def draw_destiny_card(self, player):
         amount = random.choice([50, -50])
         player.update_money(amount)
         if player.money < 0:
@@ -289,7 +307,7 @@ class MonopolyGame:
                 self.ui.add_message(f"{player.name} drew a Chance  or Destiny card and lost ${-amount}.")
         
     def draw_magic_card(self, player):
-        amount = random.choice([100,10])
+        amount = random.choice([1000,100])
         player.update_money(amount)
         self.ui.add_message(f"{player.name} drew a Magic card and received ${amount}.")
            
