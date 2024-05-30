@@ -68,6 +68,8 @@ class Player:
         self.in_hospital = False
         self.is_emergency = False
 
+        
+
     def move(self, steps, board_size,ui):
         for step in range(steps):
             self.position = (self.position + 1) % board_size
@@ -78,6 +80,14 @@ class Player:
     def update_money(self, amount):
         self.money += amount
 
+    """   
+    def update_ui(self):
+        # 更新UI显示的金钱数量
+        self.ui.update_player_list()
+        print(f"玩家目前的金幣數量: {self.money}")
+        # 实际UI更新逻辑在这里实现
+        #self.ui_money_label.set_text(str(self.money))
+    """    
     def buy_property(self, property_name, cost):
         if self.money >= cost:
             self.money -= cost
@@ -190,7 +200,7 @@ class MonopolyGame:
             self.current_turn = (self.current_turn + 1) % len(self.players)
             return
             
-        steps = self.roll_dice()#self.roll_dice()
+        steps = 4#self.roll_dice()
         current_player.move(steps, self.board_size,self.ui)
         self.ui.next_turn_button.config(state=tk.NORMAL)
         self.ui.update_status_label(f"{current_player.name} rolled a {steps} and moved to position {current_player.position}.")
@@ -287,15 +297,62 @@ class MonopolyGame:
     def draw_chance_card(self, player):
         def on_close(result):
             print(f"讀取到的卡牌結果: {result}")
+            if result =="說不定是明智的選擇[損失500金幣]":
+                amount=-500
+            elif  result =="乖乖秀秀痛痛飛走[損失10金幣]":
+                amount=-10
+            elif  result =="土地公顯靈[增加600金幣]":
+                amount=600
+            elif  result =="恭喜獲得不會做菜的廚師[損失300金幣]":
+                amount=-300
+            elif  result =="放屁有益身體健康[獲得200金幣]":
+                amount=200
+            elif  result =="聽君一席話，如聽一席話":
+                return
+            elif  result =="上帝可能比較忙[損失100金幣]":
+                amount=-100
+            elif  result =="衝動是不好的行為[損失100金幣]":
+                amount=-100
+            elif  result =="逆轉乾坤 倒立人生":
+                return
+            elif  result =="想偷懶不是這樣的[損失200金幣]":
+                amount=-200
+                
+            player.update_money(amount)
+                
             #self.apply_chance_card_result(player, result)
-
+            #self.ui.add_message(f"{player.name} drew a Destiny card and the result was: {result}")
+            self.ui.update_player_list()
         self.chance_fate_ui_instance = ChanceFateUI(self.ui.root, on_close)
         
     def draw_destiny_card(self, player):
         def on_close(result):
             print(f"讀取到的卡牌結果: {result}")
+            if result =="說不定是明智的選擇[損失500金幣]":
+                amount=-500
+            elif  result =="乖乖秀秀痛痛飛走[損失10金幣]":
+                amount=-10
+            elif  result =="土地公顯靈[增加600金幣]":
+                amount=600
+            elif  result =="恭喜獲得不會做菜的廚師[損失300金幣]":
+                amount=-300
+            elif  result =="放屁有益身體健康[獲得200金幣]":
+                amount=200
+            elif  result =="聽君一席話，如聽一席話":
+                return
+            elif  result =="上帝可能比較忙[損失100金幣]":
+                amount=-100
+            elif  result =="衝動是不好的行為[損失100金幣]":
+                amount=-100
+            elif  result =="逆轉乾坤 倒立人生":
+                return
+            elif  result =="想偷懶不是這樣的[損失200金幣]":
+                amount=-200
+                
+            player.update_money(amount)
             #self.apply_chance_card_result(player, result)
-
+            #self.ui.add_message(f"{player.name} drew a Destiny card and the result was: {result}")
+            self.ui.update_player_list()
         self.chance_fate_ui_instance = ChanceFateUI(self.ui.root, on_close)
 
     def draw_magic_card(self, player):
