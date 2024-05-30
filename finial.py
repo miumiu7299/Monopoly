@@ -80,14 +80,6 @@ class Player:
     def update_money(self, amount):
         self.money += amount
 
-    """   
-    def update_ui(self):
-        # 更新UI显示的金钱数量
-        self.ui.update_player_list()
-        print(f"玩家目前的金幣數量: {self.money}")
-        # 实际UI更新逻辑在这里实现
-        #self.ui_money_label.set_text(str(self.money))
-    """    
     def buy_property(self, property_name, cost):
         if self.money >= cost:
             self.money -= cost
@@ -327,8 +319,6 @@ class MonopolyGame:
                 amount=-50
                 
             player.update_money(amount)
-                
-            #self.apply_chance_card_result(player, result)
             #self.ui.add_message(f"{player.name} drew a Destiny card and the result was: {result}")
             self.ui.update_player_list()
         self.chance_fate_ui_instance = ChanceUI(self.ui.root, on_close)
@@ -358,7 +348,6 @@ class MonopolyGame:
                 amount=-200
                 
             player.update_money(amount)
-            #self.apply_chance_card_result(player, result)
             #self.ui.add_message(f"{player.name} drew a Destiny card and the result was: {result}")
             self.ui.update_player_list()
         self.chance_fate_ui_instance = FateUI(self.ui.root, on_close)
@@ -379,7 +368,6 @@ class ChanceUI:
         self.win.geometry("1050x550")
         self.win.resizable(0, 0)
         self.win.config(bg="#f0f0f0")
-        #self.ui = ui
 
         screen_width = self.win.winfo_screenwidth()
         screen_height = self.win.winfo_screenheight()
@@ -470,7 +458,7 @@ class ChanceUI:
         self.gif_label.grid(row=0, column=0, columnspan=8)
 
         self.win.protocol("WM_DELETE_WINDOW", self.on_close)
-        #self.win.mainloop()
+
 
     def button_clicked(self, card):
         print("你選擇了此張命運卡牌!")
@@ -492,10 +480,8 @@ class ChanceUI:
 
     def handle_draw_card_result(self, result):
         self.drawn_card_result = result  # 保存抽到的卡牌結果
-        #self.win.destroy()  # 确保窗口关闭
         print(f"卡牌結果已設置: {result}")  # 添加调试信息
         self.on_close()
-        #return result
         
     def get_drawn_card_result(self):
         return self.drawn_card_result
@@ -569,7 +555,6 @@ class FateUI:
         self.win.geometry("1050x550")
         self.win.resizable(0, 0)
         self.win.config(bg="#f0f0f0")
-        #self.ui = ui
 
         screen_width = self.win.winfo_screenwidth()
         screen_height = self.win.winfo_screenheight()
@@ -658,7 +643,7 @@ class FateUI:
         self.gif_label.grid(row=0, column=0, columnspan=8)
 
         self.win.protocol("WM_DELETE_WINDOW", self.on_close)
-        #self.win.mainloop()
+
 
     def button_clicked(self, card):
         print("你選擇了此張命運卡牌!")
@@ -680,10 +665,9 @@ class FateUI:
 
     def handle_draw_card_result(self, result):
         self.drawn_card_result = result  # 保存抽到的卡牌結果
-        #self.win.destroy()  # 确保窗口关闭
         print(f"卡牌結果已設置: {result}")  # 添加调试信息
         self.on_close()
-        #return result
+
         
     def get_drawn_card_result(self):
         return self.drawn_card_result
@@ -743,20 +727,6 @@ class FateUI:
         if self.on_close_callback:
             self.on_close_callback(self.drawn_card_result)
         #self.win.destroy()
-
-
-
-"""
-    def animate_gif(self, label, frames, delay):
-        def update_frame(frame_index):
-            frame = self.frames[frame_index]
-            label.config(image=frame)
-            frame_index = (frame_index + 1) % len(frames)
-            label.after(delay, update_frame, frame_index)
-        update_frame(0)
-    """
-#if __name__ == "__main__":
-   #ChanceFateUI()
 
 
            
@@ -1109,12 +1079,6 @@ class MonopolyUI:
 
 if __name__ == "__main__":
     Globals.load_from_file('globals_data.pkl')
-    """
-    root = tk.Tk()
-    ui = MonopolyUI(root)
-    game = MonopolyGame(ui)
-    root.mainloop()
-    """
     root = tk.Tk()
     app = MonopolyUI(root)
     root.mainloop()
