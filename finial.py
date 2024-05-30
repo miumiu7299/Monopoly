@@ -297,33 +297,41 @@ class MonopolyGame:
     def draw_chance_card(self, player):
         def on_close(result):
             print(f"讀取到的卡牌結果: {result}")
-            if result =="說不定是明智的選擇[損失500金幣]":
-                amount=-500
-            elif  result =="乖乖秀秀痛痛飛走[損失10金幣]":
-                amount=-10
-            elif  result =="土地公顯靈[增加600金幣]":
-                amount=600
-            elif  result =="恭喜獲得不會做菜的廚師[損失300金幣]":
+            if result =="恭喜獲得 300 金幣!":
+                amount=300
+            elif  result =="恭喜獲得 500 金幣!!":
+                amount=500
+            elif  result =="恭喜要損失 300 金幣哈哈":
                 amount=-300
-            elif  result =="放屁有益身體健康[獲得200金幣]":
-                amount=200
-            elif  result =="聽君一席話，如聽一席話":
-                return
-            elif  result =="上帝可能比較忙[損失100金幣]":
-                amount=-100
-            elif  result =="衝動是不好的行為[損失100金幣]":
-                amount=-100
-            elif  result =="逆轉乾坤 倒立人生":
-                return
-            elif  result =="想偷懶不是這樣的[損失200金幣]":
+            elif  result =="恭喜獲得 100 金幣!!":
+                amount=100
+            elif  result =="恭喜要損失 200 金幣哈哈":
                 amount=-200
+            elif  result =="恭喜獲得 700 金幣!!":
+                amount=700
+            elif  result =="恭喜要損失 100 金幣哈哈":
+                amount=-100
+            elif  result =="甚麼都沒有":
+                return
+            elif  result =="恭喜要損失 300 金幣哈":
+                amount=-300
+            elif  result =="恭喜獲得 300 金幣!!":
+                amount=300
+            elif  result =="恭喜要損失 200 金幣哈哈":
+                amount=-200
+            elif  result =="恭喜要損失 20 金幣哈哈":
+                amount=-20
+            elif  result =="莫名其妙獲得 100 金幣!!":
+                amount=100
+            elif  result =="恭喜要損失 50 金幣哈哈":
+                amount=-50
                 
             player.update_money(amount)
                 
             #self.apply_chance_card_result(player, result)
             #self.ui.add_message(f"{player.name} drew a Destiny card and the result was: {result}")
             self.ui.update_player_list()
-        self.chance_fate_ui_instance = ChanceFateUI(self.ui.root, on_close)
+        self.chance_fate_ui_instance = ChanceUI(self.ui.root, on_close)
         
     def draw_destiny_card(self, player):
         def on_close(result):
@@ -353,7 +361,7 @@ class MonopolyGame:
             #self.apply_chance_card_result(player, result)
             #self.ui.add_message(f"{player.name} drew a Destiny card and the result was: {result}")
             self.ui.update_player_list()
-        self.chance_fate_ui_instance = ChanceFateUI(self.ui.root, on_close)
+        self.chance_fate_ui_instance = FateUI(self.ui.root, on_close)
 
     def draw_magic_card(self, player):
         amount = random.choice([1000,100])
@@ -361,7 +369,196 @@ class MonopolyGame:
         self.ui.add_message(f"{player.name} drew a Magic card and received ${amount}.")
         
         
-class ChanceFateUI:
+class ChanceUI:
+    def __init__(self,parent, on_close_callback):
+        self.drawn_card_result = None  # 在 __init__ 方法中添加這行
+        #self.win = tk.Tk()
+        self.on_close_callback = on_close_callback
+        self.win = tk.Toplevel(parent)
+        self.win.title("Flashing Button Example")
+        self.win.geometry("1050x550")
+        self.win.resizable(0, 0)
+        self.win.config(bg="#f0f0f0")
+        #self.ui = ui
+
+        screen_width = self.win.winfo_screenwidth()
+        screen_height = self.win.winfo_screenheight()
+        x = int((screen_width - 1050) / 2)
+        y = int((screen_height - 580) / 2)
+        self.win.geometry(f"+{x}+{y}")
+
+        self.card_function_label = tk.Label(self.win, text="", font=("Helvetica", 16), bg="white")
+        self.card_function_label.grid(row=10, columnspan=5)
+
+        image_path = "chance/CHANCE_COVER.png"
+        image_paths_new = [
+            "chance/chance_1.png",
+            "chance/chance_2.png",
+            "chance/chance_3.png",
+            "chance/chance_4.png",
+            "chance/chance_5.png",
+            "chance/chance_6.png",
+            "chance/chance_7.png",
+            "chance/chance_8.png",
+            "chance/chance_9.png",
+            "chance/chance_10.png",
+            "chance/chance_11.png",
+            "chance/chance_12.png",
+            "chance/chance_13.png",
+            "chance/chance_14.png",
+        ]
+
+        original_image = Image.open(image_path)
+        original_width, original_height = original_image.size
+        target_width = int(original_width * 0.19)
+        target_height = int(original_height * 0.19)
+        resized_image = original_image.resize((target_width, target_height))
+
+        self.img_normal = ImageTk.PhotoImage(resized_image)
+        self.img_blank = ImageTk.PhotoImage(Image.new('RGBA', (target_width, target_height), (0, 0, 0, 0)))
+
+        resized_images_new = [{'path': path, 'image': ImageTk.PhotoImage(Image.open(path).resize((target_width, target_height)))} for path in image_paths_new]
+        self.imgs_new = [img for img in resized_images_new]
+
+        self.image_to_message = {
+            "chance/chance_1.png": "恭喜獲得 300 金幣!",
+            "chance/chance_2.png": "恭喜獲得 500 金幣!!",
+            "chance/chance_3.png": "恭喜要損失 300 金幣哈哈",
+            "chance/chance_4.png": "恭喜獲得 100 金幣!!",
+            "chance/chance_5.png": "恭喜要損失 200 金幣哈哈",
+            "chance/chance_6.png": "恭喜獲得 700 金幣!!",
+            "chance/chance_7.png": "恭喜要損失 100 金幣哈哈",
+            "chance/chance_8.png": "甚麼都沒有",
+            "chance/chance_9.png": "恭喜要損失 300 金幣哈哈",
+            "chance/chance_10.png": "恭喜獲得 300 金幣!!",
+            "chance/chance_11.png": "恭喜要損失 200 金幣哈哈",
+            "chance/chance_12.png": "恭喜要損失 20 金幣哈哈",
+            "chance/chance_13.png": "莫名其妙獲得 100 金幣!!",
+            "chance/chance_14.png": "恭喜要損失 50 金幣哈哈",
+        }
+
+        gif_path = "chance/drawCard.gif"
+        gif = Image.open(gif_path)
+        scale_factor = 0.7
+        original_width, original_height = gif.size
+        target_width = int(original_width * scale_factor)
+        target_height = int(original_height * scale_factor)
+
+        self.update_frame_index = 0  # 增加这一行来跟踪帧索引
+        # 确保frames不会被垃圾回收
+        self.frames = []
+        try:
+            while True:
+                for frame in ImageSequence.Iterator(gif):
+                    gif.seek(len(self.frames))
+                    frame = gif.copy().convert('RGBA').resize((target_width, target_height))
+                    self.frames.append(ImageTk.PhotoImage(frame))
+        except EOFError:
+            pass
+
+        self.gif_label = tk.Label(self.win)
+        self.gif_label.grid(row=0, column=0, columnspan=5, pady=20)
+        self.animate_gif()
+        #self.animate_gif(self.gif_label,self.frames, delay=100)
+        self.win.after(3600, self.show_cards)
+        self.win.grid_columnconfigure(0, weight=1)
+        self.win.grid_columnconfigure(1, weight=1)
+        self.win.grid_columnconfigure(2, weight=1)
+        self.win.grid_columnconfigure(3, weight=1)
+        self.win.grid_columnconfigure(4, weight=1)
+        self.win.grid_rowconfigure(0, weight=1)
+        self.gif_label.grid(row=0, column=0, columnspan=8)
+
+        self.win.protocol("WM_DELETE_WINDOW", self.on_close)
+        #self.win.mainloop()
+
+    def button_clicked(self, card):
+        print("你選擇了此張命運卡牌!")
+        self.flash_button(card, 0)
+
+    def flash_button(self, card, count):
+        if count < 7:
+            if count % 2 == 0:
+                card.config(image=self.img_normal)
+            else:
+                card.config(image=self.img_blank)
+            count += 1
+            card.after(150, self.flash_button, card, count)
+        else:
+            new_image = random.choice(self.imgs_new)
+            card.config(image=new_image['image'])
+            card.image = new_image['image']
+            self.win.after(1000, lambda: self.handle_draw_card_result(self.draw_card(new_image['path'])))
+
+    def handle_draw_card_result(self, result):
+        self.drawn_card_result = result  # 保存抽到的卡牌結果
+        #self.win.destroy()  # 确保窗口关闭
+        print(f"卡牌結果已設置: {result}")  # 添加调试信息
+        self.on_close()
+        #return result
+        
+    def get_drawn_card_result(self):
+        return self.drawn_card_result
+
+    def draw_card(self, image_path):
+        message = self.image_to_message.get(image_path, "未知卡牌")
+        for widget in self.win.winfo_children():
+            widget.grid_remove()
+
+        original_image = Image.open(image_path)
+        original_width, original_height = original_image.size
+        target_width = int(original_width * 0.3)
+        target_height = int(original_height * 0.3)
+        resized_image = original_image.resize((target_width, target_height))
+        card_image = ImageTk.PhotoImage(resized_image)
+        card_image_label = tk.Label(self.win, image=card_image)
+        card_image_label.image = card_image
+        card_image_label.grid(row=9, columnspan=5, pady=(50, 30))
+        self.card_function_label.config(text=message, bg="#f0f0f0")
+        self.card_function_label.grid(row=10, columnspan=5)
+        confirm_button = tk.Button(self.win, text="確認", font=("Helvetica", 17), command=self.win.destroy)
+        #confirm_button = tk.Button(self.win, text="確認", font=("Helvetica", 17), command=self.on_close)
+        confirm_button.grid(row=11, columnspan=5, pady=(10, 60))
+        print(message)
+        return message
+        
+
+    def show_cards(self):
+        self.gif_label.grid_remove()
+        buttons = []
+        for i in range(10):
+            button = tk.Button(self.win, image=self.img_normal, bd=0, highlightthickness=0)
+            button.bind("<Enter>", self.on_enter)
+            button.bind("<Leave>", self.on_leave)
+            row = i // 5
+            col = i % 5
+            button.grid(row=row, column=col, padx=10, pady=10)
+            button.config(command=lambda b=button: self.button_clicked(b))
+            buttons.append(button)
+
+    def on_leave(self, event):
+        event.widget.config(borderwidth=0, relief="flat")
+
+    def on_enter(self, event):
+        if isinstance(event.widget, tk.Button):
+            event.widget.config(borderwidth=2, relief="solid")
+
+    def animate_gif(self):
+        def update_frame():
+            frame = self.frames[self.update_frame_index]
+            self.gif_label.config(image=frame)
+            self.update_frame_index = (self.update_frame_index + 1) % len(self.frames)
+            self.win.after(100, update_frame)  # 调整延迟时间以控制动画速度
+        update_frame()
+        
+    def on_close(self):
+        if self.on_close_callback:
+            self.on_close_callback(self.drawn_card_result)
+        #self.win.destroy()
+    
+        
+        
+class FateUI:
 
     def __init__(self,parent, on_close_callback):
         self.drawn_card_result = None  # 在 __init__ 方法中添加這行
