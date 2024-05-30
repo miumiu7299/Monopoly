@@ -99,7 +99,8 @@ class MonopolyGame:
         self.board_size = 26 #共30格
         self.properties = self.create_properties()
         self.ui = ui
-        #self.chance_fate_ui = chance_fate_ui
+        self.chance_fate_ui_instance = None
+        
 
     def create_properties(self):
         properties = []
@@ -156,6 +157,7 @@ class MonopolyGame:
                 properties.append(Property(f"便當 {i}", 80))
             elif i in [0]: 
                 properties.append(Property(f"Start {i}", 0))
+        #return []
         return properties
 
     def add_player(self, player):
@@ -281,21 +283,35 @@ class MonopolyGame:
         messagebox.showinfo("Game Over", f"The winner is {richest_player.name} with ${richest_player.money}!")
         #self.ui.disable_buttons()
 
+
     def draw_chance_card(self, player):
-        self.chance_fate_ui_instance = ChanceFateUI()
-        #card_result = self.chance_fate_ui.get_drawn_card_result()
-        #print(f"讀取到的卡牌結果: {card_result}")
+        def on_close(result):
+            print(f"讀取到的卡牌結果: {result}")
+            #self.apply_chance_card_result(player, result)
+
+        self.chance_fate_ui_instance = ChanceFateUI(self.ui.root, on_close)
         
-        #self.current_turn = (self.current_turn + 1) % len(self.players)
-        
-        #self.chance_fate_ui_instance.win.protocol("WM_DELETE_WINDOW", self.next_player_turn)
-        """
+    def draw_destiny_card(self, player):
+        def on_close(result):
+            print(f"讀取到的卡牌結果: {result}")
+            #self.apply_chance_card_result(player, result)
+
+        self.chance_fate_ui_instance = ChanceFateUI(self.ui.root, on_close)
+
+    """
+    def draw_chance_card(self, player):
+        self.chance_fate_ui_instance = ChanceFateUI(self.ui.root)
+        self.ui.wait_window(self.chance_fate_ui_instance.win)  # 等待窗口关闭
+        result = self.chance_fate_ui_instance.get_drawn_card_result()
+        print(f"讀取到的卡牌結果: {result}")
+    """
+    """
         game = Game()
         game.draw_chance_card(None)
         #tk.mainloop()
         self.ui.add_message(f"{player.name} drew a chance card .")
-        """
-        """
+     """
+    """
         amount = random.choice([50, -50])
         player.update_money(amount)
         if player.money < 0:
@@ -309,20 +325,21 @@ class MonopolyGame:
             else:
                 self.ui.add_message(f"{player.name} drew a Chance  or Destiny card and lost ${-amount}.")
         """      
+    """
     def draw_destiny_card(self, player):
-        self.chance_fate_ui_instance = ChanceFateUI()
-        #card_result = self.chance_fate_ui.get_drawn_card_result()
-       # print(f"讀取到的卡牌結果: {card_result}")
-        #self.current_turn = (self.current_turn + 1) % len(self.players)
-        
-        #self.chance_fate_ui_instance.win.protocol("WM_DELETE_WINDOW", self.next_player_turn)
-        """
+        self.chance_fate_ui_instance = ChanceFateUI(self.ui.root)
+        #self.ui.wait_window(self.chance_fate_ui_instance.win)  # 等待窗口关闭
+        result = self.chance_fate_ui_instance.get_drawn_card_result()
+        print(f"讀取到的卡牌結果: {result}")
+    """
+    
+    """
         game = Game()
         game.draw_destiny_card(None)
         #tk.mainloop()
         self.ui.add_message(f"{player.name} drew a destiny card .")
         """
-        """
+    """
         amount = random.choice([50, -50])
         player.update_money(amount)
         if player.money < 0:
@@ -344,10 +361,11 @@ class MonopolyGame:
         
 class ChanceFateUI:
 
-    def __init__(self):
+    def __init__(self,parent, on_close_callback):
         self.drawn_card_result = None  # 在 __init__ 方法中添加這行
         #self.win = tk.Tk()
-        self.win = tk.Toplevel()
+        self.on_close_callback = on_close_callback
+        self.win = tk.Toplevel(parent)
         self.win.title("Flashing Button Example")
         self.win.geometry("1050x550")
         self.win.resizable(0, 0)
@@ -440,7 +458,8 @@ class ChanceFateUI:
         self.win.grid_rowconfigure(0, weight=1)
         self.gif_label.grid(row=0, column=0, columnspan=8)
 
-        self.win.mainloop()
+        self.win.protocol("WM_DELETE_WINDOW", self.on_close)
+        #self.win.mainloop()
 
     def button_clicked(self, card):
         print("你選擇了此張命運卡牌!")
@@ -462,6 +481,9 @@ class ChanceFateUI:
 
     def handle_draw_card_result(self, result):
         self.drawn_card_result = result  # 保存抽到的卡牌結果
+        #self.win.destroy()  # 确保窗口关闭
+        print(f"卡牌結果已設置: {result}")  # 添加调试信息
+        self.on_close()
         #return result
         
     def get_drawn_card_result(self):
@@ -484,6 +506,7 @@ class ChanceFateUI:
         self.card_function_label.config(text=message, bg="#f0f0f0")
         self.card_function_label.grid(row=10, columnspan=5)
         confirm_button = tk.Button(self.win, text="確認", font=("Helvetica", 17), command=self.win.destroy)
+        #confirm_button = tk.Button(self.win, text="確認", font=("Helvetica", 17), command=self.on_close)
         confirm_button.grid(row=11, columnspan=5, pady=(10, 60))
         print(message)
         return message
@@ -517,18 +540,14 @@ class ChanceFateUI:
             self.win.after(100, update_frame)  # 调整延迟时间以控制动画速度
         update_frame()
         
-class Game:
-    def __init__(self):
-        self.chance_fate_ui_instance = None
+    def on_close(self):
+        if self.on_close_callback:
+            self.on_close_callback(self.drawn_card_result)
+        #self.win.destroy()
 
-    def draw_destiny_card(self, player):
-        # 确保实例存储在类的一个属性中
-        self.chance_fate_ui_instance = ChanceFateUI()
-    def draw_chance_card(self, player):
-        # 确保实例存储在类的一个属性中
-        self.chance_fate_ui_instance = ChanceFateUI()
 
-    """
+
+"""
     def animate_gif(self, label, frames, delay):
         def update_frame(frame_index):
             frame = self.frames[frame_index]
@@ -654,9 +673,10 @@ class MonopolyUI:
         self.message_listbox = tk.Listbox(self.main_frame, height=10,width=50)
         # 在這裡添加 padx 和 pady 以增加邊距
         self.message_listbox.place(relx=0.5, rely=0.55, anchor='center')
-        
-    
-
+    """   
+    def wait_window(self, win):
+        self.root.wait_window(win)
+    """ 
     def draw_board(self):
         food_image_paths = [
             "character/start.png",
@@ -881,7 +901,13 @@ class MonopolyUI:
 
 if __name__ == "__main__":
     Globals.load_from_file('globals_data.pkl')
-
+    """
+    root = tk.Tk()
+    ui = MonopolyUI(root)
+    game = MonopolyGame(ui)
+    root.mainloop()
+    """
     root = tk.Tk()
     app = MonopolyUI(root)
     root.mainloop()
+    
