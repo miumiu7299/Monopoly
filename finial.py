@@ -190,7 +190,7 @@ class MonopolyGame:
             self.current_turn = (self.current_turn + 1) % len(self.players)
             return
             
-        steps = 4#self.roll_dice()
+        steps = self.roll_dice()#self.roll_dice()
         current_player.move(steps, self.board_size,self.ui)
         self.ui.next_turn_button.config(state=tk.NORMAL)
         self.ui.update_status_label(f"{current_player.name} rolled a {steps} and moved to position {current_player.position}.")
@@ -298,61 +298,6 @@ class MonopolyGame:
 
         self.chance_fate_ui_instance = ChanceFateUI(self.ui.root, on_close)
 
-    """
-    def draw_chance_card(self, player):
-        self.chance_fate_ui_instance = ChanceFateUI(self.ui.root)
-        self.ui.wait_window(self.chance_fate_ui_instance.win)  # 等待窗口关闭
-        result = self.chance_fate_ui_instance.get_drawn_card_result()
-        print(f"讀取到的卡牌結果: {result}")
-    """
-    """
-        game = Game()
-        game.draw_chance_card(None)
-        #tk.mainloop()
-        self.ui.add_message(f"{player.name} drew a chance card .")
-     """
-    """
-        amount = random.choice([50, -50])
-        player.update_money(amount)
-        if player.money < 0:
-            self.ui.add_message(f"{player.name} drew a Chance or Destiny card and lost ${-amount}. {player.name} is bankrupt.")
-            self.end_game()
-            self.ui.game_over() 
-            
-        else:
-            if amount > 0:
-                self.ui.add_message(f"{player.name} drew a Chance or Destiny card and received ${amount}.")
-            else:
-                self.ui.add_message(f"{player.name} drew a Chance  or Destiny card and lost ${-amount}.")
-        """      
-    """
-    def draw_destiny_card(self, player):
-        self.chance_fate_ui_instance = ChanceFateUI(self.ui.root)
-        #self.ui.wait_window(self.chance_fate_ui_instance.win)  # 等待窗口关闭
-        result = self.chance_fate_ui_instance.get_drawn_card_result()
-        print(f"讀取到的卡牌結果: {result}")
-    """
-    
-    """
-        game = Game()
-        game.draw_destiny_card(None)
-        #tk.mainloop()
-        self.ui.add_message(f"{player.name} drew a destiny card .")
-        """
-    """
-        amount = random.choice([50, -50])
-        player.update_money(amount)
-        if player.money < 0:
-            self.ui.add_message(f"{player.name} drew a Chance or Destiny card and lost ${-amount}. {player.name} is bankrupt.")
-            self.end_game()
-            self.ui.game_over() 
-            
-        else:
-            if amount > 0:
-                self.ui.add_message(f"{player.name} drew a Chance or Destiny card and received ${amount}.")
-            else:
-                self.ui.add_message(f"{player.name} drew a Chance  or Destiny card and lost ${-amount}.")
-        """
     def draw_magic_card(self, player):
         amount = random.choice([1000,100])
         player.update_money(amount)
@@ -510,7 +455,7 @@ class ChanceFateUI:
         confirm_button.grid(row=11, columnspan=5, pady=(10, 60))
         print(message)
         return message
-        #self.ui.next_turn()
+        
 
     def show_cards(self):
         self.gif_label.grid_remove()
@@ -612,6 +557,7 @@ class MonopolyUI:
             10: 11, 11:13, 12:15, 13:25, 14:24, 15:23, 16:22, 17:21, 18:20, 19:19,
             20:18, 21:17, 22:16, 23:14, 24:12, 25:10
         }
+
         # 主框架設置
         self.main_frame = tk.Frame(self.root)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
@@ -865,24 +811,32 @@ class MonopolyUI:
             
             # Add more food image paths as needed
         ]
+        
         property_index = self.game.properties.index(property)
-        if property_index not in self.cell_to_property_index2:
-            print(f"Warning: Property index {property_index} not found in cell_to_property_index.")
-            return
+        property_index = self.cell_to_property_index2[property_index]
 
-        cell_index = self.cell_to_property_index2.get(property_index)
-        if cell_index is None:
+        '''
+        property_index = self.get_key(self.cell_to_property_index,property_index)
+        
+        '''
+        print(f"pro :{property_index }") 
+    
+        
+        #cell_index = self.cell_to_property_index.get(property_index)
+        if property_index is None:
             print(f"Warning: Cell index None not found in cell_colors.")
             return
 
         color = self.colors[self.game.players.index(player) % len(self.colors)]
-        if cell_index in self.cell_colors:
-            self.board_canvas.itemconfig(self.cell_colors[cell_index], fill=color)
-            self.board_canvas.tag_bind(self.cell_colors[cell_index], '<Button-1>', lambda event, name=property.name, cost=property.cost, image_path=food_image_paths[property_index]: self.show_cell_name_picture(name, cost, image_path))
+        if property_index in self.cell_colors:
+            self.board_canvas.itemconfig(self.cell_colors[property_index], fill=color)
+            self.board_canvas.tag_bind(self.cell_colors[property_index], '<Button-1>', lambda event, name=property.name, cost=property.cost, image_path=food_image_paths[property_index]: self.show_cell_name_picture(name, cost, image_path))
         else:
-            print(f"Warning: Cell index {cell_index} not found in cell_colors.")
+            print(f"Warning: Cell index {property_index} not found in cell_colors.")
 
-
+    def get_key(self,dict, value):
+        return [k for k, v in dict.items() if v==value]
+    
     
     def disable_buttons(self):
         self.next_turn_button.config(state=tk.DISABLED)
