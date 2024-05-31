@@ -234,7 +234,7 @@ class MonopolyGame:
             property = self.properties[player.position]
             if property.type == "chanceordestiny":
                 self.ui.add_message(f"{player.name} landed on a Chance or Destiny space.")
-                #amount = random.choice([50,-50 ])
+
                 amount = random.choice([0,-50 ])
                 if amount > 0:
                     self.draw_chance_card(player)
@@ -622,19 +622,19 @@ class FateUI:
 
         image_path = "fate/FATE_COVER.png"
         image_paths_new = [
-            #"fate/fate_1.png",
-            #"fate/fate_2.png",
-            #"fate/fate_3.png",
-            #"fate/fate_4.png",
-            #"fate/fate_5.png",
-            #"fate/fate_6.png",
-            #"fate/fate_7.png",
-            #"fate/fate_8.png",
-            #"fate/fate_11.png",
-            #"fate/fate_12.png",
-            #"fate/fate_13.png",
+            "fate/fate_1.png",
+            "fate/fate_2.png",
+            "fate/fate_3.png",
+            "fate/fate_4.png",
+            "fate/fate_5.png",
+            "fate/fate_6.png",
+            "fate/fate_7.png",
+            "fate/fate_8.png",
+            "fate/fate_11.png",
+            "fate/fate_12.png",
+            "fate/fate_13.png",
             "fate/fate_15.png",
-            #"fate/fate_17.png"
+            "fate/fate_17.png"
         ]
 
         original_image = Image.open(image_path)
