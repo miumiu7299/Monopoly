@@ -62,6 +62,7 @@ class Player:
     def __init__(self, name, position=0, money=4000):
         self.name = name
         self.position = position
+        self.skip_turns = 0
         self.money = int(Globals.money)
         self.properties = []
         self.in_jail = False
@@ -169,6 +170,12 @@ class MonopolyGame:
         if not self.players:
             messagebox.showerror("Error", "No players in the game.")
             return
+        while self.players[self.current_turn].skip_turns > 0:
+            current_player = self.players[self.current_turn]
+            self.players[self.current_turn].skip_turns -= 1
+            self.ui.update_status_label(f"{self.players[self.current_turn].name} is skipping this turn.")
+            self.current_turn = (self.current_turn + 1) % len(self.players)
+            self.ui.update_player_list()
 
         current_player = self.players[self.current_turn]
         if current_player.in_jail:
@@ -177,7 +184,7 @@ class MonopolyGame:
             self.ui.update_player_list()
             self.current_turn = (self.current_turn + 1) % len(self.players)
             return
-        
+            
         if current_player.in_hospital:
             self.ui.update_status_label(f"{current_player.name} is in hospital and skips this turn.")
             current_player.in_hospital = False
@@ -191,7 +198,7 @@ class MonopolyGame:
             self.ui.update_player_list()
             self.current_turn = (self.current_turn + 1) % len(self.players)
             return
-            
+                
         steps = 4#self.roll_dice()
         current_player.move(steps, self.board_size,self.ui)
         self.ui.next_turn_button.config(state=tk.NORMAL)
@@ -199,7 +206,7 @@ class MonopolyGame:
         self.ui.update_player_piece_position(current_player)
 
         self.handle_space_action(current_player)
-        
+            
         self.ui.update_player_list()
 
         self.current_turn = (self.current_turn + 1) % len(self.players)
@@ -226,8 +233,8 @@ class MonopolyGame:
             property = self.properties[player.position]
             if property.type == "chanceordestiny":
                 self.ui.add_message(f"{player.name} landed on a Chance or Destiny space.")
-                
-                amount = random.choice([50, -50])
+                #amount = random.choice([50,-50 ])
+                amount = random.choice([0,-50 ])
                 if amount > 0:
                     self.draw_chance_card(player)
                 else:
@@ -317,13 +324,20 @@ class MonopolyGame:
                 amount=100
             elif  result =="恭喜要損失 50 金幣哈哈":
                 amount=-50
-                
-            player.update_money(amount)
+            if player.money >= -amount:
+                player.update_money(amount)
+            else:
+                self.ui.add_message(f"{player.name} does not have enough money to pay rent and is bankrupt.")
+                messagebox.showinfo("Bankrupt", f"{player.name} does not have enough money  and is bankrupt.")
+                self.end_game()
+                self.ui.game_over() 
+            #player.update_money(amount)
             #self.ui.add_message(f"{player.name} drew a Destiny card and the result was: {result}")
             self.ui.update_player_list()
         self.chance_fate_ui_instance = ChanceUI(self.ui.root, on_close)
         
     def draw_destiny_card(self, player):
+        current_player = self.players[self.current_turn]
         def on_close(result):
             print(f"讀取到的卡牌結果: {result}")
             if result =="說不定是明智的選擇[損失500金幣]":
@@ -346,8 +360,36 @@ class MonopolyGame:
                 return
             elif  result =="想偷懶不是這樣的[損失200金幣]":
                 amount=-200
-                
-            player.update_money(amount)
+            elif result =="退後不一定是壞事[後退五格]":
+                if player.position == 4:
+                    self.ui.root.update()
+                    time.sleep(0.5)
+                    player.position=25
+                    self.ui.update_player_piece_position(player)
+                    self.ui.update_player_list()
+                    self.current_turn = (self.current_turn + 1) % len(self.players)
+                elif player.position == 16:
+                    self.ui.root.update()
+                    time.sleep(0.5)
+                    player.position=11
+                    self.ui.update_player_piece_position(player)
+                    self.ui.update_player_list()
+                    self.current_turn = (self.current_turn + 1) % len(self.players)
+            elif result =="在馬桶上安頓好再走[停止兩回合]":
+                current_player.skip_turns = 2
+                self.ui.update_status_label(f"{current_player.name}  skips this turn.")
+                self.ui.update_player_list()
+                #self.current_turn = (self.current_turn + 1) % len(self.players)
+            elif result =="這樣算賄賂嗎[獲得一次免進監獄牌（保留此張牌直到使用完）]":
+                return
+            if player.money >= -amount:
+                player.update_money(amount)
+            else:
+                self.ui.add_message(f"{player.name} does not have enough money to pay rent and is bankrupt.")
+                messagebox.showinfo("Bankrupt", f"{player.name} does not have enough money  and is bankrupt.")
+                self.end_game()
+                self.ui.game_over() 
+            #player.update_money(amount)
             #self.ui.add_message(f"{player.name} drew a Destiny card and the result was: {result}")
             self.ui.update_player_list()
         self.chance_fate_ui_instance = FateUI(self.ui.root, on_close)
