@@ -68,6 +68,7 @@ class Player:
         self.in_jail = False
         self.in_hospital = False
         self.is_emergency = False
+        self.has_jail_free_card = False
 
         
 
@@ -199,7 +200,7 @@ class MonopolyGame:
             self.current_turn = (self.current_turn + 1) % len(self.players)
             return
                 
-        steps = 4#self.roll_dice()
+        steps = self.roll_dice()
         current_player.move(steps, self.board_size,self.ui)
         self.ui.next_turn_button.config(state=tk.NORMAL)
         self.ui.update_status_label(f"{current_player.name} rolled a {steps} and moved to position {current_player.position}.")
@@ -256,8 +257,14 @@ class MonopolyGame:
                 self.ui.add_message(f"{player.name} landed on a Magic Card space")
                 self.draw_magic_card(player)
             elif property.type == "jail":
-                self.ui.add_message(f"{player.name} landed on a Jail space and stays for one turn.")
-                player.in_jail = True
+                    if player.has_jail_free_card:
+                        player.has_jail_free_card = False
+                        self.ui.add_message(f"{player.name} used a Get Out of Jail Free card and avoided jail.")
+                    else:
+                        self.ui.add_message(f"{player.name} landed on a Jail space and stays for one turn.")
+                        player.in_jail = True
+                #self.ui.update_player_list()
+
             elif property.owner is None:
                 if player.position != 0:
                     self.ui.add_message(f"{player.name} landed on {property.name}, which is unowned.")
@@ -383,6 +390,10 @@ class MonopolyGame:
                 #self.current_turn = (self.current_turn + 1) % len(self.players)
                 return
             elif result =="這樣算賄賂嗎[獲得一次免進監獄牌（保留此張牌直到使用完）]":
+                current_player.has_jail_free_card = True
+                self.ui.update_status_label(f"{current_player.name} obtained a Get Out of Jail Free card.")
+                self.ui.update_player_list()
+                #self.next_turn()  # 立即進入下一個玩家的回合
                 return
             if player.money >= -amount:
                 player.update_money(amount)
@@ -613,7 +624,7 @@ class FateUI:
         image_paths_new = [
             #"fate/fate_1.png",
             #"fate/fate_2.png",
-            "fate/fate_3.png",
+            #"fate/fate_3.png",
             #"fate/fate_4.png",
             #"fate/fate_5.png",
             #"fate/fate_6.png",
@@ -622,7 +633,7 @@ class FateUI:
             #"fate/fate_11.png",
             #"fate/fate_12.png",
             #"fate/fate_13.png",
-            #"fate/fate_15.png",
+            "fate/fate_15.png",
             #"fate/fate_17.png"
         ]
 
