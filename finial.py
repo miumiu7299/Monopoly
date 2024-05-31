@@ -235,7 +235,7 @@ class MonopolyGame:
             if property.type == "chanceordestiny":
                 self.ui.add_message(f"{player.name} landed on a Chance or Destiny space.")
 
-                amount = random.choice([0,-50 ])
+                amount = random.choice([50,-50 ])
                 if amount > 0:
                     self.draw_chance_card(player)
                 else:
@@ -1125,11 +1125,16 @@ class MonopolyUI:
         if response:
             self.reset_game()
         else:
-            self.reset_game()  # 關閉遊戲視窗
+            self.root.quit()
+            self.root.destroy() 
+            #self.reset_game()  # 關閉遊戲視窗
 
     def reset_game(self):
+        self.root.quit()
         self.root.destroy() 
         subprocess.call(["python", "choose.py"])
+        
+    
 
 
 if __name__ == "__main__":
