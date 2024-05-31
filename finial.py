@@ -375,11 +375,13 @@ class MonopolyGame:
                     self.ui.update_player_piece_position(player)
                     self.ui.update_player_list()
                     self.current_turn = (self.current_turn + 1) % len(self.players)
+                return
             elif result =="在馬桶上安頓好再走[停止兩回合]":
                 current_player.skip_turns = 2
                 self.ui.update_status_label(f"{current_player.name}  skips this turn.")
                 self.ui.update_player_list()
                 #self.current_turn = (self.current_turn + 1) % len(self.players)
+                return
             elif result =="這樣算賄賂嗎[獲得一次免進監獄牌（保留此張牌直到使用完）]":
                 return
             if player.money >= -amount:
@@ -609,19 +611,19 @@ class FateUI:
 
         image_path = "fate/FATE_COVER.png"
         image_paths_new = [
-            "fate/fate_1.png",
-            "fate/fate_2.png",
+            #"fate/fate_1.png",
+            #"fate/fate_2.png",
             "fate/fate_3.png",
-            "fate/fate_4.png",
-            "fate/fate_5.png",
-            "fate/fate_6.png",
-            "fate/fate_7.png",
-            "fate/fate_8.png",
-            "fate/fate_11.png",
-            "fate/fate_12.png",
-            "fate/fate_13.png",
-            "fate/fate_15.png",
-            "fate/fate_17.png"
+            #"fate/fate_4.png",
+            #"fate/fate_5.png",
+            #"fate/fate_6.png",
+            #"fate/fate_7.png",
+            #"fate/fate_8.png",
+            #"fate/fate_11.png",
+            #"fate/fate_12.png",
+            #"fate/fate_13.png",
+            #"fate/fate_15.png",
+            #"fate/fate_17.png"
         ]
 
         original_image = Image.open(image_path)
