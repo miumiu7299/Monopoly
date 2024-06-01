@@ -121,10 +121,8 @@ class MonopolyGame:
                 properties.append(Property(f"Magic Card {i}", type="magiccard"))
             elif i in [9]: 
                 properties.append(Property(f"Jail {i}", type="jail"))
-        
             elif i in [25]: 
                 properties.append(Property(f"媽媽的愛 {i}", 4500))
-                
             elif i in [24]: 
                 properties.append(Property(f"A5和牛 {i}", 3000))
             elif i in [23]: 
@@ -1200,4 +1198,3 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = MonopolyUI(root)
     root.mainloop()
-    

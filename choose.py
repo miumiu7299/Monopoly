@@ -10,7 +10,8 @@ class CharacterSelection(tk.Tk):
         super().__init__()
         
         self.title("大富翁選角色")
-        self.geometry("1200x700")  # 調整為較大的大小
+        self.attributes('-fullscreen', True)  # 隱藏工具欄並全屏顯示
+        self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}")  # 設置視窗大小為螢幕大小
 
         self.selected_character = tk.StringVar()
         self.selected_character.set("未選擇角色")
@@ -215,8 +216,6 @@ class CharacterSelection(tk.Tk):
             # 顯示玩家角色名稱
             character_label = Label(self, text=f"玩家 {player} 選擇了角色: {character}")
             character_label.grid(row=row_index*2+1, column=column_index*2, padx=10, pady=5)
-
-
             
     def start_game(self):
         print('開始遊戲')
@@ -233,16 +232,28 @@ class StartScreen(tk.Tk):
         img = Image.open('ui.png')
         self.bg_image = ImageTk.PhotoImage(img)
 
+        image_width, image_height = img.size
+
+        self.geometry(f"{image_width}x{image_height}")
+
+        startscreen_width = self.winfo_screenwidth()
+        startscreen_height = self.winfo_screenheight()
+
+        x_pos = (startscreen_width - image_width) // 2
+        y_pos = int((startscreen_height - image_height) // 2 - 0.05 * image_height)
+
+        self.geometry(f"{image_width}x{image_height}+{x_pos}+{y_pos}")
+
         # 建立Canvas
-        canvas = tk.Canvas(self, highlightthickness=0, width=960, height=480)  # 調整為較大的大小
+        canvas = tk.Canvas(self, highlightthickness=0, width=image_width, height=image_height)
         canvas.pack()
 
         # 在Canvas上顯示背景圖片
-        canvas.create_image(480, 240, image=self.bg_image)  # 調整圖片位置和大小
+        canvas.create_image(image_width//2, image_height//2, image=self.bg_image)
 
-        # 建立遊戲開始按鈕
+        # 建立遊戲開始按鈕，置中於視窗
         start_button = tk.Button(self, text="開始遊戲", command=self.switch_to_character_selection, bg="blue", fg="white", font=("Arial", 12, "bold"), bd=3, relief=tk.RAISED)
-        start_button.place(x=450, y=350)  # 調整按鈕位置
+        start_button.place(relx=0.5, rely=0.9, anchor="s")
 
     def switch_to_character_selection(self):
         self.destroy()
