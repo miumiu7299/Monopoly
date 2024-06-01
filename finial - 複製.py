@@ -91,8 +91,8 @@ class GotchaStore:
         self.players = players
         self.current_turn = current_turn
         self.current_player = None
-        self.money = self.players.money
-        print(self.money)
+        self.players.money = self.players.money
+        print(self.players.money)
         self.store_window.title("Gotcha Store")
         self.store_window.geometry("1050x550")
         self.store_window.resizable(0, 0)
@@ -205,9 +205,9 @@ class GotchaStore:
         self.message_label.config(text=message, fg=color)
 
     def buy_card(self, card):
-        print(self.money)
-        if self.money >= card["price"]:
-            self.money -= card["price"]
+        print(self.players.money)
+        if self.players.money >= card["price"]:
+            self.players.money -= card["price"]
             #Globals.money = self.players[self.current_player]  # Update Globals money
             self.show_message(f"Purchase Successful: You bought the card: {card['name']}", "green")
         else:
@@ -215,6 +215,7 @@ class GotchaStore:
         self.exit_store()
 
     def exit_store(self):
+        print(self.players.money)
         self.store_window.destroy()
 
 
