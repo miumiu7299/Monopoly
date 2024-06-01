@@ -1,10 +1,11 @@
 import tkinter as tk
 from tkinter import ttk
-from PIL import Image, ImageTk
-import os
+from PIL import Image, ImageTk, ImageSequence
+import os, PIL
 from tkinter import Label
 from globals import Globals
 import subprocess
+
 class CharacterSelection(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -160,15 +161,12 @@ class CharacterSelection(tk.Tk):
     def select_character(self, character, button):
         self.selected_character.set(character["name"])
 
-        # 根據角色名稱生成新圖片的路徑
         new_image_path = os.path.join("character_2", f"{character['name']}_2.png")
 
-        # 打開新圖片並調整大小
         image = Image.open(new_image_path)
         image = image.resize((220, 220), Image.Resampling.LANCZOS)
         photo = ImageTk.PhotoImage(image)
 
-        # 更新 selected_image_label 的圖像
         self.selected_image_label.config(image=photo)
         self.selected_image_label.image = photo
 
@@ -230,11 +228,35 @@ class CharacterSelection(tk.Tk):
             character_label.grid(row=1, column=0, sticky="n")
 
     def start_game(self):
-        print('開始遊戲')
-        print(Globals.selected_characters)
-        Globals.save_to_file('globals_data.pkl')
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        loading_gif_path = "loading.gif"
+        self.loading_gif = Image.open(loading_gif_path)
+        
+        self.frames = []
+        try:
+            while True:
+                self.frames.append(ImageTk.PhotoImage(self.loading_gif.copy()))
+                self.loading_gif.seek(len(self.frames))  
+        except EOFError:
+            pass 
+
+        self.loading_label = tk.Label(self, image=self.frames[0])
+        self.loading_label.place(relx=0.5, rely=0.5, anchor="center")
+
+        self.after(4800, self.load_final)
+        self.animate_gif(0)  
+
+    def animate_gif(self, frame_index):
+        frame = self.frames[frame_index]
+        self.loading_label.config(image=frame)
+        frame_index = (frame_index + 1) % len(self.frames)
+        self.after(100, self.animate_gif, frame_index) 
+
+    def load_final(self):
+        subprocess.call(["python", "final.py"])
         self.destroy()
-        subprocess.call(["python", "finial.py"])
 
 class StartScreen(tk.Tk):
     def __init__(self):
