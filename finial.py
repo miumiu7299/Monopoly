@@ -24,7 +24,6 @@ class Globals:
         Globals.players = data['players']
         Globals.money = data['money']
 
-
 class DiceAnimationWindow:
     def __init__(self):
         self.root = tk.Toplevel()
@@ -591,8 +590,6 @@ class ChanceUI:
             self.on_close_callback(self.drawn_card_result)
         #self.win.destroy()
     
-        
-        
 class FateUI:
 
     def __init__(self,parent, on_close_callback):

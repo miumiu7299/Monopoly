@@ -171,7 +171,6 @@ class CharacterSelection(tk.Tk):
         # 啟用確定按鈕
         self.confirm_button.config(state=tk.NORMAL)
 
-
     def confirm_selection(self):
         # 確認選擇的邏輯
         print(f"玩家 {Globals.current_player} 選擇了角色: {self.selected_character.get()}")   
