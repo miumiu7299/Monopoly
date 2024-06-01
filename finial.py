@@ -874,7 +874,7 @@ class MonopolyUI:
             label.image = photo  # 保存對象引用，防止被垃圾回收
             label.pack(side=tk.TOP)
             self.player_images.append(label)
-            text_widget = tk.Text(frame, height=15, width=25, font=('Arial', 12))
+            text_widget = tk.Text(frame, height=15, width=15, font=('Arial', 11))
             text_widget.pack(fill=tk.BOTH, expand=True)
             self.player_texts.append(text_widget)
         self.update_player_list()
@@ -895,7 +895,7 @@ class MonopolyUI:
         self.status_label.place(relx=0.5, rely=0.35, anchor='center')
 
         # 提升消息框的高度
-        self.message_listbox = tk.Listbox(self.main_frame, height=10,width=50)
+        self.message_listbox = tk.Listbox(self.main_frame, height=10,width=70)
         # 在這裡添加 padx 和 pady 以增加邊距
         self.message_listbox.place(relx=0.5, rely=0.55, anchor='center')
     """   
@@ -1030,8 +1030,10 @@ class MonopolyUI:
                 print(i)
                 text_widget = self.player_texts[i]
                 text_widget.delete('1.0', tk.END)  # 清空文本框
-                player_info = f"{player.name}\nPosition🚩: {player.position}\nMoney💰: ${player.money}\nCuisines🍽️: {', '.join(player.properties)}"
-                
+                player_info = f"{player.name}\nPosition🚩: {player.position}\nMoney💰: ${player.money}\nCuisines🍽️:\n"
+                player_properties = '\n'.join(player.properties)
+                player_info += player_properties
+
                 text_widget.insert(tk.END, player_info)  # 插入新的玩家資訊
                 
                 # 设置玩家颜色
@@ -1133,9 +1135,6 @@ class MonopolyUI:
         self.root.quit()
         self.root.destroy() 
         subprocess.call(["python", "choose.py"])
-        
-    
-
 
 if __name__ == "__main__":
     Globals.load_from_file('globals_data.pkl')
