@@ -85,15 +85,18 @@ class Player:
             return True
         return False
 
-
 class GotchaStore:
-    def __init__(self, root, player):
-        self.root = root
-        self.player = player
-        self.root.title("Gotcha Store")
-        self.root.geometry("1050x550")
-        self.root.resizable(0, 0)
-        self.root.attributes("-topmost", 1)
+    def __init__(self, players, current_turn):
+        self.store_window = tk.Toplevel()
+        self.players = players
+        self.current_turn = current_turn
+        self.current_player = None
+        self.money = self.players.money
+        print(self.money)
+        self.store_window.title("Gotcha Store")
+        self.store_window.geometry("1050x550")
+        self.store_window.resizable(0, 0)
+        self.store_window.attributes("-topmost", 1)
 
         # Load and set initial background image for the initial window
         initial_bg_image_path = "picture/background1.png"
@@ -102,28 +105,16 @@ class GotchaStore:
         self.initial_bg_image = ImageTk.PhotoImage(Image.open(initial_bg_image_path).resize((1050, 550)))
         self.store_bg_image = ImageTk.PhotoImage(Image.open(store_bg_image_path).resize((1050, 550)))
 
-        self.bg_label = tk.Label(root, image=self.initial_bg_image)
+        self.bg_label = tk.Label(self.store_window, image=self.initial_bg_image)
         self.bg_label.place(relwidth=1, relheight=1)
 
-        self.store_label = tk.Label(root, text="Welcome to Gotcha Store!", font=("Helvetica", 16), bg="#FFFFFF")
+        self.store_label = tk.Label(self.store_window, text="Welcome to Gotcha Store!", font=("Helvetica", 16), bg="#FFFFFF")
         self.store_label.pack(pady=20)
 
-        self.player_label = tk.Label(root, text="Enter player name:", font=("Helvetica", 12), bg="#FFFFFF")
-        self.player_label.pack(pady=5)
-
-        self.player_entry = tk.Entry(root)
-        self.player_entry.pack(pady=5)
-
-        # Load the store entry button image
-        Q = "picture/pokemon_ball.png"  # Update with correct path to the image
-        self.Qbutton_image = ImageTk.PhotoImage(Image.open(Q).resize((50, 50)))  # Resize image to fit the button
-
-        # Create and configure the button
-        self.enter_button = tk.Button(root, image=self.Qbutton_image, command=self.enter_store)
-        self.enter_button.pack(pady=20)
-
-        # Store card frame
-        self.card_frame = tk.Frame(root)
+        self.message_label = tk.Label(self.store_window, text="", font=("Helvetica", 12), fg="green", bg="#FFFFFF")
+        self.message_label.pack(pady=10)
+        
+        self.card_frame = tk.Frame(self.store_window)
         self.card_frame.pack(pady=20)
 
         # Sample cards with prices and images
@@ -133,7 +124,7 @@ class GotchaStore:
             "Steal Money": "picture/steal_card.png",
             "Double Roll": "picture/doubleroll_card.png",
             "Immunity": "picture/immune_card.png",
-            "Alliance": "picture/Alliance_card.png",
+            "Alliance": "picture/Allliance_card.png",
             "Wizard": "picture/Wizard_card.png"
         }
 
@@ -148,10 +139,13 @@ class GotchaStore:
         ]
 
         self.current_cards = []
-        self.players = {self.player.name: self.player.money}
-        self.current_player = self.player.name
+        self.enter_store()
 
+    def enter_store(self):
+        # Change the background image for the store
+        self.bg_label.config(image=self.store_bg_image)
         self.show_cards()
+        
     def show_cards(self):
         for widget in self.card_frame.winfo_children():
             widget.destroy()
@@ -174,9 +168,10 @@ class GotchaStore:
             card_button.image = card_image  # Keep a reference to avoid garbage collection
             card_button.pack(side=tk.LEFT, padx=10)
         
-        # Add Exit button in the middle below the three cards
-        exit_button = tk.Button(self.card_frame, text="Exit", command=self.exit_store)
-        exit_button.pack(pady=10)
+        # Add Exit button
+        exit_button = tk.Button(self.card_frame, text="Exit", command=self.store_window.destroy)
+        exit_button.pack(side=tk.BOTTOM, pady=10)
+        exit_button.config(width=5, height= 2)
 
     def show_confirm_buttons(self, card):
         # Hide existing cards
@@ -185,7 +180,7 @@ class GotchaStore:
 
         # Display the chosen card in the middle
         image = Image.open(card["image"])
-        resized_image = image.resize((240, 320))  # Resize the card image
+        resized_image = image.resize((200, 250))  # Resize the card image
         card_image = ImageTk.PhotoImage(resized_image)
 
         chosen_card_label = tk.Label(self.card_frame, image=card_image)
@@ -206,19 +201,21 @@ class GotchaStore:
         
         buy_button.pack(side=tk.LEFT, padx=20)
         cancel_button.pack(side=tk.RIGHT, padx=20)
+    def show_message(self, message, color="green"):
+        self.message_label.config(text=message, fg=color)
 
     def buy_card(self, card):
-        if self.players[self.current_player] >= card["price"]:
-            self.players[self.current_player] -= card["price"]
-            Globals.money = self.players[self.current_player]  # Update Globals money
-            messagebox.showinfo("Purchase Successful", f"You bought the card: {card['name']}")
+        print(self.money)
+        if self.money >= card["price"]:
+            self.money -= card["price"]
+            #Globals.money = self.players[self.current_player]  # Update Globals money
+            self.show_message(f"Purchase Successful: You bought the card: {card['name']}", "green")
         else:
-            messagebox.showwarning("Insufficient Funds", "You do not have enough money to buy this card.")
-        self.show_cards()
+            self.show_message("Insufficient Funds", "You do not have enough money to buy this card.")
+        self.exit_store()
 
     def exit_store(self):
-        Globals.save_to_file("game_data.pkl")  # Save the game data to file
-        self.root.destroy()
+        self.store_window.destroy()
 
 
 
@@ -331,7 +328,7 @@ class MonopolyGame:
             self.current_turn = (self.current_turn + 1) % len(self.players)
             return
                 
-        steps = self.roll_dice()
+        steps = 10 #self.roll_dice()
         current_player.move(steps, self.board_size,self.ui)
         self.ui.next_turn_button.config(state=tk.NORMAL)
         self.ui.update_status_label(f"{current_player.name} rolled a {steps} and moved to position {current_player.position}.")
@@ -429,6 +426,9 @@ class MonopolyGame:
         self.ui.add_message(f"The winner is {richest_player.name} with ${richest_player.money}!")
         messagebox.showinfo("Game Over", f"The winner is {richest_player.name} with ${richest_player.money}!")
         #self.ui.disable_buttons()
+    
+    def store(self):
+        self.store_app = GotchaStore(self.store_window, self.players, self.current_turn)
 
 
     def draw_chance_card(self, player):
@@ -728,7 +728,6 @@ class ChanceUI:
         #self.win.destroy()
     
 class FateUI:
-
     def __init__(self,parent, on_close_callback):
         self.drawn_card_result = None  # 在 __init__ 方法中添加這行
         #self.win = tk.Tk()
@@ -1093,6 +1092,11 @@ class MonopolyUI:
     def wait_window(self, win):
         self.root.wait_window(win)
     """ 
+    def open_store(self):
+        current_player = self.game.players[self.game.current_turn]
+
+        self.store_app = GotchaStore( current_player, self.game.current_turn)
+
     def draw_board(self):
         food_image_paths = [
             "character/start.png",
@@ -1339,9 +1343,8 @@ class MonopolyUI:
         self.root.destroy() 
         subprocess.call(["python", "choose.py"])
 
-    def open_store(self):
-        self.store_window = tk.Toplevel(self.root)
-        self.store_app = GotchaStore(self.store_window, self.player)
+
+
 
     def open_game_menu(self):
         game_menu_app = GameMenuApp()
