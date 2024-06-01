@@ -143,7 +143,7 @@ class GotchaStore:
             {"name": "Steal Money", "description": "Steal $50 from another player.", "price": 75, "image": card_image_paths["Steal Money"]},
             {"name": "Double Roll", "description": "Roll the dice twice on your next turn.", "price": 150, "image": card_image_paths["Double Roll"]},
             {"name": "Immunity", "description": "Immune to any blocks for one turn.", "price": 200, "image": card_image_paths["Immunity"]},
-            {"name": "Alliance", "description": "No tolls will be collected from each other for 5 rounds.", "price": 500, "image": card_image_paths["Alliance"]},
+            {"name": "Alliance", "description": "No tolls will be collected from each other for 1 round.", "price": 500, "image": card_image_paths["Alliance"]},
             {"name": "Wizard", "description": "Choose to use magic on a player to make 5 of his cards disappear!", "price": 999, "image": card_image_paths["Wizard"]}
         ]
 
@@ -1334,7 +1334,7 @@ class MonopolyUI:
         self.root.quit()
         self.root.destroy() 
         subprocess.call(["python", "choose.py"])
-        
+
     def open_store(self):
         self.store_window = tk.Toplevel(self.root)
         self.store_app = GotchaStore(self.store_window, self.player)
