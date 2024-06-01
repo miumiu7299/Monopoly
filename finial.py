@@ -33,9 +33,9 @@ class DiceAnimationWindow:
         self.dice_label = tk.Label(self.root)
         self.dice_label.pack(expand=True)
 
-        self.dice_images = [ImageTk.PhotoImage(Image.open(f'{i}.png')) for i in range(1, 7)]
+        self.dice_images = [ImageTk.PhotoImage(Image.open(f'dice/{i}.png')) for i in range(1, 7)]
         self.result = None  # 用於存儲骰子的結果
-        self.callback = None  # 回调函数
+        self.callback = None  # 回調函數
 
     def roll_dice_animation(self):
         def animate(count):
@@ -45,19 +45,18 @@ class DiceAnimationWindow:
                 self.root.after(100, animate, count - 1)
             else:
                 result_img = random.choice(self.dice_images)
-                self.result = self.dice_images.index(result_img) + 1  # 將結果設置為1到6的整數值
+                self.result = self.dice_images.index(result_img) + 1  # 將結果設置為 1 到 6 的整數值
                 self.dice_label.config(image=result_img)
                 if self.callback:
-                    self.callback(self.result)  # 调用回调函数并传递结果
+                    self.callback(self.result)  # 調用回調函數並傳送結果
 
-                # 动画结束后，等待3秒后关闭窗口
+                # 動畫結束後，等3秒後關閉視窗
                 self.root.after(1000, self.root.destroy)
         
-        animate(10)  # 动画帧数
+        animate(10) 
 
     def set_callback(self, callback):
         self.callback = callback
-
 class Player:
     def __init__(self, name, position=0, money=4000):
         self.name = name
@@ -69,8 +68,6 @@ class Player:
         self.in_hospital = False
         self.is_emergency = False
         self.has_jail_free_card = False
-
-        
 
     def move(self, steps, board_size,ui):
         for step in range(steps):
@@ -154,7 +151,7 @@ class MonopolyGame:
             elif i in [3]: 
                 properties.append(Property(f"韓式炸雞 {i}", 250))
             elif i in [2]: 
-                properties.append(Property(f"新竹人的❤️ 麥當勞 {i}", 150))
+                properties.append(Property(f"新竹人❤麥當勞 {i}", 150))
             elif i in [1]: 
                 properties.append(Property(f"便當 {i}", 80))
             elif i in [0]: 
@@ -791,13 +788,13 @@ class GameMenuApp:
 
         # 添加按鈕到遊戲菜單框架
         self.new_game_button = tk.Button(self.game_menu_frame, text="開始新遊戲", command=self.start_new_game)
-        self.new_game_button.pack(side=tk.TOP, padx=10, pady=5)
+        self.new_game_button.pack(side=tk.TOP, padx=10, pady=(35,10))
 
         self.exit_button = tk.Button(self.game_menu_frame, text="退出此遊戲", command=self.exit_game)
-        self.exit_button.pack(side=tk.TOP, padx=10, pady=5)
+        self.exit_button.pack(side=tk.TOP, padx=10, pady=10)
 
         self.exit_button = tk.Button(self.game_menu_frame, text="繼續此遊戲", command=self.root.destroy)
-        self.exit_button.pack(side=tk.TOP, padx=10, pady=5)
+        self.exit_button.pack(side=tk.TOP, padx=10, pady=10)
 
         window_width = 300
         window_height = 200
@@ -883,6 +880,7 @@ class MonopolyUI:
         # 主框架設置
         self.main_frame = tk.Frame(self.root)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
+
         # 使視窗全屏並隱藏窗口管理工具欄
         self.root.attributes('-fullscreen', True)
         self.root.overrideredirect(True)
@@ -1029,16 +1027,28 @@ class MonopolyUI:
                     
     def show_cell_name_picture(self, name,cost ,image_path):
         top = tk.Toplevel(self.root)
-        top.title(f"您點擊了：{name}")
+        top.title(f"{name}詳細資訊")
         
         img = Image.open(image_path)
         img = img.resize((250, 250))  # Resize if needed
         photo = ImageTk.PhotoImage(img)
+
         label = tk.Label(top, image=photo,width=300,height=300)
         label.image = photo
-    
         label.pack()
+       
         tk.Label(top, text=f"地點: {name}\n價格: {cost}").pack()
+
+        window_width = 300
+        window_height = 350
+        screen_width = top.winfo_screenwidth()
+        screen_height = top.winfo_screenheight()
+        x_pos = (screen_width - window_width) // 2
+        y_pos = (screen_height - window_height) // 2
+
+        top.geometry(f"{window_width}x{window_height}+{x_pos}+{y_pos}")
+
+        label.image = photo
     
     def create_player_piece(self, player):
         colors = ['red', 'blue', 'green', 'orange']
@@ -1080,7 +1090,7 @@ class MonopolyUI:
                 print(i)
                 text_widget = self.player_texts[i]
                 text_widget.delete('1.0', tk.END)  # 清空文本框
-                player_info = f"{player.name}\nPosition🚩: {player.position}\nMoney💰: ${player.money}\nCuisines🍽️:\n"
+                player_info = f"{player.name}\nPosition🚩: {player.position}\nMoney💰: ${player.money}\nCuisines🍽:\n"
                 player_properties = '\n'.join(player.properties)
                 player_info += player_properties
 
