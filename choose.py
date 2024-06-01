@@ -45,7 +45,7 @@ class CharacterSelection(tk.Tk):
         player_label = ttk.Label(player_frame, text="選擇玩家人數：", font=("Arial", 16))
         player_label.grid(row=0, column=0, columnspan=2, pady=10)
 
-        for i in range(1, 5):  # 玩家人數選擇範圍為1至4
+        for i in range(2, 5):  # 玩家人數選擇範圍為1至4
             button = ttk.Button(player_frame, text=f"{i} 人", command=lambda num=i: self.select_players(num))
             button.grid(row=1, column=i-1, padx=10, pady=5)
 
