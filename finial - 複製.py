@@ -1032,10 +1032,7 @@ class MonopolyUI:
         # 創建商城按鈕
         self.store_button = tk.Button(self.root, text="商店", command=self.open_store)
         self.store_button.place(relx=0.235, rely=0.68, anchor='se')
-    def open_store(self):
-        self.store_window = tk.Toplevel(self.root)
-        self.store_app = GotchaStore(self.store_window, self.player)
-
+    
 
         # 創建四個玩家信息顯示 Text 組件，放置在界面的四個角落
         self.player_texts = []
@@ -1337,6 +1334,10 @@ class MonopolyUI:
         self.root.quit()
         self.root.destroy() 
         subprocess.call(["python", "choose.py"])
+        
+    def open_store(self):
+        self.store_window = tk.Toplevel(self.root)
+        self.store_app = GotchaStore(self.store_window, self.player)
 
     def open_game_menu(self):
         game_menu_app = GameMenuApp()
