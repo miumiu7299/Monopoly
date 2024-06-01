@@ -24,7 +24,6 @@ class Globals:
         Globals.players = data['players']
         Globals.money = data['money']
 
-
 class DiceAnimationWindow:
     def __init__(self):
         self.root = tk.Toplevel()
@@ -33,9 +32,9 @@ class DiceAnimationWindow:
         self.dice_label = tk.Label(self.root)
         self.dice_label.pack(expand=True)
 
-        self.dice_images = [ImageTk.PhotoImage(Image.open(f'{i}.png')) for i in range(1, 7)]
+        self.dice_images = [ImageTk.PhotoImage(Image.open(f'dice/{i}.png')) for i in range(1, 7)]
         self.result = None  # 用於存儲骰子的結果
-        self.callback = None  # 回调函数
+        self.callback = None  # 回調函數
 
     def roll_dice_animation(self):
         def animate(count):
@@ -45,19 +44,18 @@ class DiceAnimationWindow:
                 self.root.after(100, animate, count - 1)
             else:
                 result_img = random.choice(self.dice_images)
-                self.result = self.dice_images.index(result_img) + 1  # 將結果設置為1到6的整數值
+                self.result = self.dice_images.index(result_img) + 1  # 將結果設置為 1 到 6 的整數值
                 self.dice_label.config(image=result_img)
                 if self.callback:
-                    self.callback(self.result)  # 调用回调函数并传递结果
+                    self.callback(self.result)  # 調用回調函數並傳送結果
 
-                # 动画结束后，等待3秒后关闭窗口
+                # 動畫結束後，等3秒後關閉視窗
                 self.root.after(1000, self.root.destroy)
         
-        animate(10)  # 动画帧数
+        animate(10) 
 
     def set_callback(self, callback):
         self.callback = callback
-
 class Player:
     def __init__(self, name, position=0, money=4000):
         self.name = name
@@ -69,8 +67,6 @@ class Player:
         self.in_hospital = False
         self.is_emergency = False
         self.has_jail_free_card = False
-
-        
 
     def move(self, steps, board_size,ui):
         for step in range(steps):
@@ -121,10 +117,8 @@ class MonopolyGame:
                 properties.append(Property(f"Magic Card {i}", type="magiccard"))
             elif i in [9]: 
                 properties.append(Property(f"Jail {i}", type="jail"))
-        
             elif i in [25]: 
                 properties.append(Property(f"媽媽的愛 {i}", 4500))
-                
             elif i in [24]: 
                 properties.append(Property(f"A5和牛 {i}", 3000))
             elif i in [23]: 
@@ -156,7 +150,7 @@ class MonopolyGame:
             elif i in [3]: 
                 properties.append(Property(f"韓式炸雞 {i}", 250))
             elif i in [2]: 
-                properties.append(Property(f"新竹人的❤️ 麥當勞 {i}", 150))
+                properties.append(Property(f"新竹人❤麥當勞 {i}", 150))
             elif i in [1]: 
                 properties.append(Property(f"便當 {i}", 80))
             elif i in [0]: 
@@ -411,8 +405,7 @@ class MonopolyGame:
         amount = random.choice([1000,100])
         player.update_money(amount)
         self.ui.add_message(f"{player.name} drew a Magic card and received ${amount}.")
-        
-        
+                
 class ChanceUI:
     def __init__(self,parent, on_close_callback):
         self.drawn_card_result = None  # 在 __init__ 方法中添加這行
@@ -596,7 +589,7 @@ class ChanceUI:
         if self.on_close_callback:
             self.on_close_callback(self.drawn_card_result)
         #self.win.destroy()
-
+    
 class FateUI:
 
     def __init__(self,parent, on_close_callback):
@@ -781,11 +774,59 @@ class FateUI:
             self.on_close_callback(self.drawn_card_result)
         #self.win.destroy()
 
+class GameMenuApp:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("遊戲菜單")
+
+        # 創建遊戲菜單框架
+        self.game_menu_frame = tk.Frame(self.root)
+        self.game_menu_frame.pack()
+
+        # 添加按鈕到遊戲菜單框架
+        self.new_game_button = tk.Button(self.game_menu_frame, text="開始新遊戲", command=self.start_new_game)
+        self.new_game_button.pack(side=tk.TOP, padx=10, pady=(35,10))
+
+        self.exit_button = tk.Button(self.game_menu_frame, text="退出此遊戲", command=self.exit_game)
+        self.exit_button.pack(side=tk.TOP, padx=10, pady=10)
+
+        self.exit_button = tk.Button(self.game_menu_frame, text="繼續此遊戲", command=self.root.destroy)
+        self.exit_button.pack(side=tk.TOP, padx=10, pady=10)
+
+        window_width = 300
+        window_height = 200
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        x = (screen_width - window_width) // 2
+        y = (screen_height - window_height) // 2
+        self.root.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+    def start_new_game(self):
+        self.root.quit()
+        self.root.destroy() 
+        root.destroy() 
+        subprocess.call(["python", "choose.py"])
+
+    def exit_game(self):
+        self.root.destroy() 
+        root.destroy() 
+
+    def run(self):
+        self.root.mainloop()
+
 class MonopolyUI:
     def __init__(self, root):
         self.root = root
         self.root.title("大富翁遊戲")
-        self.root.geometry("1600x900")  # 假設全螢幕或足夠大的解析度
+
+        # 獲取屏幕寬高
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+
+        # 根據屏幕尺寸調整窗口大小
+        window_width = int(screen_width * 1)
+        window_height = int(screen_height * 1)
+        self.root.geometry(f"{window_width}x{window_height}")
 
         #self.chance_fate_ui = ChanceFateUI()  # 創建ChanceFateUI的實例
         self.game = MonopolyGame(self)
@@ -837,11 +878,19 @@ class MonopolyUI:
         self.main_frame = tk.Frame(self.root)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
+        # 使視窗全屏並隱藏窗口管理工具欄
+        self.root.attributes('-fullscreen', True)
+        self.root.overrideredirect(True)
+
         # 在主框架中添加畫布來畫棋盤
         self.board_canvas = tk.Canvas(self.main_frame, width=1000, height=500, bg='white')
         # 使用place方法將畫布置中
         self.board_canvas.place(relx=0.5, rely=0.5, anchor='center')
         self.draw_board()
+
+        # 創建遊戲選單按鈕
+        self.game_menu_button = tk.Button(self.root, text="遊戲菜單", command=self.open_game_menu)
+        self.game_menu_button.place(relx=0.8, rely=0.68, anchor='se')
 
         # 創建四個玩家信息顯示 Text 組件，放置在界面的四個角落
         self.player_texts = []
@@ -864,13 +913,13 @@ class MonopolyUI:
             else:
                 messagebox.showerror("Error", "Player name cannot be empty.")
             image = Image.open(player_image_path)
-            image = image.resize((100, 130), Image.Resampling.LANCZOS)
+            image = image.resize((80, 104), Image.Resampling.LANCZOS)
             photo = ImageTk.PhotoImage(image)
             label = tk.Label(frame, image=photo)
             label.image = photo  # 保存對象引用，防止被垃圾回收
             label.pack(side=tk.TOP)
             self.player_images.append(label)
-            text_widget = tk.Text(frame, height=15, width=25, font=('Arial', 12))
+            text_widget = tk.Text(frame, height=15, width=17, font=('Arial', 10))
             text_widget.pack(fill=tk.BOTH, expand=True)
             self.player_texts.append(text_widget)
         self.update_player_list()
@@ -891,7 +940,7 @@ class MonopolyUI:
         self.status_label.place(relx=0.5, rely=0.35, anchor='center')
 
         # 提升消息框的高度
-        self.message_listbox = tk.Listbox(self.main_frame, height=10,width=50)
+        self.message_listbox = tk.Listbox(self.main_frame, height=10,width=70)
         # 在這裡添加 padx 和 pady 以增加邊距
         self.message_listbox.place(relx=0.5, rely=0.55, anchor='center')
     """   
@@ -975,16 +1024,28 @@ class MonopolyUI:
                     
     def show_cell_name_picture(self, name,cost ,image_path):
         top = tk.Toplevel(self.root)
-        top.title(f"您點擊了：{name}")
+        top.title(f"{name}詳細資訊")
         
         img = Image.open(image_path)
         img = img.resize((250, 250))  # Resize if needed
         photo = ImageTk.PhotoImage(img)
+
         label = tk.Label(top, image=photo,width=300,height=300)
         label.image = photo
-    
         label.pack()
+       
         tk.Label(top, text=f"地點: {name}\n價格: {cost}").pack()
+
+        window_width = 300
+        window_height = 350
+        screen_width = top.winfo_screenwidth()
+        screen_height = top.winfo_screenheight()
+        x_pos = (screen_width - window_width) // 2
+        y_pos = (screen_height - window_height) // 2
+
+        top.geometry(f"{window_width}x{window_height}+{x_pos}+{y_pos}")
+
+        label.image = photo
     
     def create_player_piece(self, player):
         colors = ['red', 'blue', 'green', 'orange']
@@ -1026,8 +1087,10 @@ class MonopolyUI:
                 print(i)
                 text_widget = self.player_texts[i]
                 text_widget.delete('1.0', tk.END)  # 清空文本框
-                player_info = f"{player.name}\nPosition🚩: {player.position}\nMoney💰: ${player.money}\nCuisines🍽️: {', '.join(player.properties)}"
-                
+                player_info = f"{player.name}\nPosition🚩: {player.position}\nMoney💰: ${player.money}\nCuisines🍽:\n"
+                player_properties = '\n'.join(player.properties)
+                player_info += player_properties
+
                 text_widget.insert(tk.END, player_info)  # 插入新的玩家資訊
                 
                 # 设置玩家颜色
@@ -1129,6 +1192,13 @@ class MonopolyUI:
         self.root.quit()
         self.root.destroy() 
         subprocess.call(["python", "choose.py"])
+
+    def open_game_menu(self):
+        game_menu_app = GameMenuApp()
+        game_menu_app.run()
+
+    def run(self):
+        self.root.mainloop()
 
 if __name__ == "__main__":
     Globals.load_from_file('globals_data.pkl')
