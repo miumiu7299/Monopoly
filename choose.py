@@ -40,21 +40,21 @@ class CharacterSelection(tk.Tk):
 
         # 玩家人數選擇框架
         player_frame = ttk.Frame(main_frame, padding="20")
-        player_frame.grid(row=0, column=0, padx=20, pady=20)
+        player_frame.grid(row=0, column=0, padx=40, pady=40)
 
         player_label = ttk.Label(player_frame, text="選擇玩家人數：", font=("Arial", 16))
-        player_label.grid(row=0, column=0, columnspan=2, pady=10)
+        player_label.grid(row=0, column=0, columnspan=5, pady=40)
 
-        for i in range(2, 5):  # 玩家人數選擇範圍為1至4
+        for i in range(2, 5):  # 玩家人數選擇範圍為2至4
             button = ttk.Button(player_frame, text=f"{i} 人", command=lambda num=i: self.select_players(num))
             button.grid(row=1, column=i-1, padx=10, pady=5)
 
         # 玩家資金選擇框架
         money_frame = ttk.Frame(main_frame, padding="20")
-        money_frame.grid(row=1, column=0, padx=20, pady=20)
+        money_frame.grid(row=1, column=0, padx=40, pady=10, sticky="n")
 
         player_money_label = ttk.Label(money_frame, text="選擇玩家資金：", font=("Arial", 16))
-        player_money_label.grid(row=0, column=0, columnspan=2, pady=20)
+        player_money_label.grid(row=0, column=0, columnspan=5, pady=20)
 
         money = ["10000", "100000", "300000"]
         for i in range(0, 3): 
@@ -66,7 +66,7 @@ class CharacterSelection(tk.Tk):
         self.continue_button.grid(row=2, column=0, pady=10)
         # 地圖框架
         map_frame = ttk.Frame(main_frame)
-        map_frame.grid(row=0, column=1, padx=20, pady=30, rowspan=2)
+        map_frame.grid(row=0, column=1, padx=30, pady=100, rowspan=2)
 
         # 地圖標籤
         map_label = ttk.Label(map_frame, text="地圖", font=("Arial", 16))
@@ -160,11 +160,15 @@ class CharacterSelection(tk.Tk):
     def select_character(self, character, button):
         self.selected_character.set(character["name"])
 
-        image_path = os.path.join(os.getcwd(), character["image"])
-        image = Image.open(image_path)
-        image = image.resize((200, 200), Image.Resampling.LANCZOS)
+        # 根據角色名稱生成新圖片的路徑
+        new_image_path = os.path.join("character_2", f"{character['name']}_2.png")
+
+        # 打開新圖片並調整大小
+        image = Image.open(new_image_path)
+        image = image.resize((220, 220), Image.Resampling.LANCZOS)
         photo = ImageTk.PhotoImage(image)
 
+        # 更新 selected_image_label 的圖像
         self.selected_image_label.config(image=photo)
         self.selected_image_label.image = photo
 
@@ -190,17 +194,22 @@ class CharacterSelection(tk.Tk):
             self.show_character_selection()
 
     def back_to_main(self):
-        self.destroy()  # 銷毀當前視窗
-        main_screen = StartScreen()  # 創建主畫面
+        Globals.selected_characters = {}
+        Globals.current_player = 1
+
+        self.destroy()
+
+        main_screen = StartScreen()
         main_screen.mainloop()
 
-
     def list_all_characters(self):
-    # 在畫面上顯示所有玩家的角色選擇
+        num_players = len(Globals.selected_characters)
+        num_columns = min(num_players, 4) 
+        max_players_per_row = num_columns * 2  
+
         for i, (player, character) in enumerate(Globals.selected_characters.items()):
-            # 計算玩家角色的水平位置，使其按照玩家順序從左到右排列
-            column_index = i % Globals.players
-            row_index = i // Globals.players
+            row_index = i // num_columns
+            column_index = i % num_columns
 
             # 載入角色圖片並顯示
             image_path = os.path.join(os.getcwd(), f"character/{character}.png")
@@ -208,14 +217,18 @@ class CharacterSelection(tk.Tk):
             image = image.resize((180, 200), Image.Resampling.LANCZOS)
             photo = ImageTk.PhotoImage(image)
 
-            image_label = Label(self, image=photo)
+            character_info_label = Label(self)
+            character_info_label.grid(row=row_index*2, column=column_index*2, padx=50, pady=180)
+
+            # 顯示玩家角色圖片
+            image_label = Label(character_info_label, image=photo)
             image_label.image = photo
-            image_label.grid(row=row_index*2, column=column_index*2, padx=10, pady=5)
+            image_label.grid(row=0, column=0, padx=(100/(num_players-1), 0))
 
             # 顯示玩家角色名稱
-            character_label = Label(self, text=f"玩家 {player} 選擇了角色: {character}")
-            character_label.grid(row=row_index*2+1, column=column_index*2, padx=10, pady=5)
-            
+            character_label = Label(character_info_label, text=f"玩家 {player} 選擇了角色: {character}")
+            character_label.grid(row=1, column=0, sticky="n")
+
     def start_game(self):
         print('開始遊戲')
         print(Globals.selected_characters)
