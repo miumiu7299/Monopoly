@@ -787,39 +787,41 @@ class GameMenuApp:
         self.root = tk.Tk()
         self.root.title("遊戲菜單")
 
-        # 創建菜單欄
-        self.menu_bar = tk.Menu(self.root)
-        self.root.config(menu=self.menu_bar)
+        # 創建遊戲菜單框架
+        self.game_menu_frame = tk.Frame(self.root)
+        self.game_menu_frame.pack()
 
-        # 創建遊戲菜單
-        self.menu_bar = tk.Menu(self.root)
-        self.root.config(menu=self.menu_bar)
+        # 添加按鈕到遊戲菜單框架
+        self.new_game_button = tk.Button(self.game_menu_frame, text="開始新遊戲", command=self.start_new_game)
+        self.new_game_button.pack(side=tk.TOP, padx=10, pady=5)
 
-        # 創建「遊戲」子菜單
-        self.game_menu = tk.Menu(self.menu_bar, tearoff=False)
-        self.menu_bar.add_cascade(label="遊戲", menu=self.game_menu)
+        self.exit_button = tk.Button(self.game_menu_frame, text="退出此遊戲", command=self.exit_game)
+        self.exit_button.pack(side=tk.TOP, padx=10, pady=5)
 
-        # 將「新遊戲」選項添加到「遊戲」子菜單中
-        self.game_menu.add_command(label="新遊戲", command=self.start_new_game)
+        self.exit_button = tk.Button(self.game_menu_frame, text="繼續此遊戲", command=self.root.destroy)
+        self.exit_button.pack(side=tk.TOP, padx=10, pady=5)
 
-        # 添加分隔線
-        self.game_menu.add_separator()
-
-        # 將「退出」選項添加到「遊戲」子菜單中
-        self.game_menu.add_command(label="退出", command=self.exit_game)
+        window_width = 300
+        window_height = 200
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        x = (screen_width - window_width) // 2
+        y = (screen_height - window_height) // 2
+        self.root.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
     def start_new_game(self):
         self.root.quit()
         self.root.destroy() 
-
+        root.destroy() 
         subprocess.call(["python", "choose.py"])
 
     def exit_game(self):
-        self.root.destroy()
+        self.root.destroy() 
+        root.destroy() 
 
     def run(self):
         self.root.mainloop()
-           
+
 class MonopolyUI:
     def __init__(self, root):
         self.root = root
@@ -1187,7 +1189,6 @@ class MonopolyUI:
         subprocess.call(["python", "choose.py"])
 
     def open_game_menu(self):
-        # 創建並運行遊戲菜單應用程序
         game_menu_app = GameMenuApp()
         game_menu_app.run()
 
