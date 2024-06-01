@@ -1,18 +1,16 @@
 import tkinter as tk
 from tkinter import ttk
-from PIL import Image, ImageTk, ImageSequence
-import os, PIL
+from PIL import Image, ImageTk
+import os
 from tkinter import Label
 from globals import Globals
 import subprocess
-
 class CharacterSelection(tk.Tk):
     def __init__(self):
         super().__init__()
         
         self.title("大富翁選角色")
-        self.attributes('-fullscreen', True)  # 隱藏工具欄並全屏顯示
-        self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}")  # 設置視窗大小為螢幕大小
+        self.geometry("1200x700")  # 調整為較大的大小
 
         self.selected_character = tk.StringVar()
         self.selected_character.set("未選擇角色")
@@ -41,21 +39,21 @@ class CharacterSelection(tk.Tk):
 
         # 玩家人數選擇框架
         player_frame = ttk.Frame(main_frame, padding="20")
-        player_frame.grid(row=0, column=0, padx=40, pady=40)
+        player_frame.grid(row=0, column=0, padx=20, pady=20)
 
         player_label = ttk.Label(player_frame, text="選擇玩家人數：", font=("Arial", 16))
-        player_label.grid(row=0, column=0, columnspan=5, pady=40)
+        player_label.grid(row=0, column=0, columnspan=2, pady=10)
 
-        for i in range(2, 5):  # 玩家人數選擇範圍為2至4
+        for i in range(1, 5):  # 玩家人數選擇範圍為1至4
             button = ttk.Button(player_frame, text=f"{i} 人", command=lambda num=i: self.select_players(num))
             button.grid(row=1, column=i-1, padx=10, pady=5)
 
         # 玩家資金選擇框架
         money_frame = ttk.Frame(main_frame, padding="20")
-        money_frame.grid(row=1, column=0, padx=40, pady=10, sticky="n")
+        money_frame.grid(row=1, column=0, padx=20, pady=20)
 
         player_money_label = ttk.Label(money_frame, text="選擇玩家資金：", font=("Arial", 16))
-        player_money_label.grid(row=0, column=0, columnspan=5, pady=20)
+        player_money_label.grid(row=0, column=0, columnspan=2, pady=20)
 
         money = ["10000", "100000", "300000"]
         for i in range(0, 3): 
@@ -67,7 +65,7 @@ class CharacterSelection(tk.Tk):
         self.continue_button.grid(row=2, column=0, pady=10)
         # 地圖框架
         map_frame = ttk.Frame(main_frame)
-        map_frame.grid(row=0, column=1, padx=30, pady=100, rowspan=2)
+        map_frame.grid(row=0, column=1, padx=20, pady=30, rowspan=2)
 
         # 地圖標籤
         map_label = ttk.Label(map_frame, text="地圖", font=("Arial", 16))
@@ -161,10 +159,9 @@ class CharacterSelection(tk.Tk):
     def select_character(self, character, button):
         self.selected_character.set(character["name"])
 
-        new_image_path = os.path.join("character_2", f"{character['name']}_2.png")
-
-        image = Image.open(new_image_path)
-        image = image.resize((220, 220), Image.Resampling.LANCZOS)
+        image_path = os.path.join(os.getcwd(), character["image"])
+        image = Image.open(image_path)
+        image = image.resize((200, 200), Image.Resampling.LANCZOS)
         photo = ImageTk.PhotoImage(image)
 
         self.selected_image_label.config(image=photo)
@@ -172,6 +169,7 @@ class CharacterSelection(tk.Tk):
 
         # 啟用確定按鈕
         self.confirm_button.config(state=tk.NORMAL)
+
 
     def confirm_selection(self):
         # 確認選擇的邏輯
@@ -192,22 +190,17 @@ class CharacterSelection(tk.Tk):
             self.show_character_selection()
 
     def back_to_main(self):
-        Globals.selected_characters = {}
-        Globals.current_player = 1
-
-        self.destroy()
-
-        main_screen = StartScreen()
+        self.destroy()  # 銷毀當前視窗
+        main_screen = StartScreen()  # 創建主畫面
         main_screen.mainloop()
 
-    def list_all_characters(self):
-        num_players = len(Globals.selected_characters)
-        num_columns = min(num_players, 4) 
-        max_players_per_row = num_columns * 2  
 
+    def list_all_characters(self):
+    # 在畫面上顯示所有玩家的角色選擇
         for i, (player, character) in enumerate(Globals.selected_characters.items()):
-            row_index = i // num_columns
-            column_index = i % num_columns
+            # 計算玩家角色的水平位置，使其按照玩家順序從左到右排列
+            column_index = i % Globals.players
+            row_index = i // Globals.players
 
             # 載入角色圖片並顯示
             image_path = os.path.join(os.getcwd(), f"character/{character}.png")
@@ -215,48 +208,20 @@ class CharacterSelection(tk.Tk):
             image = image.resize((180, 200), Image.Resampling.LANCZOS)
             photo = ImageTk.PhotoImage(image)
 
-            character_info_label = Label(self)
-            character_info_label.grid(row=row_index*2, column=column_index*2, padx=50, pady=180)
-
-            # 顯示玩家角色圖片
-            image_label = Label(character_info_label, image=photo)
+            image_label = Label(self, image=photo)
             image_label.image = photo
-            image_label.grid(row=0, column=0, padx=(100/(num_players-1), 0))
+            image_label.grid(row=row_index*2, column=column_index*2, padx=10, pady=5)
 
             # 顯示玩家角色名稱
-            character_label = Label(character_info_label, text=f"玩家 {player} 選擇了角色: {character}")
-            character_label.grid(row=1, column=0, sticky="n")
-
+            character_label = Label(self, text=f"玩家 {player} 選擇了角色: {character}")
+            character_label.grid(row=row_index*2+1, column=column_index*2, padx=10, pady=5)
+            
     def start_game(self):
-        for widget in self.winfo_children():
-            widget.destroy()
-
-        loading_gif_path = "loading.gif"
-        self.loading_gif = Image.open(loading_gif_path)
-        
-        self.frames = []
-        try:
-            while True:
-                self.frames.append(ImageTk.PhotoImage(self.loading_gif.copy()))
-                self.loading_gif.seek(len(self.frames))  
-        except EOFError:
-            pass 
-
-        self.loading_label = tk.Label(self, image=self.frames[0])
-        self.loading_label.place(relx=0.5, rely=0.5, anchor="center")
-
-        self.after(4800, self.load_final)
-        self.animate_gif(0)  
-
-    def animate_gif(self, frame_index):
-        frame = self.frames[frame_index]
-        self.loading_label.config(image=frame)
-        frame_index = (frame_index + 1) % len(self.frames)
-        self.after(100, self.animate_gif, frame_index) 
-
-    def load_final(self):
-        subprocess.call(["python", "final.py"])
+        print('開始遊戲')
+        print(Globals.selected_characters)
+        Globals.save_to_file('globals_data.pkl')
         self.destroy()
+        subprocess.call(["python", "final.py"])
 
 class StartScreen(tk.Tk):
     def __init__(self):
@@ -266,28 +231,16 @@ class StartScreen(tk.Tk):
         img = Image.open('ui.png')
         self.bg_image = ImageTk.PhotoImage(img)
 
-        image_width, image_height = img.size
-
-        self.geometry(f"{image_width}x{image_height}")
-
-        startscreen_width = self.winfo_screenwidth()
-        startscreen_height = self.winfo_screenheight()
-
-        x_pos = (startscreen_width - image_width) // 2
-        y_pos = int((startscreen_height - image_height) // 2 - 0.05 * image_height)
-
-        self.geometry(f"{image_width}x{image_height}+{x_pos}+{y_pos}")
-
         # 建立Canvas
-        canvas = tk.Canvas(self, highlightthickness=0, width=image_width, height=image_height)
+        canvas = tk.Canvas(self, highlightthickness=0, width=960, height=480)  # 調整為較大的大小
         canvas.pack()
 
         # 在Canvas上顯示背景圖片
-        canvas.create_image(image_width//2, image_height//2, image=self.bg_image)
+        canvas.create_image(480, 240, image=self.bg_image)  # 調整圖片位置和大小
 
         # 建立遊戲開始按鈕，置中於視窗
         start_button = tk.Button(self, text="開始遊戲", command=self.switch_to_character_selection, bg="blue", fg="white", font=("Arial", 12, "bold"), bd=3, relief=tk.RAISED)
-        start_button.place(relx=0.5, rely=0.9, anchor="s")
+        start_button.place(x=450, y=350)  # 調整按鈕位置
 
     def switch_to_character_selection(self):
         self.destroy()
