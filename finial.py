@@ -411,8 +411,7 @@ class MonopolyGame:
         amount = random.choice([1000,100])
         player.update_money(amount)
         self.ui.add_message(f"{player.name} drew a Magic card and received ${amount}.")
-        
-        
+                
 class ChanceUI:
     def __init__(self,parent, on_close_callback):
         self.drawn_card_result = None  # 在 __init__ 方法中添加這行
@@ -783,13 +782,57 @@ class FateUI:
             self.on_close_callback(self.drawn_card_result)
         #self.win.destroy()
 
+class GameMenuApp:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("遊戲菜單")
 
+        # 創建菜單欄
+        self.menu_bar = tk.Menu(self.root)
+        self.root.config(menu=self.menu_bar)
+
+        # 創建遊戲菜單
+        self.menu_bar = tk.Menu(self.root)
+        self.root.config(menu=self.menu_bar)
+
+        # 創建「遊戲」子菜單
+        self.game_menu = tk.Menu(self.menu_bar, tearoff=False)
+        self.menu_bar.add_cascade(label="遊戲", menu=self.game_menu)
+
+        # 將「新遊戲」選項添加到「遊戲」子菜單中
+        self.game_menu.add_command(label="新遊戲", command=self.start_new_game)
+
+        # 添加分隔線
+        self.game_menu.add_separator()
+
+        # 將「退出」選項添加到「遊戲」子菜單中
+        self.game_menu.add_command(label="退出", command=self.exit_game)
+
+    def start_new_game(self):
+        self.root.quit()
+        self.root.destroy() 
+
+        subprocess.call(["python", "choose.py"])
+
+    def exit_game(self):
+        self.root.destroy()
+
+    def run(self):
+        self.root.mainloop()
            
 class MonopolyUI:
     def __init__(self, root):
         self.root = root
         self.root.title("大富翁遊戲")
-        self.root.geometry("1600x900")  # 假設全螢幕或足夠大的解析度
+
+        # 獲取屏幕寬高
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+
+        # 根據屏幕尺寸調整窗口大小
+        window_width = int(screen_width * 1)
+        window_height = int(screen_height * 1)
+        self.root.geometry(f"{window_width}x{window_height}")
 
         #self.chance_fate_ui = ChanceFateUI()  # 創建ChanceFateUI的實例
         self.game = MonopolyGame(self)
@@ -840,12 +883,19 @@ class MonopolyUI:
         # 主框架設置
         self.main_frame = tk.Frame(self.root)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
+        # 使視窗全屏並隱藏窗口管理工具欄
+        self.root.attributes('-fullscreen', True)
+        self.root.overrideredirect(True)
 
         # 在主框架中添加畫布來畫棋盤
         self.board_canvas = tk.Canvas(self.main_frame, width=1000, height=500, bg='white')
         # 使用place方法將畫布置中
         self.board_canvas.place(relx=0.5, rely=0.5, anchor='center')
         self.draw_board()
+
+        # 創建遊戲選單按鈕
+        self.game_menu_button = tk.Button(self.root, text="遊戲菜單", command=self.open_game_menu)
+        self.game_menu_button.place(relx=0.8, rely=0.68, anchor='se')
 
         # 創建四個玩家信息顯示 Text 組件，放置在界面的四個角落
         self.player_texts = []
@@ -868,13 +918,13 @@ class MonopolyUI:
             else:
                 messagebox.showerror("Error", "Player name cannot be empty.")
             image = Image.open(player_image_path)
-            image = image.resize((100, 130), Image.Resampling.LANCZOS)
+            image = image.resize((80, 104), Image.Resampling.LANCZOS)
             photo = ImageTk.PhotoImage(image)
             label = tk.Label(frame, image=photo)
             label.image = photo  # 保存對象引用，防止被垃圾回收
             label.pack(side=tk.TOP)
             self.player_images.append(label)
-            text_widget = tk.Text(frame, height=15, width=15, font=('Arial', 11))
+            text_widget = tk.Text(frame, height=15, width=17, font=('Arial', 10))
             text_widget.pack(fill=tk.BOTH, expand=True)
             self.player_texts.append(text_widget)
         self.update_player_list()
@@ -1135,6 +1185,14 @@ class MonopolyUI:
         self.root.quit()
         self.root.destroy() 
         subprocess.call(["python", "choose.py"])
+
+    def open_game_menu(self):
+        # 創建並運行遊戲菜單應用程序
+        game_menu_app = GameMenuApp()
+        game_menu_app.run()
+
+    def run(self):
+        self.root.mainloop()
 
 if __name__ == "__main__":
     Globals.load_from_file('globals_data.pkl')
