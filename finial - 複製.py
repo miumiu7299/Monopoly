@@ -972,6 +972,10 @@ class MonopolyUI:
         self.player_pieces = {}
         self.cell_colors = {}  # Dictionary to store the color of each cell
         self.colors = ["red", "blue", "green", "orange"]  # Colors for players
+
+        #GotchaStore((self, root, player))
+        self.player ={}
+        
         
         # 假定棋盤格子名稱
         self.cell_names = [
