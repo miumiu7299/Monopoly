@@ -1048,6 +1048,62 @@ class MonopolyUI:
         self.message_listbox.yview(tk.END)# 自動滾動到最新訊息
 
     def ask_to_buy_property(self, player, property):
+        food_image_paths = [
+            "character/start.png",
+            "character/bento.png",
+            "character/mcdonal's.png",
+            "character/korean_fried_chicken.png",
+            "character/chance.png",
+            "character/curry.png",
+            "character/sushi.png",
+            "character/beef_noodle.png",
+            "character/korean_meal.png",
+            "character/prison.png",
+            "character/mom_love.png",
+            "character/magic_card.png",
+            "character/a5.png",
+            "character/barbecue.png",
+            "character/fish.png",
+            "character/pasta.png",
+            "character/eat_too_much.png",
+            "character/chinese_dish.png",
+            "character/advanced_steak.png",#威
+            "character/too_many_delicy.png",
+            "character/lobster.png",
+            "character/steak.png",#威
+            "character/chance.png",
+            "character/hotpot.png",#hotpot
+            "character/pizza.png",#pizza
+            "character/hospital.png"
+            
+            # Add more food image paths as needed
+        ]
+        
+        property_index = self.game.properties.index(property)
+        property_index = self.cell_to_property_index2[property_index]
+        image_path=food_image_paths[property_index]
+        
+        top = tk.Toplevel(self.root)
+        top.title(f"您點擊了：{player.name}")
+        
+        img = Image.open(image_path)
+        img = img.resize((250, 250))  # Resize if needed
+        photo = ImageTk.PhotoImage(img)
+        label = tk.Label(top, image=photo,width=300,height=300)
+        label.image = photo
+    
+        label.pack()
+        tk.Label(top, text=f"地點: {property.name}\n價格: {property.cost}\n你是否想購買此產品?").pack()
+        # Create and pack the buttons
+        button_frame = tk.Frame(top)
+        button_frame.pack()
+
+        confirm_button = tk.Button(button_frame, text="確認", command=lambda: self.buy_and_close(player, property, top))
+        confirm_button.pack(side="left", padx=10)
+
+        cancel_button = tk.Button(button_frame, text="取消", command=top.destroy)
+        cancel_button.pack(side="right", padx=10)
+        """
         response = messagebox.askyesno("Buy Property", f"Do {player.name} want to buy {property.name} for ${property.cost}?")
         if response:
             if player.buy_property(property.name, property.cost):
@@ -1058,7 +1114,22 @@ class MonopolyUI:
                 
             else:
                 messagebox.showerror("Error", "Not enough money to buy this property.")
-                
+      """
+    def buy_and_close(self, player, property, top):
+        if self.buy(player, property):
+            top.destroy()
+            
+    def buy(self, player, property):
+        if player.buy_property(property.name, property.cost):
+            property.owner = player
+            self.add_message(f"{player.name} bought {property.name} for ${property.cost}.")
+            self.update_property_color(player, property)
+            return True
+        
+        else:
+            messagebox.showerror("Error", "Not enough money to buy this property.")
+            return False
+        
     def update_property_color(self, player, property):
         food_image_paths = [
             "character/start.png",
