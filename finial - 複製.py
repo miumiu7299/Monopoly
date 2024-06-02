@@ -24,6 +24,7 @@ class Globals:
         Globals.players = data['players']
         Globals.money = data['money']
 
+
 class DiceAnimationWindow:
     def __init__(self):
         self.root = tk.Toplevel()
@@ -32,9 +33,9 @@ class DiceAnimationWindow:
         self.dice_label = tk.Label(self.root)
         self.dice_label.pack(expand=True)
 
-        self.dice_images = [ImageTk.PhotoImage(Image.open(f'dice/{i}.png')) for i in range(1, 7)]
+        self.dice_images = [ImageTk.PhotoImage(Image.open(f'{i}.png')) for i in range(1, 7)]
         self.result = None  # 用於存儲骰子的結果
-        self.callback = None  # 回調函數
+        self.callback = None  # 回调函数
 
     def roll_dice_animation(self):
         def animate(count):
@@ -44,18 +45,19 @@ class DiceAnimationWindow:
                 self.root.after(100, animate, count - 1)
             else:
                 result_img = random.choice(self.dice_images)
-                self.result = self.dice_images.index(result_img) + 1  # 將結果設置為 1 到 6 的整數值
+                self.result = self.dice_images.index(result_img) + 1  # 將結果設置為1到6的整數值
                 self.dice_label.config(image=result_img)
                 if self.callback:
-                    self.callback(self.result)  # 調用回調函數並傳送結果
+                    self.callback(self.result)  # 调用回调函数并传递结果
 
-                # 動畫結束後，等3秒後關閉視窗
+                # 动画结束后，等待3秒后关闭窗口
                 self.root.after(1000, self.root.destroy)
         
-        animate(10) 
+        animate(10)  # 动画帧数
 
     def set_callback(self, callback):
         self.callback = callback
+
 class Player:
     def __init__(self, name, position=0, money=4000):
         self.name = name
@@ -67,6 +69,8 @@ class Player:
         self.in_hospital = False
         self.is_emergency = False
         self.has_jail_free_card = False
+
+        
 
     def move(self, steps, board_size,ui):
         for step in range(steps):
@@ -84,6 +88,331 @@ class Player:
             self.properties.append(property_name)
             return True
         return False
+
+class Property:
+    def __init__(self, name, cost=0, type="property"):
+        self.name = name
+        self.cost = cost
+        self.owner = None
+        self.type = type
+
+class MonopolyGame:
+    def __init__(self, ui):
+        self.players = []
+        self.current_turn = 0
+        self.board_size = 26 #共30格
+        self.properties = self.create_properties()
+        self.ui = ui
+        self.chance_fate_ui_instance = None
+        
+
+    def create_properties(self):
+        properties = []
+        for i in range(self.board_size):
+            if i in [4, 16]: 
+                properties.append(Property(f"Chance or Destiny{i}", type="chanceordestiny"))
+            elif i in [19]: 
+                properties.append(Property(f"Emergency {i}", type="emergency"))#直接去醫院
+            elif i in [22]: 
+                properties.append(Property(f"Fat->killed {i}", type="fattokilled"))
+            elif i in [13]: 
+                properties.append(Property(f"Hospital {i}", type="hospital"))
+            elif i in [10]: 
+                properties.append(Property(f"Magic Card {i}", type="magiccard"))
+            elif i in [9]: 
+                properties.append(Property(f"Jail {i}", type="jail"))
+        
+            elif i in [25]: 
+                properties.append(Property(f"媽媽的愛 {i}", 4500))
+                
+            elif i in [24]: 
+                properties.append(Property(f"A5和牛 {i}", 3000))
+            elif i in [23]: 
+                properties.append(Property(f"魚子醬 {i}", 1500))
+            elif i in [21]: 
+                properties.append(Property(f"鮑魚烏參佛跳牆 {i}", 2200))
+            elif i in [20]: 
+                properties.append(Property(f"威靈頓牛排 {i}", 2800))
+            elif i in [18]: 
+                properties.append(Property(f"龍蝦 {i}", 1000))
+            elif i in [17]: 
+                properties.append(Property(f"牛排 {i}", 500))
+            elif i in [15]: 
+                properties.append(Property(f"火鍋{i}", 350))
+            elif i in [14]: 
+                properties.append(Property(f"pizza {i}", 300))
+            elif i in [12]: 
+                properties.append(Property(f"義大利麵 {i}", 400))
+            elif i in [11]: 
+                properties.append(Property(f"燒烤 {i}", 800))
+            elif i in [8]: 
+                properties.append(Property(f"石鍋拌飯 {i}", 200))
+            elif i in [7]: 
+                properties.append(Property(f"牛肉麵 {i}", 250))
+            elif i in [6]: 
+                properties.append(Property(f"壽司 {i}", 350))
+            elif i in [5]: 
+                properties.append(Property(f"咖哩 {i}", 100))
+            elif i in [3]: 
+                properties.append(Property(f"韓式炸雞 {i}", 250))
+            elif i in [2]: 
+                properties.append(Property(f"新竹人的❤️ 麥當勞 {i}", 150))
+            elif i in [1]: 
+                properties.append(Property(f"便當 {i}", 80))
+            elif i in [0]: 
+                properties.append(Property(f"Start {i}", 0))
+        #return []
+        return properties
+
+    def add_player(self, player):
+        self.players.append(player)
+        self.ui.create_player_piece(player)
+    def next_turn(self):  
+        if not self.players:
+            messagebox.showerror("Error", "No players in the game.")
+            return
+        while self.players[self.current_turn].skip_turns > 0:
+            current_player = self.players[self.current_turn]
+            self.players[self.current_turn].skip_turns -= 1
+            self.ui.update_status_label(f"{self.players[self.current_turn].name} is skipping this turn.")
+            self.current_turn = (self.current_turn + 1) % len(self.players)
+            self.ui.update_player_list()
+
+        current_player = self.players[self.current_turn]
+        if current_player.in_jail:
+            self.ui.update_status_label(f"{current_player.name} is in jail and skips this turn.")
+            current_player.in_jail = False
+            self.ui.update_player_list()
+            self.current_turn = (self.current_turn + 1) % len(self.players)
+            return
+            
+        if current_player.in_hospital:
+            self.ui.update_status_label(f"{current_player.name} is in hospital and skips this turn.")
+            current_player.in_hospital = False
+            self.ui.update_player_list()
+            self.current_turn = (self.current_turn + 1) % len(self.players)
+            return
+        if current_player.is_emergency:
+            self.ui.update_status_label(f"{current_player.name} is in emergency and moved to hospital.")
+            current_player.is_emergency = False
+            current_player.in_hospital = True
+            self.ui.update_player_list()
+            self.current_turn = (self.current_turn + 1) % len(self.players)
+            return
+                
+        steps = self.roll_dice()
+        current_player.move(steps, self.board_size,self.ui)
+        self.ui.next_turn_button.config(state=tk.NORMAL)
+        self.ui.update_status_label(f"{current_player.name} rolled a {steps} and moved to position {current_player.position}.")
+        self.ui.update_player_piece_position(current_player)
+
+        self.handle_space_action(current_player)
+            
+        self.ui.update_player_list()
+
+        self.current_turn = (self.current_turn + 1) % len(self.players)
+
+    def roll_dice(self):
+        self.ui.next_turn_button.config(state=tk.DISABLED)
+        animation_window = DiceAnimationWindow()
+        result_container = [None]  # 使用列表来存储结果，以便在回调函数中修改它
+        # 定义回调函数来获取结果并打印
+        def callback(result):
+            result_container[0] = result  # 存储结果到 result_container 中
+        # 设置回调函数
+        animation_window.set_callback(callback)
+        # 开始骰子动画
+        animation_window.roll_dice_animation()
+        # 等待动画完成
+        animation_window.root.wait_window()
+        # 返回结果
+        
+        return result_container[0]
+
+    def handle_space_action(self, player):
+        if 0 <= player.position < len(self.properties):
+            property = self.properties[player.position]
+            if property.type == "chanceordestiny":
+                self.ui.add_message(f"{player.name} landed on a Chance or Destiny space.")
+
+                amount = random.choice([50,-50 ])
+                if amount > 0:
+                    self.draw_chance_card(player)
+                else:
+                    self.draw_destiny_card(player)
+
+            elif property.type == "emergency" and player.position == 19:
+                self.ui.add_message(f"{player.name}  landed on a Emergency space and moved to hospital.")
+                player.is_emergency = True
+                self.ui.root.update()
+                time.sleep(0.5)
+                player.position=13
+                self.ui.update_player_piece_position(player)
+            elif property.type == "fattokilled":
+                self.ui.add_message(f"{player.name} landed on a Fat->killed space , you are so fat that you will get killed!!!")
+            elif property.type == "hospital":
+                self.ui.add_message(f"{player.name} landed on a Hospital space and stays for one turn.")
+                player.in_hospital = True
+            elif property.type == "magiccard":
+                self.ui.add_message(f"{player.name} landed on a Magic Card space")
+                self.draw_magic_card(player)
+            elif property.type == "jail":
+                    if player.has_jail_free_card:
+                        player.has_jail_free_card = False
+                        self.ui.add_message(f"{player.name} used a Get Out of Jail Free card and avoided jail.")
+                    else:
+                        self.ui.add_message(f"{player.name} landed on a Jail space and stays for one turn.")
+                        player.in_jail = True
+                #self.ui.update_player_list()
+
+            elif property.owner is None:
+                if player.position != 0:
+                    self.ui.add_message(f"{player.name} landed on {property.name}, which is unowned.")
+                    self.ui.ask_to_buy_property(player, property)
+                else:
+                    self.ui.add_message(f"{player.name} landed on the Start position and got $100.")
+                    player.money+=100
+            elif property.owner != player:
+                self.ui.add_message(f"{player.name} landed on {property.name}, which is owned by {property.owner.name}.")
+                self.pay_rent(player, property)
+            else:
+                self.ui.add_message(f"{player.name} landed on their own property ({property.name}).")
+
+    def pay_rent(self, player, property):
+        rent_amount = property.cost * 0.6
+        owner = property.owner
+        if player.money >= rent_amount:
+            player.update_money(-rent_amount)
+            owner.update_money(rent_amount)
+            self.ui.add_message(f"{player.name} paid ${rent_amount} in rent to {owner.name} for landing on {property.name}.")
+        else:
+            self.ui.add_message(f"{player.name} does not have enough money to pay rent and is bankrupt.")
+            messagebox.showinfo("Bankrupt", f"{player.name} does not have enough money to pay rent and is bankrupt. {owner.name} is owed ${rent_amount}.")
+            self.end_game()
+            self.ui.game_over() 
+            
+
+    def end_game(self):
+        self.ui.add_message("Game Over!")
+        richest_player = max(self.players, key=lambda p: p.money)
+        self.ui.add_message(f"The winner is {richest_player.name} with ${richest_player.money}!")
+        messagebox.showinfo("Game Over", f"The winner is {richest_player.name} with ${richest_player.money}!")
+        #self.ui.disable_buttons()
+
+    def store(self):
+        self.store_app = GotchaStore(self.store_window, self.players, self.current_turn)
+
+    def draw_chance_card(self, player):
+        def on_close(result):
+            print(f"讀取到的卡牌結果: {result}")
+            if result =="恭喜獲得 300 金幣!":
+                amount=300
+            elif  result =="恭喜獲得 500 金幣!!":
+                amount=500
+            elif  result =="恭喜要損失 300 金幣哈哈":
+                amount=-300
+            elif  result =="恭喜獲得 100 金幣!!":
+                amount=100
+            elif  result =="恭喜要損失 200 金幣哈哈":
+                amount=-200
+            elif  result =="恭喜獲得 700 金幣!!":
+                amount=700
+            elif  result =="恭喜要損失 100 金幣哈哈":
+                amount=-100
+            elif  result =="甚麼都沒有":
+                return
+            elif  result =="恭喜要損失 300 金幣哈":
+                amount=-300
+            elif  result =="恭喜獲得 300 金幣!!":
+                amount=300
+            elif  result =="恭喜要損失 200 金幣哈哈":
+                amount=-200
+            elif  result =="恭喜要損失 20 金幣哈哈":
+                amount=-20
+            elif  result =="莫名其妙獲得 100 金幣!!":
+                amount=100
+            elif  result =="恭喜要損失 50 金幣哈哈":
+                amount=-50
+            if player.money >= -amount:
+                player.update_money(amount)
+            else:
+                self.ui.add_message(f"{player.name} does not have enough money to pay rent and is bankrupt.")
+                messagebox.showinfo("Bankrupt", f"{player.name} does not have enough money  and is bankrupt.")
+                self.end_game()
+                self.ui.game_over() 
+            #player.update_money(amount)
+            #self.ui.add_message(f"{player.name} drew a Destiny card and the result was: {result}")
+            self.ui.update_player_list()
+        self.chance_fate_ui_instance = ChanceUI(self.ui.root, on_close)
+        
+    def draw_destiny_card(self, player):
+        current_player = self.players[self.current_turn]
+        def on_close(result):
+            print(f"讀取到的卡牌結果: {result}")
+            if result =="說不定是明智的選擇[損失500金幣]":
+                amount=-500
+            elif  result =="乖乖秀秀痛痛飛走[損失10金幣]":
+                amount=-10
+            elif  result =="土地公顯靈[增加600金幣]":
+                amount=600
+            elif  result =="恭喜獲得不會做菜的廚師[損失300金幣]":
+                amount=-300
+            elif  result =="放屁有益身體健康[獲得200金幣]":
+                amount=200
+            elif  result =="聽君一席話，如聽一席話":
+                return
+            elif  result =="上帝可能比較忙[損失100金幣]":
+                amount=-100
+            elif  result =="衝動是不好的行為[損失100金幣]":
+                amount=-100
+            elif  result =="逆轉乾坤 倒立人生":
+                return
+            elif  result =="想偷懶不是這樣的[損失200金幣]":
+                amount=-200
+            elif result =="退後不一定是壞事[後退五格]":
+                if player.position == 4:
+                    self.ui.root.update()
+                    time.sleep(0.5)
+                    player.position=25
+                    self.ui.update_player_piece_position(player)
+                    self.ui.update_player_list()
+                    self.current_turn = (self.current_turn + 1) % len(self.players)
+                elif player.position == 16:
+                    self.ui.root.update()
+                    time.sleep(0.5)
+                    player.position=11
+                    self.ui.update_player_piece_position(player)
+                    self.ui.update_player_list()
+                    self.current_turn = (self.current_turn + 1) % len(self.players)
+                return
+            elif result =="在馬桶上安頓好再走[停止兩回合]":
+                current_player.skip_turns = 2
+                self.ui.update_status_label(f"{current_player.name}  skips this turn.")
+                self.ui.update_player_list()
+                #self.current_turn = (self.current_turn + 1) % len(self.players)
+                return
+            elif result =="這樣算賄賂嗎[獲得一次免進監獄牌（保留此張牌直到使用完）]":
+                current_player.has_jail_free_card = True
+                self.ui.update_status_label(f"{current_player.name} obtained a Get Out of Jail Free card.")
+                self.ui.update_player_list()
+                #self.next_turn()  # 立即進入下一個玩家的回合
+                return
+            if player.money >= -amount:
+                player.update_money(amount)
+            else:
+                self.ui.add_message(f"{player.name} does not have enough money to pay rent and is bankrupt.")
+                messagebox.showinfo("Bankrupt", f"{player.name} does not have enough money  and is bankrupt.")
+                self.end_game()
+                self.ui.game_over() 
+            #player.update_money(amount)
+            #self.ui.add_message(f"{player.name} drew a Destiny card and the result was: {result}")
+            self.ui.update_player_list()
+        self.chance_fate_ui_instance = FateUI(self.ui.root, on_close)
+
+    def draw_magic_card(self, player):
+        amount = random.choice([1000,100])
+        player.update_money(amount)
+        self.ui.add_message(f"{player.name} drew a Magic card and received ${amount}.")
 
 class GotchaStore:
     def __init__(self, players, current_turn):
@@ -216,334 +545,8 @@ class GotchaStore:
 
     def exit_store(self):
         print(self.players.money)
-        self.store_window.destroy()
-
-
-
-class Property:
-    def __init__(self, name, cost=0, type="property"):
-        self.name = name
-        self.cost = cost
-        self.owner = None
-        self.type = type
-
-class MonopolyGame:
-    def __init__(self, ui):
-        self.players = []
-        self.current_turn = 0
-        self.board_size = 26 #共30格
-        self.properties = self.create_properties()
-        self.ui = ui
-        self.chance_fate_ui_instance = None
+        self.store_window.destroy()       
         
-
-    def create_properties(self):
-        properties = []
-        for i in range(self.board_size):
-            if i in [4, 16]: 
-                properties.append(Property(f"Chance or Destiny{i}", type="chanceordestiny"))
-            elif i in [19]: 
-                properties.append(Property(f"Emergency {i}", type="emergency"))#直接去醫院
-            elif i in [22]: 
-                properties.append(Property(f"Fat->killed {i}", type="fattokilled"))
-            elif i in [13]: 
-                properties.append(Property(f"Hospital {i}", type="hospital"))
-            elif i in [10]: 
-                properties.append(Property(f"Magic Card {i}", type="magiccard"))
-            elif i in [9]: 
-                properties.append(Property(f"Jail {i}", type="jail"))
-            elif i in [25]: 
-                properties.append(Property(f"媽媽的愛 {i}", 4500))
-            elif i in [24]: 
-                properties.append(Property(f"A5和牛 {i}", 3000))
-            elif i in [23]: 
-                properties.append(Property(f"魚子醬 {i}", 1500))
-            elif i in [21]: 
-                properties.append(Property(f"鮑魚烏參佛跳牆 {i}", 2200))
-            elif i in [20]: 
-                properties.append(Property(f"威靈頓牛排 {i}", 2800))
-            elif i in [18]: 
-                properties.append(Property(f"龍蝦 {i}", 1000))
-            elif i in [17]: 
-                properties.append(Property(f"牛排 {i}", 500))
-            elif i in [15]: 
-                properties.append(Property(f"火鍋{i}", 350))
-            elif i in [14]: 
-                properties.append(Property(f"pizza {i}", 300))
-            elif i in [12]: 
-                properties.append(Property(f"義大利麵 {i}", 400))
-            elif i in [11]: 
-                properties.append(Property(f"燒烤 {i}", 800))
-            elif i in [8]: 
-                properties.append(Property(f"石鍋拌飯 {i}", 200))
-            elif i in [7]: 
-                properties.append(Property(f"牛肉麵 {i}", 250))
-            elif i in [6]: 
-                properties.append(Property(f"壽司 {i}", 350))
-            elif i in [5]: 
-                properties.append(Property(f"咖哩 {i}", 100))
-            elif i in [3]: 
-                properties.append(Property(f"韓式炸雞 {i}", 250))
-            elif i in [2]: 
-                properties.append(Property(f"新竹人❤麥當勞 {i}", 150))
-            elif i in [1]: 
-                properties.append(Property(f"便當 {i}", 80))
-            elif i in [0]: 
-                properties.append(Property(f"Start {i}", 0))
-        #return []
-        return properties
-
-    def add_player(self, player):
-        self.players.append(player)
-        self.ui.create_player_piece(player)
-    def next_turn(self):  
-        if not self.players:
-            messagebox.showerror("Error", "No players in the game.")
-            return
-        while self.players[self.current_turn].skip_turns > 0:
-            current_player = self.players[self.current_turn]
-            self.players[self.current_turn].skip_turns -= 1
-            self.ui.update_status_label(f"{self.players[self.current_turn].name} is skipping this turn.")
-            self.current_turn = (self.current_turn + 1) % len(self.players)
-            self.ui.update_player_list()
-
-        current_player = self.players[self.current_turn]
-        if current_player.in_jail:
-            self.ui.update_status_label(f"{current_player.name} is in jail and skips this turn.")
-            current_player.in_jail = False
-            self.ui.update_player_list()
-            self.current_turn = (self.current_turn + 1) % len(self.players)
-            return
-            
-        if current_player.in_hospital:
-            self.ui.update_status_label(f"{current_player.name} is in hospital and skips this turn.")
-            current_player.in_hospital = False
-            self.ui.update_player_list()
-            self.current_turn = (self.current_turn + 1) % len(self.players)
-            return
-        if current_player.is_emergency:
-            self.ui.update_status_label(f"{current_player.name} is in emergency and moved to hospital.")
-            current_player.is_emergency = False
-            current_player.in_hospital = True
-            self.ui.update_player_list()
-            self.current_turn = (self.current_turn + 1) % len(self.players)
-            return
-                
-        steps = 10 #self.roll_dice()
-        current_player.move(steps, self.board_size,self.ui)
-        self.ui.next_turn_button.config(state=tk.NORMAL)
-        self.ui.update_status_label(f"{current_player.name} rolled a {steps} and moved to position {current_player.position}.")
-        self.ui.update_player_piece_position(current_player)
-
-        self.handle_space_action(current_player)
-            
-        self.ui.update_player_list()
-
-        self.current_turn = (self.current_turn + 1) % len(self.players)
-
-    def roll_dice(self):
-        self.ui.next_turn_button.config(state=tk.DISABLED)
-        animation_window = DiceAnimationWindow()
-        result_container = [None]  # 使用列表来存储结果，以便在回调函数中修改它
-        # 定义回调函数来获取结果并打印
-        def callback(result):
-            result_container[0] = result  # 存储结果到 result_container 中
-        # 设置回调函数
-        animation_window.set_callback(callback)
-        # 开始骰子动画
-        animation_window.roll_dice_animation()
-        # 等待动画完成
-        animation_window.root.wait_window()
-        # 返回结果
-        
-        return result_container[0]
-
-    def handle_space_action(self, player):
-        if 0 <= player.position < len(self.properties):
-            property = self.properties[player.position]
-            if property.type == "chanceordestiny":
-                self.ui.add_message(f"{player.name} landed on a Chance or Destiny space.")
-
-                amount = random.choice([50,-50 ])
-                if amount > 0:
-                    self.draw_chance_card(player)
-                else:
-                    self.draw_destiny_card(player)
-
-            elif property.type == "emergency" and player.position == 19:
-                self.ui.add_message(f"{player.name}  landed on a Emergency space and moved to hospital.")
-                player.is_emergency = True
-                self.ui.root.update()
-                time.sleep(0.5)
-                player.position=13
-                self.ui.update_player_piece_position(player)
-            elif property.type == "fattokilled":
-                self.ui.add_message(f"{player.name} landed on a Fat->killed space , you are so fat that you will get killed!!!")
-            elif property.type == "hospital":
-                self.ui.add_message(f"{player.name} landed on a Hospital space and stays for one turn.")
-                player.in_hospital = True
-            elif property.type == "magiccard":
-                self.ui.add_message(f"{player.name} landed on a Magic Card space")
-                self.draw_magic_card(player)
-            elif property.type == "jail":
-                    if player.has_jail_free_card:
-                        player.has_jail_free_card = False
-                        self.ui.add_message(f"{player.name} used a Get Out of Jail Free card and avoided jail.")
-                    else:
-                        self.ui.add_message(f"{player.name} landed on a Jail space and stays for one turn.")
-                        player.in_jail = True
-                #self.ui.update_player_list()
-
-            elif property.owner is None:
-                if player.position != 0:
-                    self.ui.add_message(f"{player.name} landed on {property.name}, which is unowned.")
-                    self.ui.ask_to_buy_property(player, property)
-                else:
-                    self.ui.add_message(f"{player.name} landed on the Start position and got $100.")
-                    player.money+=100
-            elif property.owner != player:
-                self.ui.add_message(f"{player.name} landed on {property.name}, which is owned by {property.owner.name}.")
-                self.pay_rent(player, property)
-            else:
-                self.ui.add_message(f"{player.name} landed on their own property ({property.name}).")
-
-    def pay_rent(self, player, property):
-        rent_amount = property.cost * 0.6
-        owner = property.owner
-        if player.money >= rent_amount:
-            player.update_money(-rent_amount)
-            owner.update_money(rent_amount)
-            self.ui.add_message(f"{player.name} paid ${rent_amount} in rent to {owner.name} for landing on {property.name}.")
-        else:
-            self.ui.add_message(f"{player.name} does not have enough money to pay rent and is bankrupt.")
-            messagebox.showinfo("Bankrupt", f"{player.name} does not have enough money to pay rent and is bankrupt. {owner.name} is owed ${rent_amount}.")
-            self.end_game()
-            self.ui.game_over() 
-            
-
-    def end_game(self):
-        self.ui.add_message("Game Over!")
-        richest_player = max(self.players, key=lambda p: p.money)
-        self.ui.add_message(f"The winner is {richest_player.name} with ${richest_player.money}!")
-        messagebox.showinfo("Game Over", f"The winner is {richest_player.name} with ${richest_player.money}!")
-        #self.ui.disable_buttons()
-    
-    def store(self):
-        self.store_app = GotchaStore(self.store_window, self.players, self.current_turn)
-
-
-    def draw_chance_card(self, player):
-        def on_close(result):
-            print(f"讀取到的卡牌結果: {result}")
-            if result =="恭喜獲得 300 金幣!":
-                amount=300
-            elif  result =="恭喜獲得 500 金幣!!":
-                amount=500
-            elif  result =="恭喜要損失 300 金幣哈哈":
-                amount=-300
-            elif  result =="恭喜獲得 100 金幣!!":
-                amount=100
-            elif  result =="恭喜要損失 200 金幣哈哈":
-                amount=-200
-            elif  result =="恭喜獲得 700 金幣!!":
-                amount=700
-            elif  result =="恭喜要損失 100 金幣哈哈":
-                amount=-100
-            elif  result =="甚麼都沒有":
-                return
-            elif  result =="恭喜要損失 300 金幣哈":
-                amount=-300
-            elif  result =="恭喜獲得 300 金幣!!":
-                amount=300
-            elif  result =="恭喜要損失 200 金幣哈哈":
-                amount=-200
-            elif  result =="恭喜要損失 20 金幣哈哈":
-                amount=-20
-            elif  result =="莫名其妙獲得 100 金幣!!":
-                amount=100
-            elif  result =="恭喜要損失 50 金幣哈哈":
-                amount=-50
-            if player.money >= -amount:
-                player.update_money(amount)
-            else:
-                self.ui.add_message(f"{player.name} does not have enough money to pay rent and is bankrupt.")
-                messagebox.showinfo("Bankrupt", f"{player.name} does not have enough money  and is bankrupt.")
-                self.end_game()
-                self.ui.game_over() 
-            #player.update_money(amount)
-            #self.ui.add_message(f"{player.name} drew a Destiny card and the result was: {result}")
-            self.ui.update_player_list()
-        self.chance_fate_ui_instance = ChanceUI(self.ui.root, on_close)
-        
-    def draw_destiny_card(self, player):
-        current_player = self.players[self.current_turn]
-        def on_close(result):
-            print(f"讀取到的卡牌結果: {result}")
-            if result =="說不定是明智的選擇[損失500金幣]":
-                amount=-500
-            elif  result =="乖乖秀秀痛痛飛走[損失10金幣]":
-                amount=-10
-            elif  result =="土地公顯靈[增加600金幣]":
-                amount=600
-            elif  result =="恭喜獲得不會做菜的廚師[損失300金幣]":
-                amount=-300
-            elif  result =="放屁有益身體健康[獲得200金幣]":
-                amount=200
-            elif  result =="聽君一席話，如聽一席話":
-                return
-            elif  result =="上帝可能比較忙[損失100金幣]":
-                amount=-100
-            elif  result =="衝動是不好的行為[損失100金幣]":
-                amount=-100
-            elif  result =="逆轉乾坤 倒立人生":
-                return
-            elif  result =="想偷懶不是這樣的[損失200金幣]":
-                amount=-200
-            elif result =="退後不一定是壞事[後退五格]":
-                if player.position == 4:
-                    self.ui.root.update()
-                    time.sleep(0.5)
-                    player.position=25
-                    self.ui.update_player_piece_position(player)
-                    self.ui.update_player_list()
-                    self.current_turn = (self.current_turn + 1) % len(self.players)
-                elif player.position == 16:
-                    self.ui.root.update()
-                    time.sleep(0.5)
-                    player.position=11
-                    self.ui.update_player_piece_position(player)
-                    self.ui.update_player_list()
-                    self.current_turn = (self.current_turn + 1) % len(self.players)
-                return
-            elif result =="在馬桶上安頓好再走[停止兩回合]":
-                current_player.skip_turns = 2
-                self.ui.update_status_label(f"{current_player.name}  skips this turn.")
-                self.ui.update_player_list()
-                #self.current_turn = (self.current_turn + 1) % len(self.players)
-                return
-            elif result =="這樣算賄賂嗎[獲得一次免進監獄牌（保留此張牌直到使用完）]":
-                current_player.has_jail_free_card = True
-                self.ui.update_status_label(f"{current_player.name} obtained a Get Out of Jail Free card.")
-                self.ui.update_player_list()
-                #self.next_turn()  # 立即進入下一個玩家的回合
-                return
-            if player.money >= -amount:
-                player.update_money(amount)
-            else:
-                self.ui.add_message(f"{player.name} does not have enough money to pay rent and is bankrupt.")
-                messagebox.showinfo("Bankrupt", f"{player.name} does not have enough money  and is bankrupt.")
-                self.end_game()
-                self.ui.game_over() 
-            #player.update_money(amount)
-            #self.ui.add_message(f"{player.name} drew a Destiny card and the result was: {result}")
-            self.ui.update_player_list()
-        self.chance_fate_ui_instance = FateUI(self.ui.root, on_close)
-
-    def draw_magic_card(self, player):
-        amount = random.choice([1000,100])
-        player.update_money(amount)
-        self.ui.add_message(f"{player.name} drew a Magic card and received ${amount}.")
-                
 class ChanceUI:
     def __init__(self,parent, on_close_callback):
         self.drawn_card_result = None  # 在 __init__ 方法中添加這行
@@ -727,8 +730,9 @@ class ChanceUI:
         if self.on_close_callback:
             self.on_close_callback(self.drawn_card_result)
         #self.win.destroy()
-    
+
 class FateUI:
+
     def __init__(self,parent, on_close_callback):
         self.drawn_card_result = None  # 在 __init__ 方法中添加這行
         #self.win = tk.Tk()
@@ -911,59 +915,11 @@ class FateUI:
             self.on_close_callback(self.drawn_card_result)
         #self.win.destroy()
 
-class GameMenuApp:
-    def __init__(self):
-        self.root = tk.Tk()
-        self.root.title("遊戲菜單")
-
-        # 創建遊戲菜單框架
-        self.game_menu_frame = tk.Frame(self.root)
-        self.game_menu_frame.pack()
-
-        # 添加按鈕到遊戲菜單框架
-        self.new_game_button = tk.Button(self.game_menu_frame, text="開始新遊戲", command=self.start_new_game)
-        self.new_game_button.pack(side=tk.TOP, padx=10, pady=(35,10))
-
-        self.exit_button = tk.Button(self.game_menu_frame, text="退出此遊戲", command=self.exit_game)
-        self.exit_button.pack(side=tk.TOP, padx=10, pady=10)
-
-        self.exit_button = tk.Button(self.game_menu_frame, text="繼續此遊戲", command=self.root.destroy)
-        self.exit_button.pack(side=tk.TOP, padx=10, pady=10)
-
-        window_width = 300
-        window_height = 200
-        screen_width = self.root.winfo_screenwidth()
-        screen_height = self.root.winfo_screenheight()
-        x = (screen_width - window_width) // 2
-        y = (screen_height - window_height) // 2
-        self.root.geometry(f"{window_width}x{window_height}+{x}+{y}")
-
-    def start_new_game(self):
-        self.root.quit()
-        self.root.destroy() 
-        root.destroy() 
-        subprocess.call(["python", "choose.py"])
-
-    def exit_game(self):
-        self.root.destroy() 
-        root.destroy() 
-
-    def run(self):
-        self.root.mainloop()
-
 class MonopolyUI:
     def __init__(self, root):
         self.root = root
         self.root.title("大富翁遊戲")
-
-        # 獲取屏幕寬高
-        screen_width = self.root.winfo_screenwidth()
-        screen_height = self.root.winfo_screenheight()
-
-        # 根據屏幕尺寸調整窗口大小
-        window_width = int(screen_width * 1)
-        window_height = int(screen_height * 1)
-        self.root.geometry(f"{window_width}x{window_height}")
+        self.root.geometry("1600x900")  # 假設全螢幕或足夠大的解析度
 
         #self.chance_fate_ui = ChanceFateUI()  # 創建ChanceFateUI的實例
         self.game = MonopolyGame(self)
@@ -972,10 +928,6 @@ class MonopolyUI:
         self.player_pieces = {}
         self.cell_colors = {}  # Dictionary to store the color of each cell
         self.colors = ["red", "blue", "green", "orange"]  # Colors for players
-
-        #GotchaStore((self, root, player))
-        self.player ={}
-        
         
         # 假定棋盤格子名稱
         self.cell_names = [
@@ -1019,24 +971,11 @@ class MonopolyUI:
         self.main_frame = tk.Frame(self.root)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
-        # 使視窗全屏並隱藏窗口管理工具欄
-        self.root.attributes('-fullscreen', True)
-        self.root.overrideredirect(True)
-
         # 在主框架中添加畫布來畫棋盤
         self.board_canvas = tk.Canvas(self.main_frame, width=1000, height=500, bg='white')
         # 使用place方法將畫布置中
         self.board_canvas.place(relx=0.5, rely=0.5, anchor='center')
         self.draw_board()
-
-        # 創建遊戲選單按鈕
-        self.game_menu_button = tk.Button(self.root, text="遊戲菜單", command=self.open_game_menu)
-        self.game_menu_button.place(relx=0.8, rely=0.68, anchor='se')
-
-        # 創建商城按鈕
-        self.store_button = tk.Button(self.root, text="商店", command=self.open_store)
-        self.store_button.place(relx=0.235, rely=0.68, anchor='se')
-    
 
         # 創建四個玩家信息顯示 Text 組件，放置在界面的四個角落
         self.player_texts = []
@@ -1059,13 +998,13 @@ class MonopolyUI:
             else:
                 messagebox.showerror("Error", "Player name cannot be empty.")
             image = Image.open(player_image_path)
-            image = image.resize((80, 104), Image.Resampling.LANCZOS)
+            image = image.resize((100, 130), Image.Resampling.LANCZOS)
             photo = ImageTk.PhotoImage(image)
             label = tk.Label(frame, image=photo)
             label.image = photo  # 保存對象引用，防止被垃圾回收
             label.pack(side=tk.TOP)
             self.player_images.append(label)
-            text_widget = tk.Text(frame, height=15, width=17, font=('Arial', 10))
+            text_widget = tk.Text(frame, height=15, width=25, font=('Arial', 12))
             text_widget.pack(fill=tk.BOTH, expand=True)
             self.player_texts.append(text_widget)
         self.update_player_list()
@@ -1086,9 +1025,13 @@ class MonopolyUI:
         self.status_label.place(relx=0.5, rely=0.35, anchor='center')
 
         # 提升消息框的高度
-        self.message_listbox = tk.Listbox(self.main_frame, height=10,width=70)
+        self.message_listbox = tk.Listbox(self.main_frame, height=10,width=50)
         # 在這裡添加 padx 和 pady 以增加邊距
         self.message_listbox.place(relx=0.5, rely=0.55, anchor='center')
+
+        #商店
+        self.store_button = tk.Button(self.root, text="商店", command=self.open_store)
+        self.store_button.place(relx=0.235, rely=0.68, anchor='se')
     """   
     def wait_window(self, win):
         self.root.wait_window(win)
@@ -1175,28 +1118,16 @@ class MonopolyUI:
                     
     def show_cell_name_picture(self, name,cost ,image_path):
         top = tk.Toplevel(self.root)
-        top.title(f"{name}詳細資訊")
+        top.title(f"您點擊了：{name}")
         
         img = Image.open(image_path)
         img = img.resize((250, 250))  # Resize if needed
         photo = ImageTk.PhotoImage(img)
-
         label = tk.Label(top, image=photo,width=300,height=300)
         label.image = photo
+    
         label.pack()
-       
         tk.Label(top, text=f"地點: {name}\n價格: {cost}").pack()
-
-        window_width = 300
-        window_height = 350
-        screen_width = top.winfo_screenwidth()
-        screen_height = top.winfo_screenheight()
-        x_pos = (screen_width - window_width) // 2
-        y_pos = (screen_height - window_height) // 2
-
-        top.geometry(f"{window_width}x{window_height}+{x_pos}+{y_pos}")
-
-        label.image = photo
     
     def create_player_piece(self, player):
         colors = ['red', 'blue', 'green', 'orange']
@@ -1238,10 +1169,8 @@ class MonopolyUI:
                 print(i)
                 text_widget = self.player_texts[i]
                 text_widget.delete('1.0', tk.END)  # 清空文本框
-                player_info = f"{player.name}\nPosition🚩: {player.position}\nMoney💰: ${player.money}\nCuisines🍽:\n"
-                player_properties = '\n'.join(player.properties)
-                player_info += player_properties
-
+                player_info = f"{player.name}\nPosition🚩: {player.position}\nMoney💰: ${player.money}\nCuisines🍽️: {', '.join(player.properties)}"
+                
                 text_widget.insert(tk.END, player_info)  # 插入新的玩家資訊
                 
                 # 设置玩家颜色
@@ -1258,6 +1187,62 @@ class MonopolyUI:
         self.message_listbox.yview(tk.END)# 自動滾動到最新訊息
 
     def ask_to_buy_property(self, player, property):
+        food_image_paths = [
+            "character/start.png",
+            "character/bento.png",
+            "character/mcdonal's.png",
+            "character/korean_fried_chicken.png",
+            "character/chance.png",
+            "character/curry.png",
+            "character/sushi.png",
+            "character/beef_noodle.png",
+            "character/korean_meal.png",
+            "character/prison.png",
+            "character/mom_love.png",
+            "character/magic_card.png",
+            "character/a5.png",
+            "character/barbecue.png",
+            "character/fish.png",
+            "character/pasta.png",
+            "character/eat_too_much.png",
+            "character/chinese_dish.png",
+            "character/advanced_steak.png",#威
+            "character/too_many_delicy.png",
+            "character/lobster.png",
+            "character/steak.png",#威
+            "character/chance.png",
+            "character/hotpot.png",#hotpot
+            "character/pizza.png",#pizza
+            "character/hospital.png"
+            
+            # Add more food image paths as needed
+        ]
+        
+        property_index = self.game.properties.index(property)
+        property_index = self.cell_to_property_index2[property_index]
+        image_path=food_image_paths[property_index]
+        
+        top = tk.Toplevel(self.root)
+        top.title(f"您點擊了：{player.name}")
+        
+        img = Image.open(image_path)
+        img = img.resize((250, 250))  # Resize if needed
+        photo = ImageTk.PhotoImage(img)
+        label = tk.Label(top, image=photo,width=300,height=300)
+        label.image = photo
+    
+        label.pack()
+        tk.Label(top, text=f"地點: {property.name}\n價格: {property.cost}\n你是否想購買此產品?").pack()
+        # Create and pack the buttons
+        button_frame = tk.Frame(top)
+        button_frame.pack()
+
+        confirm_button = tk.Button(button_frame, text="確認", command=lambda: self.buy_and_close(player, property, top))
+        confirm_button.pack(side="left", padx=10)
+
+        cancel_button = tk.Button(button_frame, text="取消", command=top.destroy)
+        cancel_button.pack(side="right", padx=10)
+        """
         response = messagebox.askyesno("Buy Property", f"Do {player.name} want to buy {property.name} for ${property.cost}?")
         if response:
             if player.buy_property(property.name, property.cost):
@@ -1268,7 +1253,22 @@ class MonopolyUI:
                 
             else:
                 messagebox.showerror("Error", "Not enough money to buy this property.")
-                
+      """
+    def buy_and_close(self, player, property, top):
+        if self.buy(player, property):
+            top.destroy()
+            
+    def buy(self, player, property):
+        if player.buy_property(property.name, property.cost):
+            property.owner = player
+            self.add_message(f"{player.name} bought {property.name} for ${property.cost}.")
+            self.update_property_color(player, property)
+            return True
+        
+        else:
+            messagebox.showerror("Error", "Not enough money to buy this property.")
+            return False
+        
     def update_property_color(self, player, property):
         food_image_paths = [
             "character/start.png",
@@ -1326,7 +1326,7 @@ class MonopolyUI:
     def get_key(self,dict, value):
         return [k for k, v in dict.items() if v==value]
     
-    
+
     def disable_buttons(self):
         self.next_turn_button.config(state=tk.DISABLED)
     
@@ -1343,16 +1343,6 @@ class MonopolyUI:
         self.root.quit()
         self.root.destroy() 
         subprocess.call(["python", "choose.py"])
-
-
-
-
-    def open_game_menu(self):
-        game_menu_app = GameMenuApp()
-        game_menu_app.run()
-
-    def run(self):
-        self.root.mainloop()
 
 if __name__ == "__main__":
     Globals.load_from_file('globals_data.pkl')
