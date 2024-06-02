@@ -414,13 +414,15 @@ class MonopolyGame:
         player.update_money(amount)
         self.ui.add_message(f"{player.name} drew a Magic card and received ${amount}.")
 
-class GotchaStore:
+class GotchaStore():
     def __init__(self, players, current_turn):
         self.store_window = tk.Toplevel()
         self.players = players
         self.current_turn = current_turn
         self.current_player = None
         self.players.money = self.players.money
+        #self.players.name = self.players.name
+        #self.ui = ui
         print(self.players.money)
         self.store_window.title("Gotcha Store")
         self.store_window.geometry("1050x550")
@@ -538,10 +540,15 @@ class GotchaStore:
         if self.players.money >= card["price"]:
             self.players.money -= card["price"]
             #Globals.money = self.players[self.current_player]  # Update Globals money
-            self.show_message(f"Purchase Successful: You bought the card: {card['name']}", "green")
+            #self.add_message(f"{self.players.name} bought the card: {card['name']}", "green")
+            #self.show_message(f"Purchase Successful: You bought the card: {card['name']}", "green")
+            self.exit_store()
+            messagebox.showinfo("Purchase Successful", f"You bought the card: {card['name']}")
         else:
-            self.show_message("Insufficient Funds", "You do not have enough money to buy this card.")
-        self.exit_store()
+            #self.add_message(f"{self.players.name} do not have enough money to buy this card.")
+            #self.show_message("Insufficient Funds", "You do not have enough money to buy this card.")
+            self.exit_store()
+            messagebox.showinfo("Insufficient Funds", "You do not have enough money to buy this card.")
 
     def exit_store(self):
         print(self.players.money)
