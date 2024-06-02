@@ -8,6 +8,7 @@ import time
 from globals import Globals
 import pickle
 import subprocess
+from tkinter import simpledialog
 
 class Globals:
     selected_characters = {}
@@ -424,8 +425,10 @@ class MonopolyGame:
                 return
 
 
-class GotchaStore():
-    def __init__(self, players, current_turn):
+class CardSelectionWindow:
+    def __init__(self, players, current_turn, cards, callback):
+        self.cards = cards
+        self.callback = callback
         self.store_window = tk.Toplevel()
         self.players = players
         self.current_turn = current_turn
@@ -460,26 +463,7 @@ class GotchaStore():
         self.card_frame.pack(pady=20)
 
         # Sample cards with prices and images
-        card_image_paths = {
-            "Block Opponent": "picture/block_card.png",
-            "Get Boost": "picture/fast_card.png",
-            "Steal Money": "picture/steal_card.png",
-            "Double Roll": "picture/doubleroll_card.png",
-            "Immunity": "picture/immune_card.png",
-            "Alliance": "picture/Allliance_card.png",
-            "Wizard": "picture/Wizard_card.png"
-        }
-
-        self.cards = [
-            {"name": "Block Opponent", "description": "Block another player for one turn.", "price": 50, "image": card_image_paths["Block Opponent"]},
-            {"name": "Get Boost", "description": "Move forward 3 extra spaces on your next turn.", "price": 100, "image": card_image_paths["Get Boost"]},
-            {"name": "Steal Money", "description": "Steal $50 from another player.", "price": 75, "image": card_image_paths["Steal Money"]},
-            {"name": "Double Roll", "description": "Roll the dice twice on your next turn.", "price": 150, "image": card_image_paths["Double Roll"]},
-            {"name": "Immunity", "description": "Immune to any blocks for one turn.", "price": 200, "image": card_image_paths["Immunity"]},
-            {"name": "Alliance", "description": "No tolls will be collected from each other for 1 round.", "price": 500, "image": card_image_paths["Alliance"]},
-            {"name": "Wizard", "description": "Choose to use magic on a player to make 5 of his cards disappear!", "price": 999, "image": card_image_paths["Wizard"]}
-        ]
-
+        
         self.current_cards = []
         self.enter_store()
     
@@ -546,17 +530,15 @@ class GotchaStore():
     def show_message(self, message, color="green"):
         self.message_label.config(text=message, fg=color)
 
-    def set_buy_card_result(self, result):
-        self.buy_card_result = result
-
     def buy_card(self, card):
+        
         if self.players.money >= card["price"]:
             self.players.money -= card["price"]
             #Globals.money = self.players[self.current_player]  # Update Globals money
             #self.add_message(f"{self.players.name} bought the card: {card['name']}", "green")
             #self.show_message(f"Purchase Successful: You bought the card: {card['name']}", "green")
+            self.select_card(card['name'])
             messagebox.showinfo("Purchase Successful", f"You bought the card: {card['name']}")
-            self.set_buy_card_result(card['name'])
         else:
             #self.add_message(f"{self.players.name} do not have enough money to buy this card.")
             #self.show_message("Insufficient Funds", "You do not have enough money to buy this card.")
@@ -564,9 +546,61 @@ class GotchaStore():
             messagebox.showinfo("Insufficient Funds", "You do not have enough money to buy this card.")
             self.set_buy_card_result("")
 
+    def select_card(self, card):
+        self.callback(card)
+        self.store_window.destroy()
 
+class CardUser:
+    def __init__(self, players,all_players):
+        self.selected_card = None
+        self.players = players
+        self.all_players = all_players
+    def select_card(self, card):
+        self.selected_card = card
+        print(f"你选择了卡片：{self.selected_card}")
+        print(f"当前玩家的金钱：{self.players.money}")
         
 
+        if self.selected_card == "Block Opponent":
+            print()
+        elif self.selected_card == "Get Boost":
+            print()
+        elif self.selected_card == "Steal Money":
+            self.steal_money()
+        elif self.selected_card == "Double Roll":
+            print()
+        elif self.selected_card == "Immunity":
+            print()
+        elif self.selected_card == "Alliance":
+            print()
+        elif self.selected_card == "Wizard":
+            print()
+    def steal_money(self):
+        root = tk.Tk()
+        root.withdraw()  # 隐藏主窗口
+        
+        # 创建一个新的顶层窗口
+        top = tk.Toplevel(root)
+        top.attributes("-topmost", True)
+        top.withdraw()  # 隐藏顶层窗口（只是为了确保对话框显示在最上面）
+        for i in self.all_players:
+            print(i.name)
+        target_name = "馬力歐"
+        if str(target_name) not in self.all_players:
+            messagebox.showinfo("Player Not Found", f"No player with the name {target_name} was found.")
+        else:
+            for i in self.all_players:
+                print(i.name)
+                if str(target_name)==str(i.name):
+                    if i.money >= 50:
+                        i.money -= 50
+                        messagebox.showinfo("Steal Successful", f"You stole $50 from {target_name}.")
+                        break
+                    else:
+                        messagebox.showinfo("Steal Failed", f"{target_name} does not have enough money.")
+                        #self.steal_money()
+        top.destroy()
+        return
 class ChanceUI:
     def __init__(self,parent, on_close_callback):
         self.drawn_card_result = None  # 在 __init__ 方法中添加這行
@@ -1057,13 +1091,28 @@ class MonopolyUI:
         self.root.wait_window(win)
     """ 
     def open_store(self):
+        card_image_paths = {
+            "Block Opponent": "picture/block_card.png",
+            "Get Boost": "picture/fast_card.png",
+            "Steal Money": "picture/steal_card.png",
+            "Double Roll": "picture/doubleroll_card.png",
+            "Immunity": "picture/immune_card.png",
+            "Alliance": "picture/Allliance_card.png",
+            "Wizard": "picture/Wizard_card.png"
+        }
+        cards = [
+            {"name": "Block Opponent", "description": "Block another player for one turn.", "price": 50, "image": card_image_paths["Block Opponent"]},
+            {"name": "Get Boost", "description": "Move forward 3 extra spaces on your next turn.", "price": 100, "image": card_image_paths["Get Boost"]},
+            {"name": "Steal Money", "description": "Steal $50 from another player.", "price": 75, "image": card_image_paths["Steal Money"]},
+            {"name": "Double Roll", "description": "Roll the dice twice on your next turn.", "price": 150, "image": card_image_paths["Double Roll"]},
+            {"name": "Immunity", "description": "Immune to any blocks for one turn.", "price": 200, "image": card_image_paths["Immunity"]},
+            {"name": "Alliance", "description": "No tolls will be collected from each other for 1 round.", "price": 500, "image": card_image_paths["Alliance"]},
+            {"name": "Wizard", "description": "Choose to use magic on a player to make 5 of his cards disappear!", "price": 999, "image": card_image_paths["Wizard"]}
+        ]
+        
         current_player = self.game.players[self.game.current_turn]
-        self.store_app = GotchaStore(current_player, self.game.current_turn)
-        self.store_app.show_cards()  # 显示卡片
-        # 直接访问 GotchaStore 对象的 buy_card_result 属性获取值
-        buy_card_result = self.store_app.buy_card_result
-        print("Buy card result in MonopolyUI:", buy_card_result)
-
+        user = CardUser(current_player,self.game.players)
+        window = CardSelectionWindow(current_player, self.game.current_turn, cards, user.select_card)
 
     def draw_board(self):
         food_image_paths = [
