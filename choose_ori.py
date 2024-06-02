@@ -5,6 +5,8 @@ import os
 from tkinter import Label
 from globals import Globals
 import subprocess
+import pygame
+
 class CharacterSelection(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -230,6 +232,10 @@ class StartScreen(tk.Tk):
         self.title("大富翁遊戲")
         img = Image.open('ui.png')
         self.bg_image = ImageTk.PhotoImage(img)
+
+        pygame.mixer.init()
+        pygame.mixer.music.load('backgroung.mp3')  # 加載音樂文件
+        pygame.mixer.music.play(-1)
 
         # 建立Canvas
         canvas = tk.Canvas(self, highlightthickness=0, width=960, height=480)  # 調整為較大的大小
