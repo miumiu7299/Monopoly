@@ -3,6 +3,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import os
 from tkinter import Label
+from tkinter import messagebox
 from globals import Globals
 import subprocess
 import pygame, pygame.mixer
@@ -203,11 +204,14 @@ class CharacterSelection(tk.Tk):
     def back_to_main(self):
         self.button_click_sound.play()
 
-        Globals.selected_characters = {}
-        Globals.current_player = 1
-        self.destroy()
-        main_screen = StartScreen()
-        main_screen.mainloop()
+        response = messagebox.askquestion("返回主畫面", "是否確認要返回主畫面？\n角色選擇紀錄將不進行保存。")
+
+        if response == "yes":
+            Globals.selected_characters = {}
+            Globals.current_player = 1
+            self.destroy()
+            main_screen = StartScreen()
+            main_screen.mainloop()
 
     def list_all_characters(self):
     # 在畫面上顯示所有玩家的角色選擇
@@ -266,6 +270,15 @@ class CharacterSelection(tk.Tk):
         self.destroy()
 
 class StartScreen(tk.Tk):
+    def center_window(window, width, height):
+        screen_width = window.winfo_screenwidth()
+        screen_height = window.winfo_screenheight()
+
+        x = (screen_width // 2) - (width // 2)
+        y = (screen_height // 2) - (height // 2) - 40
+
+        window.geometry(f"{width}x{height}+{x}+{y}")
+
     def __init__(self):
         super().__init__()
 
@@ -288,6 +301,8 @@ class StartScreen(tk.Tk):
         # 建立遊戲開始按鈕
         start_button = tk.Button(self, text="開始遊戲", command=self.switch_to_character_selection, bg="blue", fg="white", font=("Arial", 12, "bold"), bd=3, relief=tk.RAISED)
         start_button.place(x=450, y=350)
+
+        self.center_window(960, 480)
 
     def switch_to_character_selection(self):
         self.mario_welcome_sound.play()
