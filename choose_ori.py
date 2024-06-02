@@ -160,9 +160,9 @@ class CharacterSelection(tk.Tk):
 
     def select_character(self, character, button):
         self.selected_character.set(character["name"])
+        new_image_path = os.path.join("character_2", f"{character['name']}_2.png")
 
-        image_path = os.path.join(os.getcwd(), character["image"])
-        image = Image.open(image_path)
+        image = Image.open(new_image_path)
         image = image.resize((200, 200), Image.Resampling.LANCZOS)
         photo = ImageTk.PhotoImage(image)
 
@@ -236,7 +236,7 @@ class CharacterSelection(tk.Tk):
         except EOFError:
             pass 
 
-        self.loading_label = tk.Label(self, image=self.frames[0])
+        self.loading_label = tk.Label(self, image=self.frames[0], bg="white")
         self.loading_label.place(relx=0.5, rely=0.5, anchor="center")
 
         self.after(4800, self.load_final)
