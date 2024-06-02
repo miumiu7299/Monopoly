@@ -140,8 +140,8 @@ class CharacterSelection(tk.Tk):
         self.back_button.place(relx=0.1, rely=0.9, anchor="sw")
 
     def show_characters(self):
-        self.button_click_sound.play()
         for i, character in enumerate(self.characters):
+            
             frame = ttk.Frame(self.right_frame, padding="5")
             frame.grid(row=i//4, column=i%4, padx=5, pady=10)
 
