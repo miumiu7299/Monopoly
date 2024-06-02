@@ -46,7 +46,7 @@ class CharacterSelection(tk.Tk):
         player_label = ttk.Label(player_frame, text="選擇玩家人數：", font=("Arial", 16))
         player_label.grid(row=0, column=0, columnspan=2, pady=10)
 
-        for i in range(1, 5):  # 玩家人數選擇範圍為1至4
+        for i in range(2, 5):  # 玩家人數選擇範圍為2至4
             button = ttk.Button(player_frame, text=f"{i} 人", command=lambda num=i: self.select_players(num))
             button.grid(row=1, column=i-1, padx=10, pady=5)
 
@@ -192,10 +192,13 @@ class CharacterSelection(tk.Tk):
             self.show_character_selection()
 
     def back_to_main(self):
-        self.destroy()  # 銷毀當前視窗
-        main_screen = StartScreen()  # 創建主畫面
-        main_screen.mainloop()
+        Globals.selected_characters = {}
+        Globals.current_player = 1
 
+        self.destroy()
+
+        main_screen = StartScreen()
+        main_screen.mainloop()
 
     def list_all_characters(self):
     # 在畫面上顯示所有玩家的角色選擇
@@ -219,11 +222,38 @@ class CharacterSelection(tk.Tk):
             character_label.grid(row=row_index*2+1, column=column_index*2, padx=10, pady=5)
             
     def start_game(self):
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        loading_gif_path = "loading.gif"
+        self.loading_gif = Image.open(loading_gif_path)
+        
+        self.frames = []
+        try:
+            while True:
+                self.frames.append(ImageTk.PhotoImage(self.loading_gif.copy()))
+                self.loading_gif.seek(len(self.frames))  
+        except EOFError:
+            pass 
+
+        self.loading_label = tk.Label(self, image=self.frames[0])
+        self.loading_label.place(relx=0.5, rely=0.5, anchor="center")
+
+        self.after(4800, self.load_final)
+        self.animate_gif(0)  
+
+    def animate_gif(self, frame_index):
+        frame = self.frames[frame_index]
+        self.loading_label.config(image=frame)
+        frame_index = (frame_index + 1) % len(self.frames)
+        self.after(100, self.animate_gif, frame_index) 
+
+    def load_final(self):
         print('開始遊戲')
         print(Globals.selected_characters)
         Globals.save_to_file('globals_data.pkl')
-        self.destroy()
         subprocess.call(["python", "final.py"])
+        self.destroy()
 
 class StartScreen(tk.Tk):
     def __init__(self):
