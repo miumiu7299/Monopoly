@@ -12,7 +12,7 @@ class CharacterSelection(tk.Tk):
         super().__init__()
         
         self.title("大富翁選角色")
-        self.geometry("1200x700")  # 調整為較大的大小
+        self.geometry("1200x700") 
 
         self.selected_character = tk.StringVar()
         self.selected_character.set("未選擇角色")
@@ -27,6 +27,9 @@ class CharacterSelection(tk.Tk):
             {"name": "布布王", "image": "character/布布王.png", "sound": "sound/boo.wav"},
             {"name": "奇諾比奧", "image": "character/奇諾比奧.png", "sound": "sound/toad.wav"},
         ]
+
+        pygame.mixer.init()
+        self.button_click_sound = pygame.mixer.Sound("button_click.wav")
 
         self.create_widgets()
 
@@ -77,10 +80,10 @@ class CharacterSelection(tk.Tk):
         map_image = Image.open("map.png")
 
         # 調整地圖大小
-        desired_width = 650  # 設定你想要的寬度
-        desired_height = 350  # 設定你想要的高度
+        desired_width = 650 
+        desired_height = 350 
         map_image = map_image.resize((desired_width, desired_height), Image.Resampling.LANCZOS)
-        # 將圖片轉換為圖片物件
+        
         map_photo = ImageTk.PhotoImage(map_image)
 
         # 在地圖框架中顯示圖片
@@ -137,13 +140,14 @@ class CharacterSelection(tk.Tk):
         self.back_button.place(relx=0.1, rely=0.9, anchor="sw")
 
     def show_characters(self):
+        self.button_click_sound.play()
         for i, character in enumerate(self.characters):
             frame = ttk.Frame(self.right_frame, padding="5")
             frame.grid(row=i//4, column=i%4, padx=5, pady=10)
 
             image_path = os.path.join(os.getcwd(), character["image"])
             image = Image.open(image_path)
-            image = image.resize((150, 180), Image.Resampling.LANCZOS)  # 調整角色大小
+            image = image.resize((150, 180), Image.Resampling.LANCZOS)
             photo = ImageTk.PhotoImage(image)
 
             image_label = ttk.Label(frame, image=photo)
@@ -178,7 +182,8 @@ class CharacterSelection(tk.Tk):
         self.confirm_button.config(state=tk.NORMAL)
 
     def confirm_selection(self):
-        # 確認選擇的邏輯
+        self.button_click_sound.play()
+        # 確認選擇
         print(f"玩家 {Globals.current_player} 選擇了角色: {self.selected_character.get()}")   
         Globals.selected_characters[Globals.current_player] = self.selected_character.get()
         Globals.current_player += 1   
@@ -196,18 +201,18 @@ class CharacterSelection(tk.Tk):
             self.show_character_selection()
 
     def back_to_main(self):
+        self.button_click_sound.play()
+
         Globals.selected_characters = {}
         Globals.current_player = 1
-
         self.destroy()
-
         main_screen = StartScreen()
         main_screen.mainloop()
 
     def list_all_characters(self):
     # 在畫面上顯示所有玩家的角色選擇
         for i, (player, character) in enumerate(Globals.selected_characters.items()):
-            # 計算玩家角色的水平位置，使其按照玩家順序從左到右排列
+            # 按照玩家順序從左到右排列
             column_index = i % Globals.players
             row_index = i // Globals.players
 
@@ -226,6 +231,7 @@ class CharacterSelection(tk.Tk):
             character_label.grid(row=row_index*2+1, column=column_index*2, padx=10, pady=5)
             
     def start_game(self):
+        self.button_click_sound.play()
         for widget in self.winfo_children():
             widget.destroy()
 
@@ -268,24 +274,23 @@ class StartScreen(tk.Tk):
         self.bg_image = ImageTk.PhotoImage(img)
 
         pygame.mixer.init()
-        pygame.mixer.music.load('backgroung.mp3')  # 加載音樂文件
+        pygame.mixer.music.load('backgroung.mp3') 
         pygame.mixer.music.play(-1)
+        self.mario_welcome_sound = pygame.mixer.Sound("mario_welcome.wav")
 
         # 建立Canvas
-        canvas = tk.Canvas(self, highlightthickness=0, width=960, height=480)  # 調整為較大的大小
+        canvas = tk.Canvas(self, highlightthickness=0, width=960, height=480) 
         canvas.pack()
 
-        # 在Canvas上顯示背景圖片
-        canvas.create_image(480, 240, image=self.bg_image)  # 調整圖片位置和大小
+        # 顯示背景圖片
+        canvas.create_image(480, 240, image=self.bg_image) 
 
-        # 建立遊戲開始按鈕，置中於視窗
+        # 建立遊戲開始按鈕
         start_button = tk.Button(self, text="開始遊戲", command=self.switch_to_character_selection, bg="blue", fg="white", font=("Arial", 12, "bold"), bd=3, relief=tk.RAISED)
-        start_button.place(x=450, y=350)  # 調整按鈕位置
-
-        self.button_click_sound = pygame.mixer.Sound("button_click.wav")
+        start_button.place(x=450, y=350)
 
     def switch_to_character_selection(self):
-        self.button_click_sound.play()
+        self.mario_welcome_sound.play()
         self.destroy()
         app = CharacterSelection()
         app.mainloop()
