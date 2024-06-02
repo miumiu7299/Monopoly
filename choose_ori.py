@@ -5,6 +5,8 @@ import os
 from tkinter import Label
 from globals import Globals
 import subprocess
+import pygame, pygame.mixer
+
 class CharacterSelection(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -16,14 +18,14 @@ class CharacterSelection(tk.Tk):
         self.selected_character.set("未選擇角色")
         
         self.characters = [
-            {"name": "馬力歐", "image": "character/馬力歐.png"},
-            {"name": "迪迪", "image": "character/迪迪.png"},
-            {"name": "路易吉", "image": "character/路易吉.png"},
-            {"name": "耀西", "image": "character/耀西.png"},
-            {"name": "碧琪", "image": "character/碧琪.png"},
-            {"name": "庫巴", "image": "character/庫巴.png"},
-            {"name": "布布王", "image": "character/布布王.png"},
-            {"name": "奇諾比奧", "image": "character/奇諾比奧.png"},
+            {"name": "馬力歐", "image": "character/馬力歐.png", "sound": "sound/mario.wav"},
+            {"name": "迪迪", "image": "character/迪迪.png", "sound": "sound/diddykong.wav"},
+            {"name": "路易吉", "image": "character/路易吉.png", "sound": "sound/luigi.wav"},
+            {"name": "耀西", "image": "character/耀西.png", "sound": "sound/yoshi.wav"},
+            {"name": "碧琪", "image": "character/碧琪.png", "sound": "sound/peach.wav"},
+            {"name": "庫巴", "image": "character/庫巴.png", "sound": "sound/bowser_laugh.wav"},
+            {"name": "布布王", "image": "character/布布王.png", "sound": "sound/boo.wav"},
+            {"name": "奇諾比奧", "image": "character/奇諾比奧.png", "sound": "sound/toad.wav"},
         ]
 
         self.create_widgets()
@@ -167,9 +169,13 @@ class CharacterSelection(tk.Tk):
         self.selected_image_label.config(image=photo)
         self.selected_image_label.image = photo
 
+        sound_path = character.get("sound")
+        if sound_path:
+            sound = pygame.mixer.Sound(sound_path)  
+            sound.play()
+
         # 啟用確定按鈕
         self.confirm_button.config(state=tk.NORMAL)
-
 
     def confirm_selection(self):
         # 確認選擇的邏輯
@@ -261,6 +267,10 @@ class StartScreen(tk.Tk):
         img = Image.open('ui.png')
         self.bg_image = ImageTk.PhotoImage(img)
 
+        pygame.mixer.init()
+        pygame.mixer.music.load('backgroung.mp3')  # 加載音樂文件
+        pygame.mixer.music.play(-1)
+
         # 建立Canvas
         canvas = tk.Canvas(self, highlightthickness=0, width=960, height=480)  # 調整為較大的大小
         canvas.pack()
@@ -272,7 +282,10 @@ class StartScreen(tk.Tk):
         start_button = tk.Button(self, text="開始遊戲", command=self.switch_to_character_selection, bg="blue", fg="white", font=("Arial", 12, "bold"), bd=3, relief=tk.RAISED)
         start_button.place(x=450, y=350)  # 調整按鈕位置
 
+        self.button_click_sound = pygame.mixer.Sound("button_click.wav")
+
     def switch_to_character_selection(self):
+        self.button_click_sound.play()
         self.destroy()
         app = CharacterSelection()
         app.mainloop()
