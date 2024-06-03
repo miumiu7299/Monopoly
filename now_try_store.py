@@ -528,10 +528,11 @@ class CardSelectionWindow:
         buy_button.pack(side=tk.LEFT, padx=20)
         cancel_button.pack(side=tk.RIGHT, padx=20)
 
-    def buy_card(self, card):
+    def buy_card(self, card ):
         
         if self.players.money >= card["price"]:
             self.players.money -= card["price"]
+            
             #Globals.money = self.players[self.current_player]  # Update Globals money
             #self.add_message(f"{self.players.name} bought the card: {card['name']}", "green")
             #self.show_message(f"Purchase Successful: You bought the card: {card['name']}", "green")
@@ -553,7 +554,7 @@ class CardUser:
         self.selected_card = None
         self.players = players
         self.all_players = all_players
-        self.master = tk.Toplevel()
+        
     def select_card(self, card):
         self.selected_card = card
         print(f"你选择了卡片：{self.selected_card}")
@@ -579,11 +580,14 @@ class CardUser:
         elif self.selected_card == "Prison":
             print()      
     def steal_money(self):
+        self.master = tk.Toplevel()
         self.target_name = ""
         for player in self.all_players:
             button = tk.Button(self.master, text=player.name, command=lambda p=player.name: self.select_player(p))
             button.pack()
+            
     def select_player(self, player_name):
+        self.master.destroy()
         self.target_name = player_name
         print("Selected player:", player_name)
         for i in self.all_players:
@@ -1115,9 +1119,11 @@ class MonopolyUI:
         ]
         
         current_player = self.game.players[self.game.current_turn]
+        
         user = CardUser(current_player,self.game.players)
         window = CardSelectionWindow(current_player, self.game.current_turn, cards, user.select_card)
 
+        
     def draw_board(self):
         food_image_paths = [
             "character/start.png",
@@ -1333,6 +1339,7 @@ class MonopolyUI:
       """
     def buy_and_close(self, player, property, top):
         if self.buy(player, property):
+            self.update_player_list()
             top.destroy()
             
     def buy(self, player, property):
