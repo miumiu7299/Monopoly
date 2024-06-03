@@ -1096,6 +1096,7 @@ class MonopolyUI:
 
         confirm_button = tk.Button(button_frame, text="確認", command=lambda: self.buy_and_close(player, property, top))
         confirm_button.pack(side="left", padx=10)
+        self.update_property_color(player, property)
 
         cancel_button = tk.Button(button_frame, text="取消", command=top.destroy)
         cancel_button.pack(side="right", padx=10)
@@ -1113,6 +1114,7 @@ class MonopolyUI:
       """
     def buy_and_close(self, player, property, top):
         if self.buy(player, property):
+            self.update_player_list()
             top.destroy()
             
     def buy(self, player, property):
