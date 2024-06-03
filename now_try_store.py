@@ -527,8 +527,6 @@ class CardSelectionWindow:
         
         buy_button.pack(side=tk.LEFT, padx=20)
         cancel_button.pack(side=tk.RIGHT, padx=20)
-    def show_message(self, message, color="green"):
-        self.message_label.config(text=message, fg=color)
 
     def buy_card(self, card):
         
@@ -537,13 +535,13 @@ class CardSelectionWindow:
             #Globals.money = self.players[self.current_player]  # Update Globals money
             #self.add_message(f"{self.players.name} bought the card: {card['name']}", "green")
             #self.show_message(f"Purchase Successful: You bought the card: {card['name']}", "green")
+            messagebox.showinfo("Purchase Successful", f"You bought the card: {card['name']}", parent=self.store_window)
             self.select_card(card['name'])
-            messagebox.showinfo("Purchase Successful", f"You bought the card: {card['name']}")
         else:
             #self.add_message(f"{self.players.name} do not have enough money to buy this card.")
             #self.show_message("Insufficient Funds", "You do not have enough money to buy this card.")
     
-            messagebox.showinfo("Insufficient Funds", "You do not have enough money to buy this card.")
+            messagebox.showinfo("Insufficient Funds", "You do not have enough money to buy this card.", parent=self.store_window)
             self.set_buy_card_result("")
 
     def select_card(self, card):
@@ -555,6 +553,7 @@ class CardUser:
         self.selected_card = None
         self.players = players
         self.all_players = all_players
+        self.master = tk.Toplevel()
     def select_card(self, card):
         self.selected_card = card
         print(f"你选择了卡片：{self.selected_card}")
@@ -568,39 +567,40 @@ class CardUser:
         elif self.selected_card == "Steal Money":
             self.steal_money()
         elif self.selected_card == "Double Roll":
-            print()
-        elif self.selected_card == "Immunity":
-            print()
+            self.double_roll()
+        #elif self.selected_card == "Immunity":
+            #print()
         elif self.selected_card == "Alliance":
             print()
-        elif self.selected_card == "Wizard":
+        #elif self.selected_card == "Wizard":
+            #print()
+        elif self.selected_card == "Attack":
             print()
+        elif self.selected_card == "Prison":
+            print()      
     def steal_money(self):
-        root = tk.Tk()
-        root.withdraw()  # 隐藏主窗口
-        
-        # 创建一个新的顶层窗口
-        top = tk.Toplevel(root)
-        top.attributes("-topmost", True)
-        top.withdraw()  # 隐藏顶层窗口（只是为了确保对话框显示在最上面）
+        self.target_name = ""
+        for player in self.all_players:
+            button = tk.Button(self.master, text=player.name, command=lambda p=player.name: self.select_player(p))
+            button.pack()
+    def select_player(self, player_name):
+        self.target_name = player_name
+        print("Selected player:", player_name)
         for i in self.all_players:
-            print(i.name)
-        target_name = "馬力歐"
-        if str(target_name) not in self.all_players:
-            messagebox.showinfo("Player Not Found", f"No player with the name {target_name} was found.")
-        else:
-            for i in self.all_players:
-                print(i.name)
-                if str(target_name)==str(i.name):
-                    if i.money >= 50:
-                        i.money -= 50
-                        messagebox.showinfo("Steal Successful", f"You stole $50 from {target_name}.")
-                        break
-                    else:
-                        messagebox.showinfo("Steal Failed", f"{target_name} does not have enough money.")
-                        #self.steal_money()
-        top.destroy()
-        return
+            if str(self.target_name)==str(i.name):
+                if i.money >= 50:
+                    i.money -= 50
+                    messagebox.showinfo("Steal Successful", f"You stole $50 from {self.target_name}.")
+                    break
+                else:
+                    messagebox.showinfo("Steal Failed", f"{self.target_name} does not have enough money.")
+                    #self.steal_money()
+
+
+    def double_roll(self):
+        steps = self.roll_dice()
+        self.player.move(steps, self.board_size,self.ui)
+        
 class ChanceUI:
     def __init__(self,parent, on_close_callback):
         self.drawn_card_result = None  # 在 __init__ 方法中添加這行
@@ -1096,18 +1096,22 @@ class MonopolyUI:
             "Get Boost": "picture/fast_card.png",
             "Steal Money": "picture/steal_card.png",
             "Double Roll": "picture/doubleroll_card.png",
-            "Immunity": "picture/immune_card.png",
+            #"Immunity": "picture/immune_card.png",
             "Alliance": "picture/Allliance_card.png",
-            "Wizard": "picture/Wizard_card.png"
+            #"Wizard": "picture/Wizard_card.png",
+            "Attack":"picture/Attack_card.png",
+            "Prison":"picture/Prison_card.png"
         }
         cards = [
             {"name": "Block Opponent", "description": "Block another player for one turn.", "price": 50, "image": card_image_paths["Block Opponent"]},
             {"name": "Get Boost", "description": "Move forward 3 extra spaces on your next turn.", "price": 100, "image": card_image_paths["Get Boost"]},
             {"name": "Steal Money", "description": "Steal $50 from another player.", "price": 75, "image": card_image_paths["Steal Money"]},
             {"name": "Double Roll", "description": "Roll the dice twice on your next turn.", "price": 150, "image": card_image_paths["Double Roll"]},
-            {"name": "Immunity", "description": "Immune to any blocks for one turn.", "price": 200, "image": card_image_paths["Immunity"]},
+            #{"name": "Immunity", "description": "Immune to any blocks for one turn.", "price": 200, "image": card_image_paths["Immunity"]},
             {"name": "Alliance", "description": "No tolls will be collected from each other for 1 round.", "price": 500, "image": card_image_paths["Alliance"]},
-            {"name": "Wizard", "description": "Choose to use magic on a player to make 5 of his cards disappear!", "price": 999, "image": card_image_paths["Wizard"]}
+            #{"name": "Wizard", "description": "Choose to use magic on a player to make 5 of his cards disappear!", "price": 999, "image": card_image_paths["Wizard"]}
+            {"name": "Attack", "description": "Attack a player and send him to the emergency room", "price": 450, "image": card_image_paths["Attack"]},
+            {"name": "Prison", "description": "Send a player to jail", "price": 550, "image": card_image_paths["Prison"]}
         ]
         
         current_player = self.game.players[self.game.current_turn]
