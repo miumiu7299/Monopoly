@@ -1096,6 +1096,7 @@ class MonopolyUI:
 
         confirm_button = tk.Button(button_frame, text="確認", command=lambda: self.buy_and_close(player, property, top))
         confirm_button.pack(side="left", padx=10)
+        #self.update_property_color(player, property)
 
         cancel_button = tk.Button(button_frame, text="取消", command=top.destroy)
         cancel_button.pack(side="right", padx=10)
@@ -1113,12 +1114,14 @@ class MonopolyUI:
       """
     def buy_and_close(self, player, property, top):
         if self.buy(player, property):
+            self.update_player_list()
             top.destroy()
             
     def buy(self, player, property):
         if player.buy_property(property.name, property.cost):
             property.owner = player
             self.add_message(f"{player.name} bought {property.name} for ${property.cost}.")
+            #self.update_player_list()
             self.update_property_color(player, property)
             return True
         
@@ -1186,7 +1189,7 @@ class MonopolyUI:
     
     def disable_buttons(self):
         self.next_turn_button.config(state=tk.DISABLED)
-    
+    """
     def game_over(self):
         response = messagebox.askyesno("Game Over", "A player has gone bankrupt. Do you want to play another round?")
         if response:
@@ -1200,6 +1203,29 @@ class MonopolyUI:
         self.root.quit()
         self.root.destroy() 
         subprocess.call(["python", "choose.py"])
+    """
+    
+    def game_over(self):
+        response = messagebox.askyesno("Game Over", "A player has gone bankrupt. Do you want to play another round?")
+        if response:
+            self.reset_game()
+        else:
+            self.quit_game()
+
+    def reset_game(self):
+        self.root.quit()
+        self.root.destroy()
+        self.start_new_game()
+
+    def quit_game(self):
+        self.root.quit()
+        self.root.destroy()
+
+    def start_new_game(self):
+        try:
+            subprocess.call(["python", "choose.py"])
+        except Exception as e:
+            print(f"Error starting new game: {e}")
 
 if __name__ == "__main__":
     Globals.load_from_file('globals_data.pkl')
