@@ -213,6 +213,8 @@ class MonopolyGame:
         self.current_turn = (self.current_turn + 1) % len(self.players)
 
     def roll_dice(self):
+        self.ui.game_over()
+        '''
         self.ui.next_turn_button.config(state=tk.DISABLED)
         animation_window = DiceAnimationWindow()
         result_container = [None]  # 使用列表来存储结果，以便在回调函数中修改它
@@ -228,7 +230,7 @@ class MonopolyGame:
         # 返回结果
         
         return result_container[0]
-
+        '''
     def handle_space_action(self, player):
         if 0 <= player.position < len(self.properties):
             property = self.properties[player.position]

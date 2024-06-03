@@ -14,7 +14,6 @@ class CharacterSelection(tk.Tk):
         
         self.title("大富翁選角色")
         self.geometry("1200x700") 
-
         self.selected_character = tk.StringVar()
         self.selected_character.set("未選擇角色")
         
@@ -253,21 +252,25 @@ class CharacterSelection(tk.Tk):
         self.loading_label = tk.Label(self, image=self.frames[0], bg="white")
         self.loading_label.place(relx=0.5, rely=0.5, anchor="center")
 
+        self.animation_running = True
+
         self.after(4800, self.load_final)
         self.animate_gif(0)  
 
     def animate_gif(self, frame_index):
-        frame = self.frames[frame_index]
-        self.loading_label.config(image=frame)
-        frame_index = (frame_index + 1) % len(self.frames)
-        self.after(100, self.animate_gif, frame_index) 
+        if self.animation_running:
+            frame = self.frames[frame_index]
+            self.loading_label.config(image=frame)
+            frame_index = (frame_index + 1) % len(self.frames)
+            self.animate_id = self.after(100, self.animate_gif, frame_index)
 
     def load_final(self):
         print('開始遊戲')
         print(Globals.selected_characters)
+        self.destroy()
         Globals.save_to_file('globals_data.pkl')
         subprocess.call(["python", "final.py"])
-        self.destroy()
+        
 
 class StartScreen(tk.Tk):
     def center_window(window, width, height):
