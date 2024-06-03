@@ -1114,14 +1114,14 @@ class MonopolyUI:
       """
     def buy_and_close(self, player, property, top):
         if self.buy(player, property):
-            
+            self.update_player_list()
             top.destroy()
             
     def buy(self, player, property):
         if player.buy_property(property.name, property.cost):
             property.owner = player
             self.add_message(f"{player.name} bought {property.name} for ${property.cost}.")
-            self.update_player_list()
+            #self.update_player_list()
             self.update_property_color(player, property)
             return True
         
