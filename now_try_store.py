@@ -1333,6 +1333,7 @@ class MonopolyUI:
       """
     def buy_and_close(self, player, property, top):
         if self.buy(player, property):
+            self.update_player_list()
             top.destroy()
             
     def buy(self, player, property):
