@@ -243,6 +243,7 @@ class MonopolyGame:
                     self.draw_destiny_card(player)
 
             elif property.type == "emergency" and player.position == 19:
+                self.ui.magic_card(player, property)
                 self.ui.add_message(f"{player.name}  landed on a Emergency space and moved to hospital.")
                 player.is_emergency = True
                 self.ui.root.update()
@@ -250,11 +251,14 @@ class MonopolyGame:
                 player.position=13
                 self.ui.update_player_piece_position(player)
             elif property.type == "fattokilled":
+                self.ui.magic_card(player, property)
                 self.ui.add_message(f"{player.name} landed on a Fat->killed space , you are so fat that you will get killed!!!")
             elif property.type == "hospital":
+                self.ui.magic_card(player, property)
                 self.ui.add_message(f"{player.name} landed on a Hospital space and stays for one turn.")
                 player.in_hospital = True
             elif property.type == "magiccard":
+                self.ui.magic_card(player, property)
                 self.ui.add_message(f"{player.name} landed on a Magic Card space")
                 self.draw_magic_card(player)
             elif property.type == "jail":
@@ -262,6 +266,7 @@ class MonopolyGame:
                         player.has_jail_free_card = False
                         self.ui.add_message(f"{player.name} used a Get Out of Jail Free card and avoided jail.")
                     else:
+                        self.ui.magic_card(player, property)
                         self.ui.add_message(f"{player.name} landed on a Jail space and stays for one turn.")
                         player.in_jail = True
                 #self.ui.update_player_list()
@@ -1070,15 +1075,19 @@ class MonopolyUI:
         self.button_frame = tk.Frame(self.main_frame)
         self.button_frame.place(relx=0.7, rely=0.4, anchor='center')
 
-        self.player_name_var = tk.StringVar()
-        self.player_name_entry = tk.Entry(self.main_frame, textvariable=self.player_name_var)
-        self.player_name_entry.place(relx=0.5, rely=0.4, anchor='center')
+        #self.player_name_var = tk.StringVar()
+        #self.player_name_entry = tk.Entry(self.main_frame, textvariable=self.player_name_var)
+        #self.player_name_entry.place(relx=0.5, rely=0.4, anchor='center')
 
         
 
         self.next_turn_button = tk.Button(self.button_frame, text="丟骰子", command=self.next_turn)
         self.next_turn_button.pack(side=tk.TOP, pady=5)
 
+        self.store_button = tk.Button(self.button_frame, text="商店", command=self.open_store)
+        #self.store_button.pack(relx=0.235, rely=0.68, anchor='se')
+        self.store_button.pack(side=tk.TOP, pady=6)
+        
         self.status_label = tk.Label(self.main_frame, text="遊戲狀態")
         self.status_label.place(relx=0.5, rely=0.35, anchor='center')
 
@@ -1088,8 +1097,7 @@ class MonopolyUI:
         self.message_listbox.place(relx=0.5, rely=0.55, anchor='center')
 
         #商店
-        self.store_button = tk.Button(self.root, text="商店", command=self.open_store)
-        self.store_button.place(relx=0.235, rely=0.68, anchor='se')
+        
     """   
     def wait_window(self, win):
         self.root.wait_window(win)
@@ -1268,6 +1276,39 @@ class MonopolyUI:
     def add_message(self, message):
         self.message_listbox.insert(tk.END, message)
         self.message_listbox.yview(tk.END)# 自動滾動到最新訊息
+        
+    def magic_card(self, player, property):
+        top = tk.Toplevel(self.root)
+        top.title(f"{property.type}")
+        if property.type == "jail":
+            img = Image.open("character/prison.png")
+        elif property.type == "emergency":
+            img = Image.open("character/too_many_delicy.png")
+        elif property.type == "fattokilled":
+            img = Image.open("character/eat_too_much.png")
+        elif property.type == "hospital":
+            img = Image.open("character/hospital.png")
+        elif property.type == "magiccard":
+            img = Image.open("character/magic_card.png")
+            
+        img = img.resize((250, 250))  # Resize if needed
+        photo = ImageTk.PhotoImage(img)
+        label = tk.Label(top, image=photo,width=300,height=300)
+        label.image = photo
+            
+        label.pack()
+        if property.type == "emergency" and player.position == 19:
+            tk.Label(top, text=f"{player.name} having too much delicy cause stomachache so you have to go to hospital...").pack()
+        elif property.type == "fattokilled":
+            tk.Label(top, text=f"{player.name} landed on a Fat->killed space , you are so fat that you will get killed!!!").pack()
+        elif property.type == "hospital":
+            tk.Label(top, text=f"{player.name} landed on a Hospital space and stays for one turn.").pack()
+        elif property.type == "magiccard":
+            tk.Label(top, text=f"{player.name} landed on a Magic Card space and get $100 for reward <3").pack()
+        elif property.type == "jail":
+            tk.Label(top, text=f"{player.name} landed on a Jail space and stays for one turn.").pack()
+
+        top.after(2500, top.destroy)        
 
     def ask_to_buy_property(self, player, property):
         food_image_paths = [
