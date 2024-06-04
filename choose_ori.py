@@ -269,7 +269,7 @@ class CharacterSelection(tk.Tk):
         print(Globals.selected_characters)
         self.destroy()
         Globals.save_to_file('globals_data.pkl')
-        subprocess.call(["python", "final.py"])
+        subprocess.call(["python", "now_try_store.py"])
         
 
 class StartScreen(tk.Tk):
