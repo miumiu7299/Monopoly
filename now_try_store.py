@@ -1468,7 +1468,7 @@ class MonopolyUI:
         self.root.quit()
         self.root.destroy() 
         subprocess.call(["python", "choose.py"])
-
+        
 if __name__ == "__main__":
     Globals.load_from_file('globals_data.pkl')
     root = tk.Tk()

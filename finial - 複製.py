@@ -8,6 +8,7 @@ import time
 from globals import Globals
 import pickle
 import subprocess
+from tkinter import simpledialog
 
 class Globals:
     selected_characters = {}
@@ -69,7 +70,7 @@ class Player:
         self.in_hospital = False
         self.is_emergency = False
         self.has_jail_free_card = False
-
+        self.Block_Opponent = False
         
 
     def move(self, steps, board_size,ui):
@@ -199,7 +200,12 @@ class MonopolyGame:
             self.ui.update_player_list()
             self.current_turn = (self.current_turn + 1) % len(self.players)
             return
-                
+        if current_player.Block_Opponent:
+            self.ui.update_status_label(f"{current_player.name} is Block_Opponent.")
+            current_player.Block_Opponent = False
+            self.ui.update_player_list()
+            self.current_turn = (self.current_turn + 1) % len(self.players)
+            return
         steps = self.roll_dice()
         current_player.move(steps, self.board_size,self.ui)
         self.ui.next_turn_button.config(state=tk.NORMAL)
@@ -242,6 +248,7 @@ class MonopolyGame:
                     self.draw_destiny_card(player)
 
             elif property.type == "emergency" and player.position == 19:
+                self.ui.magic_card(player, property)
                 self.ui.add_message(f"{player.name}  landed on a Emergency space and moved to hospital.")
                 player.is_emergency = True
                 self.ui.root.update()
@@ -249,11 +256,14 @@ class MonopolyGame:
                 player.position=13
                 self.ui.update_player_piece_position(player)
             elif property.type == "fattokilled":
+                self.ui.magic_card(player, property)
                 self.ui.add_message(f"{player.name} landed on a Fat->killed space , you are so fat that you will get killed!!!")
             elif property.type == "hospital":
+                self.ui.magic_card(player, property)
                 self.ui.add_message(f"{player.name} landed on a Hospital space and stays for one turn.")
                 player.in_hospital = True
             elif property.type == "magiccard":
+                self.ui.magic_card(player, property)
                 self.ui.add_message(f"{player.name} landed on a Magic Card space")
                 self.draw_magic_card(player)
             elif property.type == "jail":
@@ -261,6 +271,7 @@ class MonopolyGame:
                         player.has_jail_free_card = False
                         self.ui.add_message(f"{player.name} used a Get Out of Jail Free card and avoided jail.")
                     else:
+                        self.ui.magic_card(player, property)
                         self.ui.add_message(f"{player.name} landed on a Jail space and stays for one turn.")
                         player.in_jail = True
                 #self.ui.update_player_list()
@@ -424,15 +435,19 @@ class MonopolyGame:
                 return
 
 
-class GotchaStore():
-    def __init__(self, players, current_turn):
+class CardSelectionWindow():
+    def __init__(self, players, current_turn, cards, callback,all_players,player_texts):
+        self.cards = cards
+        self.callback = callback
         self.store_window = tk.Toplevel()
         self.players = players
         self.current_turn = current_turn
         self.current_player = None
         self.players.money = self.players.money
+        self.player_texts =player_texts
         #self.players.name = self.players.name
         #self.ui = ui
+        self.all_players = all_players
         print(self.players.money)
         self.store_window.title("Gotcha Store")
         self.store_window.geometry("1050x550")
@@ -460,26 +475,7 @@ class GotchaStore():
         self.card_frame.pack(pady=20)
 
         # Sample cards with prices and images
-        card_image_paths = {
-            "Block Opponent": "picture/block_card.png",
-            "Get Boost": "picture/fast_card.png",
-            "Steal Money": "picture/steal_card.png",
-            "Double Roll": "picture/doubleroll_card.png",
-            "Immunity": "picture/immune_card.png",
-            "Alliance": "picture/Allliance_card.png",
-            "Wizard": "picture/Wizard_card.png"
-        }
-
-        self.cards = [
-            {"name": "Block Opponent", "description": "Block another player for one turn.", "price": 50, "image": card_image_paths["Block Opponent"]},
-            {"name": "Get Boost", "description": "Move forward 3 extra spaces on your next turn.", "price": 100, "image": card_image_paths["Get Boost"]},
-            {"name": "Steal Money", "description": "Steal $50 from another player.", "price": 75, "image": card_image_paths["Steal Money"]},
-            {"name": "Double Roll", "description": "Roll the dice twice on your next turn.", "price": 150, "image": card_image_paths["Double Roll"]},
-            {"name": "Immunity", "description": "Immune to any blocks for one turn.", "price": 200, "image": card_image_paths["Immunity"]},
-            {"name": "Alliance", "description": "No tolls will be collected from each other for 1 round.", "price": 500, "image": card_image_paths["Alliance"]},
-            {"name": "Wizard", "description": "Choose to use magic on a player to make 5 of his cards disappear!", "price": 999, "image": card_image_paths["Wizard"]}
-        ]
-
+        
         self.current_cards = []
         self.enter_store()
     
@@ -543,30 +539,190 @@ class GotchaStore():
         
         buy_button.pack(side=tk.LEFT, padx=20)
         cancel_button.pack(side=tk.RIGHT, padx=20)
-    def show_message(self, message, color="green"):
-        self.message_label.config(text=message, fg=color)
-
-    def set_buy_card_result(self, result):
-        self.buy_card_result = result
-
+    
+    def update_player_list(self):
+        colors = ["red", "blue", "green", "orange"]
+        for i,player in enumerate(self.all_players):
+            if i < len(self.player_texts):
+                print(i)
+                text_widget = self.player_texts[i]
+                text_widget.delete('1.0', tk.END)  # 清空文本框
+                player_info = f"{player.name}\nPosition🚩: {player.position}\nMoney💰: ${player.money}\nCuisines🍽️: {', '.join(player.properties)}"
+                
+                text_widget.insert(tk.END, player_info)  # 插入新的玩家資訊
+                
+                # 设置玩家颜色
+                color = colors[i % len(colors)]
+                text_widget.tag_configure(f"player_color_{i}", foreground=color)
+                text_widget.tag_add(f"player_color_{i}", '1.0', tk.END)
+    
     def buy_card(self, card):
         if self.players.money >= card["price"]:
             self.players.money -= card["price"]
+            self.update_player_list()
             #Globals.money = self.players[self.current_player]  # Update Globals money
             #self.add_message(f"{self.players.name} bought the card: {card['name']}", "green")
             #self.show_message(f"Purchase Successful: You bought the card: {card['name']}", "green")
-            messagebox.showinfo("Purchase Successful", f"You bought the card: {card['name']}")
-            self.set_buy_card_result(card['name'])
+            messagebox.showinfo("Purchase Successful", f"You bought the card: {card['name']}", parent=self.store_window)
+            self.select_card(card['name'])
         else:
             #self.add_message(f"{self.players.name} do not have enough money to buy this card.")
             #self.show_message("Insufficient Funds", "You do not have enough money to buy this card.")
     
-            messagebox.showinfo("Insufficient Funds", "You do not have enough money to buy this card.")
+            messagebox.showinfo("Insufficient Funds", "You do not have enough money to buy this card.", parent=self.store_window)
             self.set_buy_card_result("")
 
+    def select_card(self, card):
+        self.callback(card)
+        self.store_window.destroy()
 
+class CardUser:
+    def __init__(self, players,all_players,player_texts,player_pieces,board_canvas):
+        self.selected_card = None
+        self.players = players
+        self.all_players = all_players
+        self.player_texts = player_texts
+        self.player_pieces = player_pieces
+        self.board_canvas = board_canvas
+    def get_position_coordinates(self, position, player_index):
+        cell_size = min(1000 / 10, 500 / 5)
+        offset_x = (player_index % 2) * cell_size / 2        
+        offset_y = (player_index // 2) * cell_size / 2 
+        if position < 10:
+            x = position * cell_size + offset_x + cell_size / 4
+            y = cell_size / 4 + offset_y
+        elif position < 13:
+            x = 9 * cell_size + offset_x + cell_size / 4
+            y = (position - 9) * cell_size + offset_y + cell_size / 4
+        elif position < 23:
+            x = (22 - position)* cell_size + offset_x + cell_size / 4
+            y = cell_size * 4 + offset_y + cell_size / 4
+        else:
+            x = 0 + offset_x +cell_size / 4
+            y = (26 - position) * cell_size + offset_y + cell_size / 4
+        return x,y
+    
+    def update_player_piece_position(self,player):
+        x,y = self.get_position_coordinates(player.position, list(self.player_pieces.keys()).index(player))
+        self.board_canvas.coords(self.player_pieces[player], x-10, y-10, x+10, y+10)
         
+    def update_player_list(self):
+        colors = ["red", "blue", "green", "orange"]
+        for i,player in enumerate(self.all_players):
+            if i < len(self.player_texts):
+                text_widget = self.player_texts[i]
+                text_widget.delete('1.0', tk.END)  # 清空文本框
+                player_info = f"{player.name}\nPosition🚩: {player.position}\nMoney💰: ${player.money}\nCuisines🍽️: {', '.join(player.properties)}"
+                
+                text_widget.insert(tk.END, player_info)  # 插入新的玩家資訊
+                
+                # 设置玩家颜色
+                color = colors[i % len(colors)]
+                text_widget.tag_configure(f"player_color_{i}", foreground=color)
+                text_widget.tag_add(f"player_color_{i}", '1.0', tk.END)
+    def select_card(self, card):
+        self.selected_card = card
+        print(f"你选择了卡片：{self.selected_card}")
+        print(f"当前玩家的金钱：{self.players.money}")
+        
+        if self.selected_card == "Block Opponent":
+            self.select_player_Block_Opponent()
+        elif self.selected_card == "Get Boost":
+            self.move_3_steps()
+        elif self.selected_card == "Steal Money":
+            self.steal_money()
+        #elif self.selected_card == "Immunity":
+            #print()
+        elif self.selected_card == "Alliance":
+            print()
+        #elif self.selected_card == "Wizard":
+            #print()
+        elif self.selected_card == "Attack":
+            self.select_player_hospital()
+        elif self.selected_card == "Prison":
+            self.select_player_prison()     
+    def steal_money(self):
+        self.master = tk.Toplevel()
+        self.target_name = ""
+        for player in self.all_players:
+            button = tk.Button(self.master, text=player.name, command=lambda p=player.name: self.select_player(p))
+            button.pack()
+            
+    def select_player(self, player_name):
+        self.master.destroy()
+        self.target_name = player_name
+        print("Selected player:", player_name)
+        for i in self.all_players:
+            if str(self.target_name)==str(i.name):
 
+                if i.money >= 50:
+                    i.money -= 50
+                    self.update_player_list()
+                    messagebox.showinfo("Steal Successful", f"You stole $50 from {self.target_name}.")
+                    break
+                else:
+                    messagebox.showinfo("Steal Failed", f"{self.target_name} does not have enough money.")
+                    #self.steal_money()
+    def select_player_prison(self):
+        self.master = tk.Toplevel()
+        self.target_name = ""
+        for player in self.all_players:
+            button = tk.Button(self.master, text=player.name, command=lambda p=player.name: self.go_to_prison(p))
+            button.pack()
+    
+    def go_to_prison(self, player_name):
+        self.master.destroy()
+        self.target_name = player_name
+        print("Selected player:", player_name)
+        for i in self.all_players:
+            if str(self.target_name)==str(i.name):
+                i.position = 9
+                i.in_jail = True
+                self.update_player_piece_position(i)
+                messagebox.showinfo("Successful", f"{self.target_name} go to prison.")
+                break
+
+    def select_player_hospital(self):
+        self.master = tk.Toplevel()
+        self.target_name = ""
+        for player in self.all_players:
+            button = tk.Button(self.master, text=player.name, command=lambda p=player.name: self.go_to_hospital(p))
+            button.pack()
+
+    def go_to_hospital(self, player_name):
+        self.master.destroy()
+        self.target_name = player_name
+        print("Selected player:", player_name)
+        for i in self.all_players:
+            if str(self.target_name)==str(i.name):
+                i.position = 13
+                i.in_hospital = True
+                self.update_player_piece_position(i)
+                messagebox.showinfo("Successful", f"{self.target_name} go to hospital.")
+                break
+    
+    def move_3_steps(self):
+        self.players.position+=3
+        if self.players.position == 13:
+            self.players.in_hospital = True
+        else:
+            self.players.in_jall = True
+        if self.players.position > 25:
+            self.players.position-=25
+
+        self.update_player_piece_position(self.players)
+    def select_player_Block_Opponent(self):
+        self.master = tk.Toplevel()
+        self.target_name = ""
+        for player in self.all_players:
+            button = tk.Button(self.master, text=player.name, command=lambda p=player.name: self.Block_Opponent(p))
+            button.pack()
+    def Block_Opponent(self,player_name):
+        self.master.destroy()
+        self.target_name = player_name
+        for i in self.all_players:
+            if str(self.target_name)==str(i.name):
+                i.Block_Opponent = True
 class ChanceUI:
     def __init__(self,parent, on_close_callback):
         self.drawn_card_result = None  # 在 __init__ 方法中添加這行
@@ -1032,15 +1188,19 @@ class MonopolyUI:
         self.button_frame = tk.Frame(self.main_frame)
         self.button_frame.place(relx=0.7, rely=0.4, anchor='center')
 
-        self.player_name_var = tk.StringVar()
-        self.player_name_entry = tk.Entry(self.main_frame, textvariable=self.player_name_var)
-        self.player_name_entry.place(relx=0.5, rely=0.4, anchor='center')
+        #self.player_name_var = tk.StringVar()
+        #self.player_name_entry = tk.Entry(self.main_frame, textvariable=self.player_name_var)
+        #self.player_name_entry.place(relx=0.5, rely=0.4, anchor='center')
 
         
 
         self.next_turn_button = tk.Button(self.button_frame, text="丟骰子", command=self.next_turn)
         self.next_turn_button.pack(side=tk.TOP, pady=5)
 
+        self.store_button = tk.Button(self.button_frame, text="商店", command=self.open_store)
+        #self.store_button.pack(relx=0.235, rely=0.68, anchor='se')
+        self.store_button.pack(side=tk.TOP, pady=6)
+        
         self.status_label = tk.Label(self.main_frame, text="遊戲狀態")
         self.status_label.place(relx=0.5, rely=0.35, anchor='center')
 
@@ -1050,21 +1210,41 @@ class MonopolyUI:
         self.message_listbox.place(relx=0.5, rely=0.55, anchor='center')
 
         #商店
-        self.store_button = tk.Button(self.root, text="商店", command=self.open_store)
-        self.store_button.place(relx=0.235, rely=0.68, anchor='se')
+        
     """   
     def wait_window(self, win):
         self.root.wait_window(win)
     """ 
     def open_store(self):
+        card_image_paths = {
+            "Block Opponent": "picture/block_card.png",
+            "Get Boost": "picture/fast_card.png",
+            "Steal Money": "picture/steal_card.png",
+            "Double Roll": "picture/doubleroll_card.png",
+            #"Immunity": "picture/immune_card.png",
+            "Alliance": "picture/Allliance_card.png",
+            #"Wizard": "picture/Wizard_card.png",
+            "Attack":"picture/Attack_card.png",
+            "Prison":"picture/Prison_card.png"
+        }
+        cards = [
+            {"name": "Block Opponent", "description": "Block another player for one turn.", "price": 50, "image": card_image_paths["Block Opponent"]},
+            {"name": "Get Boost", "description": "Move forward 3 extra spaces on your next turn.", "price": 100, "image": card_image_paths["Get Boost"]},
+            {"name": "Steal Money", "description": "Steal $50 from another player.", "price": 75, "image": card_image_paths["Steal Money"]},
+            {"name": "Double Roll", "description": "Roll the dice twice on your next turn.", "price": 150, "image": card_image_paths["Double Roll"]},
+            #{"name": "Immunity", "description": "Immune to any blocks for one turn.", "price": 200, "image": card_image_paths["Immunity"]},
+            {"name": "Alliance", "description": "No tolls will be collected from each other for 1 round.", "price": 500, "image": card_image_paths["Alliance"]},
+            #{"name": "Wizard", "description": "Choose to use magic on a player to make 5 of his cards disappear!", "price": 999, "image": card_image_paths["Wizard"]}
+            {"name": "Attack", "description": "Attack a player and send him to the emergency room", "price": 450, "image": card_image_paths["Attack"]},
+            {"name": "Prison", "description": "Send a player to jail", "price": 550, "image": card_image_paths["Prison"]}
+        ]
+        
         current_player = self.game.players[self.game.current_turn]
-        self.store_app = GotchaStore(current_player, self.game.current_turn)
-        self.store_app.show_cards()  # 显示卡片
-        # 直接访问 GotchaStore 对象的 buy_card_result 属性获取值
-        buy_card_result = self.store_app.buy_card_result
-        print("Buy card result in MonopolyUI:", buy_card_result)
+        
+        user = CardUser(current_player,self.game.players,self.player_texts,self.player_pieces,self.board_canvas)
+        window = CardSelectionWindow(current_player, self.game.current_turn, cards, user.select_card,self.game.players,self.player_texts)
 
-
+        
     def draw_board(self):
         food_image_paths = [
             "character/start.png",
@@ -1209,6 +1389,39 @@ class MonopolyUI:
     def add_message(self, message):
         self.message_listbox.insert(tk.END, message)
         self.message_listbox.yview(tk.END)# 自動滾動到最新訊息
+        
+    def magic_card(self, player, property):
+        top = tk.Toplevel(self.root)
+        top.title(f"{property.type}")
+        if property.type == "jail":
+            img = Image.open("character/prison.png")
+        elif property.type == "emergency":
+            img = Image.open("character/too_many_delicy.png")
+        elif property.type == "fattokilled":
+            img = Image.open("character/eat_too_much.png")
+        elif property.type == "hospital":
+            img = Image.open("character/hospital.png")
+        elif property.type == "magiccard":
+            img = Image.open("character/magic_card.png")
+            
+        img = img.resize((250, 250))  # Resize if needed
+        photo = ImageTk.PhotoImage(img)
+        label = tk.Label(top, image=photo,width=300,height=300)
+        label.image = photo
+            
+        label.pack()
+        if property.type == "emergency" and player.position == 19:
+            tk.Label(top, text=f"{player.name} having too much delicy cause stomachache so you have to go to hospital...").pack()
+        elif property.type == "fattokilled":
+            tk.Label(top, text=f"{player.name} landed on a Fat->killed space , you are so fat that you will get killed!!!").pack()
+        elif property.type == "hospital":
+            tk.Label(top, text=f"{player.name} landed on a Hospital space and stays for one turn.").pack()
+        elif property.type == "magiccard":
+            tk.Label(top, text=f"{player.name} landed on a Magic Card space and get $100 for reward <3").pack()
+        elif property.type == "jail":
+            tk.Label(top, text=f"{player.name} landed on a Jail space and stays for one turn.").pack()
+
+        top.after(2500, top.destroy)        
 
     def ask_to_buy_property(self, player, property):
         food_image_paths = [
@@ -1280,6 +1493,7 @@ class MonopolyUI:
       """
     def buy_and_close(self, player, property, top):
         if self.buy(player, property):
+            self.update_player_list()
             top.destroy()
             
     def buy(self, player, property):
@@ -1367,7 +1581,7 @@ class MonopolyUI:
         self.root.quit()
         self.root.destroy() 
         subprocess.call(["python", "choose.py"])
-
+        
 if __name__ == "__main__":
     Globals.load_from_file('globals_data.pkl')
     root = tk.Tk()
