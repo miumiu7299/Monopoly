@@ -1088,10 +1088,10 @@ class MonopolyUI:
         self.next_turn_button = tk.Button(self.button_frame, image = self.photo, command=self.next_turn)
         self.next_turn_button.pack(side=tk.TOP, pady=5)
         
-        original_store = Image.open('character/start.png')
+        original_store = Image.open('character/store.png')
         resized_store = original_store.resize((50, 50))
         self.photo_store = ImageTk.PhotoImage(resized_store)
-        self.store_button = tk.Button(self.button_frame,image = self.photo_store, text="store", command=self.open_store)
+        self.store_button = tk.Button(self.button_frame,image = self.photo_store, command=self.open_store)
         #self.store_button.pack(relx=0.235, rely=0.68, anchor='se')
         self.store_button.pack(side=tk.TOP, pady=6)
         
