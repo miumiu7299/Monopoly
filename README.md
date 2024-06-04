@@ -54,7 +54,7 @@ This game is a multiplayer game where players can choose to play with 2 to 4 pla
 - **黃禹辰**: Player selection interface and File I/O and map settings and game flow
 - **羅鈺婷**: Gacha store and game flow 
 - **葉珈妤**: Presentation and map settings and game flow
-- **劉亮萱**: Map settings and game flow
+- **劉亮萱**: Presentation and map settings and game flow
 - **呂沛珍**: Chance or Fate settings and soud effect and game flow
 
 ## License
