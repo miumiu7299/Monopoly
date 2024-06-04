@@ -253,6 +253,9 @@ class MonopolyGame:
             elif property.type == "fattokilled":
                 self.ui.magic_card(player, property)
                 self.ui.add_message(f"{player.name} landed on a Fat->killed space , you are so fat that you will get killed!!!")
+            elif property.type == "start":
+                self.ui.magic_card(player, property)
+                self.ui.add_message(f"{player.name} landed on start , get reward!!")
             elif property.type == "hospital":
                 self.ui.magic_card(player, property)
                 self.ui.add_message(f"{player.name} landed on a Hospital space and stays for one turn.")
@@ -1078,13 +1081,17 @@ class MonopolyUI:
         #self.player_name_var = tk.StringVar()
         #self.player_name_entry = tk.Entry(self.main_frame, textvariable=self.player_name_var)
         #self.player_name_entry.place(relx=0.5, rely=0.4, anchor='center')
-
-        
-
-        self.next_turn_button = tk.Button(self.button_frame, text="丟骰子", command=self.next_turn)
+        #text="丟骰子"
+        original_image = Image.open('character/5.png')
+        resized_image = original_image.resize((50, 50))  # 調整圖片大小為100x100像素
+        self.photo = ImageTk.PhotoImage(resized_image)
+        self.next_turn_button = tk.Button(self.button_frame, image = self.photo, command=self.next_turn)
         self.next_turn_button.pack(side=tk.TOP, pady=5)
-
-        self.store_button = tk.Button(self.button_frame, text="商店", command=self.open_store)
+        
+        original_store = Image.open('character/start.png')
+        resized_store = original_store.resize((50, 50))
+        self.photo_store = ImageTk.PhotoImage(resized_store)
+        self.store_button = tk.Button(self.button_frame,image = self.photo_store, text="store", command=self.open_store)
         #self.store_button.pack(relx=0.235, rely=0.68, anchor='se')
         self.store_button.pack(side=tk.TOP, pady=6)
         
@@ -1290,7 +1297,9 @@ class MonopolyUI:
             img = Image.open("character/hospital.png")
         elif property.type == "magiccard":
             img = Image.open("character/magic_card.png")
-            
+        elif property.type == "start":
+            img = Image.open("character/start.png")
+                
         img = img.resize((250, 250))  # Resize if needed
         photo = ImageTk.PhotoImage(img)
         label = tk.Label(top, image=photo,width=300,height=300)
@@ -1307,8 +1316,10 @@ class MonopolyUI:
             tk.Label(top, text=f"{player.name} landed on a Magic Card space and get $100 for reward <3").pack()
         elif property.type == "jail":
             tk.Label(top, text=f"{player.name} landed on a Jail space and stays for one turn.").pack()
+        elif property.type == "jail":
+            tk.Label(top, text=f"{player.name} landed on start space and get reward.").pack()
 
-        top.after(2500, top.destroy)        
+        top.after(4000, top.destroy)        
 
     def ask_to_buy_property(self, player, property):
         food_image_paths = [
