@@ -684,6 +684,7 @@ class CardUser:
                 i.in_jail = True
                 self.update_player_piece_position(i)
                 messagebox.showinfo("Successful", f"{self.target_name} go to prison.")
+                self.update_player_list()
                 break
 
     def select_player_hospital(self):
@@ -703,6 +704,7 @@ class CardUser:
                 i.in_hospital = True
                 self.update_player_piece_position(i)
                 messagebox.showinfo("Successful", f"{self.target_name} go to hospital.")
+                self.update_player_list()
                 break
     
     def move_3_steps(self):
@@ -713,6 +715,7 @@ class CardUser:
             self.players.in_jall = True
         if self.players.position > 25:
             self.players.position-=25
+        self.update_player_list()
 
         self.update_player_piece_position(self.players)
     def select_player_Block_Opponent(self):
