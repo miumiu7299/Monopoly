@@ -71,6 +71,7 @@ class Player:
         self.is_emergency = False
         self.has_jail_free_card = False
         self.Block_Opponent = False
+        self.double_steps = False
         
 
     def move(self, steps, board_size,ui):
@@ -208,6 +209,9 @@ class MonopolyGame:
             return
         
         steps = self.roll_dice()
+        if current_player.double_steps:
+            steps*=2
+            current_player.double_steps = False
         current_player.move(steps, self.board_size,self.ui)
         self.ui.next_turn_button.config(state=tk.NORMAL)
         self.ui.update_status_label(f"{current_player.name} rolled a {steps} and moved to position {current_player.position}.")
@@ -635,12 +639,8 @@ class CardUser:
             self.move_3_steps()
         elif self.selected_card == "Steal Money":
             self.steal_money()
-        #elif self.selected_card == "Immunity":
-            #print()
-        elif self.selected_card == "Alliance":
-            print()
-        #elif self.selected_card == "Wizard":
-            #print()
+        elif self.selected_card == "Double Roll":
+            self.double_roll()
         elif self.selected_card == "Attack":
             self.select_player_hospital()
         elif self.selected_card == "Prison":
@@ -730,7 +730,13 @@ class CardUser:
         for i in self.all_players:
             if str(self.target_name)==str(i.name):
                 i.Block_Opponent = True
-        
+                break
+    def double_roll(self):
+        self.target_name = self.players.name
+        for i in self.all_players:
+            if str(self.target_name)==str(i.name):
+                i.double_steps = True
+                break
 class ChanceUI:
     def __init__(self,parent, on_close_callback):
         self.drawn_card_result = None  # 在 __init__ 方法中添加這行
@@ -1234,7 +1240,7 @@ class MonopolyUI:
             "Steal Money": "picture/steal_card.png",
             "Double Roll": "picture/doubleroll_card.png",
             #"Immunity": "picture/immune_card.png",
-            "Alliance": "picture/Allliance_card.png",
+            #"Alliance": "picture/Allliance_card.png",
             #"Wizard": "picture/Wizard_card.png",
             "Attack":"picture/Attack_card.png",
             "Prison":"picture/Prison_card.png"
@@ -1245,7 +1251,7 @@ class MonopolyUI:
             {"name": "Steal Money", "description": "Steal $50 from another player.", "price": 75, "image": card_image_paths["Steal Money"]},
             {"name": "Double Roll", "description": "Roll the dice twice on your next turn.", "price": 150, "image": card_image_paths["Double Roll"]},
             #{"name": "Immunity", "description": "Immune to any blocks for one turn.", "price": 200, "image": card_image_paths["Immunity"]},
-            {"name": "Alliance", "description": "No tolls will be collected from each other for 1 round.", "price": 500, "image": card_image_paths["Alliance"]},
+            #{"name": "Alliance", "description": "No tolls will be collected from each other for 1 round.", "price": 500, "image": card_image_paths["Alliance"]},
             #{"name": "Wizard", "description": "Choose to use magic on a player to make 5 of his cards disappear!", "price": 999, "image": card_image_paths["Wizard"]}
             {"name": "Attack", "description": "Attack a player and send him to the emergency room", "price": 450, "image": card_image_paths["Attack"]},
             {"name": "Prison", "description": "Send a player to jail", "price": 550, "image": card_image_paths["Prison"]}
