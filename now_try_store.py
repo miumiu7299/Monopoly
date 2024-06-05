@@ -1428,7 +1428,7 @@ class MonopolyUI:
         elif property.type == "hospital":
             tk.Label(top, text=f"{player.name} landed on a Hospital space and stays for one turn.").pack()
         elif property.type == "magiccard":
-            tk.Label(top, text=f"{player.name} landed on a Magic Card space and get $100 for reward <3").pack()
+            tk.Label(top, text=f"{player.name} landed on a Magic Card space and get a fortune for reward <3").pack()
         elif property.type == "jail":
             tk.Label(top, text=f"{player.name} landed on a Jail space and stays for one turn.").pack()
         elif property.type == "jail":
