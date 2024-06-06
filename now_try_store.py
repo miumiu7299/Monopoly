@@ -2,13 +2,10 @@ import tkinter as tk
 from tkinter import messagebox
 import random
 from PIL import Image, ImageTk,ImageSequence
-import os
-from tkinter import PhotoImage
 import time
 from globals import Globals
 import pickle
 import subprocess
-from tkinter import simpledialog
 
 class Globals:
     selected_characters = {}
@@ -163,7 +160,6 @@ class MonopolyGame:
                 properties.append(Property(f"便當 {i}", 80))
             elif i in [0]: 
                 properties.append(Property(f"Start {i}", 0))
-        #return []
         return properties
 
     def add_player(self, player):
@@ -282,7 +278,6 @@ class MonopolyGame:
                         self.ui.magic_card(player, property)
                         self.ui.add_message(f"{player.name} landed on a Jail space and stays for one turn.")
                         player.in_jail = True
-                #self.ui.update_player_list()
 
             elif property.owner is None:
                 if player.position != 0:
@@ -356,8 +351,6 @@ class MonopolyGame:
                 messagebox.showinfo("Bankrupt", f"{player.name} does not have enough money  and is bankrupt.")
                 self.end_game()
                 self.ui.game_over() 
-            #player.update_money(amount)
-            #self.ui.add_message(f"{player.name} drew a Destiny card and the result was: {result}")
             self.ui.update_player_list()
         self.chance_fate_ui_instance = ChanceUI(self.ui.root, on_close)
         
@@ -405,7 +398,6 @@ class MonopolyGame:
                 current_player.skip_turns = 2
                 self.ui.update_status_label(f"{current_player.name}  skips this turn.")
                 self.ui.update_player_list()
-                #self.current_turn = (self.current_turn + 1) % len(self.players)
                 return
             elif result =="這樣算賄賂嗎[獲得一次免進監獄牌（保留此張牌直到使用完）]":
                 current_player.has_jail_free_card = True
@@ -420,8 +412,6 @@ class MonopolyGame:
                 messagebox.showinfo("Bankrupt", f"{player.name} does not have enough money  and is bankrupt.")
                 self.end_game()
                 self.ui.game_over() 
-            #player.update_money(amount)
-            #self.ui.add_message(f"{player.name} drew a Destiny card and the result was: {result}")
             self.ui.update_player_list()
         self.chance_fate_ui_instance = FateUI(self.ui.root, on_close)
 
@@ -453,8 +443,6 @@ class CardSelectionWindow():
         self.current_player = None
         self.players.money = self.players.money
         self.player_texts =player_texts
-        #self.players.name = self.players.name
-        #self.ui = ui
         self.all_players = all_players
         print(self.players.money)
         self.store_window.title("Gotcha Store")
@@ -568,15 +556,9 @@ class CardSelectionWindow():
         if self.players.money >= card["price"]:
             self.players.money -= card["price"]
             self.update_player_list()
-            #Globals.money = self.players[self.current_player]  # Update Globals money
-            #self.add_message(f"{self.players.name} bought the card: {card['name']}", "green")
-            #self.show_message(f"Purchase Successful: You bought the card: {card['name']}", "green")
             messagebox.showinfo("Purchase Successful", f"You bought the card: {card['name']}", parent=self.store_window)
             self.select_card(card['name'])
         else:
-            #self.add_message(f"{self.players.name} do not have enough money to buy this card.")
-            #self.show_message("Insufficient Funds", "You do not have enough money to buy this card.")
-    
             messagebox.showinfo("Insufficient Funds", "You do not have enough money to buy this card.", parent=self.store_window)
             self.set_buy_card_result("")
 
@@ -666,7 +648,6 @@ class CardUser:
                     break
                 else:
                     messagebox.showinfo("Steal Failed", f"{self.target_name} does not have enough money.")
-                    #self.steal_money()
     def select_player_prison(self):
         self.master = tk.Toplevel()
         self.target_name = ""
@@ -740,7 +721,6 @@ class CardUser:
 class ChanceUI:
     def __init__(self,parent, on_close_callback):
         self.drawn_card_result = None  # 在 __init__ 方法中添加這行
-        #self.win = tk.Tk()
         self.on_close_callback = on_close_callback
         self.win = tk.Toplevel(parent)
         self.win.title("Flashing Button Example")
@@ -826,7 +806,6 @@ class ChanceUI:
         self.gif_label = tk.Label(self.win)
         self.gif_label.grid(row=0, column=0, columnspan=5, pady=20)
         self.animate_gif()
-        #self.animate_gif(self.gif_label,self.frames, delay=100)
         self.win.after(3600, self.show_cards)
         self.win.grid_columnconfigure(0, weight=1)
         self.win.grid_columnconfigure(1, weight=1)
@@ -882,7 +861,6 @@ class ChanceUI:
         self.card_function_label.config(text=message, bg="#f0f0f0")
         self.card_function_label.grid(row=10, columnspan=5)
         confirm_button = tk.Button(self.win, text="確認", font=("Helvetica", 17), command=self.win.destroy)
-        #confirm_button = tk.Button(self.win, text="確認", font=("Helvetica", 17), command=self.on_close)
         confirm_button.grid(row=11, columnspan=5, pady=(10, 60))
         print(message)
         return message
@@ -1009,7 +987,6 @@ class FateUI:
         self.gif_label = tk.Label(self.win)
         self.gif_label.grid(row=0, column=0, columnspan=5, pady=20)
         self.animate_gif()
-        #self.animate_gif(self.gif_label,self.frames, delay=100)
         self.win.after(3600, self.show_cards)
         self.win.grid_columnconfigure(0, weight=1)
         self.win.grid_columnconfigure(1, weight=1)
@@ -1066,7 +1043,6 @@ class FateUI:
         self.card_function_label.config(text=message, bg="#f0f0f0")
         self.card_function_label.grid(row=10, columnspan=5)
         confirm_button = tk.Button(self.win, text="確認", font=("Helvetica", 17), command=self.win.destroy)
-        #confirm_button = tk.Button(self.win, text="確認", font=("Helvetica", 17), command=self.on_close)
         confirm_button.grid(row=11, columnspan=5, pady=(10, 60))
         print(message)
         return message
@@ -1111,9 +1087,7 @@ class MonopolyUI:
         self.root.title("大富翁遊戲")
         self.root.geometry("1600x900")  # 假設全螢幕或足夠大的解析度
         self.store_app = None
-        #self.chance_fate_ui = ChanceFateUI()  # 創建ChanceFateUI的實例
         self.game = MonopolyGame(self)
-        #self.game = MonopolyGame(self,self.chance_fate_ui)
         self.image_labels = {}
         self.player_pieces = {}
         self.cell_colors = {}  # Dictionary to store the color of each cell
@@ -1202,10 +1176,6 @@ class MonopolyUI:
         self.button_frame = tk.Frame(self.main_frame)
         self.button_frame.place(relx=0.7, rely=0.4, anchor='center')
 
-        #self.player_name_var = tk.StringVar()
-        #self.player_name_entry = tk.Entry(self.main_frame, textvariable=self.player_name_var)
-        #self.player_name_entry.place(relx=0.5, rely=0.4, anchor='center')
-        #text="丟骰子"
         original_image = Image.open('character/5.png')
         resized_image = original_image.resize((50, 50))  # 調整圖片大小為100x100像素
         self.photo = ImageTk.PhotoImage(resized_image)
@@ -1239,9 +1209,6 @@ class MonopolyUI:
             "Get Boost": "picture/fast_card.png",
             "Steal Money": "picture/steal_card.png",
             "Double Roll": "picture/doubleroll_card.png",
-            #"Immunity": "picture/immune_card.png",
-            #"Alliance": "picture/Allliance_card.png",
-            #"Wizard": "picture/Wizard_card.png",
             "Attack":"picture/Attack_card.png",
             "Prison":"picture/Prison_card.png"
         }
@@ -1250,9 +1217,6 @@ class MonopolyUI:
             {"name": "Get Boost", "description": "Move forward 3 extra spaces on your next turn.", "price": 100, "image": card_image_paths["Get Boost"]},
             {"name": "Steal Money", "description": "Steal $50 from another player.", "price": 75, "image": card_image_paths["Steal Money"]},
             {"name": "Double Roll", "description": "Roll the dice twice on your next turn.", "price": 150, "image": card_image_paths["Double Roll"]},
-            #{"name": "Immunity", "description": "Immune to any blocks for one turn.", "price": 200, "image": card_image_paths["Immunity"]},
-            #{"name": "Alliance", "description": "No tolls will be collected from each other for 1 round.", "price": 500, "image": card_image_paths["Alliance"]},
-            #{"name": "Wizard", "description": "Choose to use magic on a player to make 5 of his cards disappear!", "price": 999, "image": card_image_paths["Wizard"]}
             {"name": "Attack", "description": "Attack a player and send him to the emergency room", "price": 450, "image": card_image_paths["Attack"]},
             {"name": "Prison", "description": "Send a player to jail", "price": 550, "image": card_image_paths["Prison"]}
         ]
@@ -1323,12 +1287,8 @@ class MonopolyUI:
                     
                     rect = self.board_canvas.create_rectangle(x1, y1, x2, y2, fill='white', outline=outline_color)
                     # Store the rectangle ID
-                    #for index in cell_indices:
-
-                    #self.cell_colors[cell_index] = rect
                     self.cell_colors[property_index] = rect
                     self.board_canvas.tag_bind(rect, '<Button-1>', lambda event, name=cell_name, cost=cost_name, image_path=food_image_paths[food_image_pic]: self.show_cell_name_picture(name, cost, image_path))
-                    #print(property_index,rect)
                     self.board_canvas.create_text((x1 + x2) / 2, (y1 + y2) / 2, text=list_name, fill="black", font=("Arial", 12, "bold"))
                     food_image_pic += 1
                     
@@ -1563,11 +1523,7 @@ class MonopolyUI:
         
         property_index = self.game.properties.index(property)
         property_index = self.cell_to_property_index2[property_index]
-
-        '''
-        property_index = self.get_key(self.cell_to_property_index,property_index)
         
-        '''
         print(f"pro :{property_index }") 
     
         
@@ -1597,7 +1553,7 @@ class MonopolyUI:
         else:
             self.root.quit()
             self.root.destroy() 
-            #self.reset_game()  # 關閉遊戲視窗
+
 
     def reset_game(self):
         self.root.quit()
