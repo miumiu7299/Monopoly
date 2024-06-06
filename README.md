@@ -51,7 +51,7 @@ This game is a multiplayer game where players can choose to play with 2 to 4 pla
 - The game ends when a player goes bankrupt. The remaining player with the most money wins.
 
 ## Team Contributions
-- **黃禹辰**: Player selection interface and File I/O and map settings and game flow
+- **黃禹晨**: Player selection interface and File I/O and map settings and game flow
 - **羅鈺婷**: Gacha store and game flow 
 - **葉珈妤**: Presentation and map settings and game flow
 - **劉亮萱**: Presentation and map settings and game flow
